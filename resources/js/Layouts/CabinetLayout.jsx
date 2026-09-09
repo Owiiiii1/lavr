@@ -1,4 +1,3 @@
-import ImpersonationBanner from '@/Components/ImpersonationBanner';
 import { Link, router, usePage } from '@inertiajs/react';
 import { LogOut, Menu, MessageSquarePlus, Sparkles, UserCircle2, X } from 'lucide-react';
 import { useState } from 'react';
@@ -6,7 +5,7 @@ import { useState } from 'react';
 export default function CabinetLayout({ children }) {
     const { auth, owlAdmin = {}, conversations = [], conversation = null, user: pageUser = {} } = usePage().props;
     const user = auth?.user;
-    const brandName = owlAdmin?.brand_name ?? 'Jarvis';
+    const brandName = owlAdmin?.brand_name ?? 'LAVR';
     const logoPath = owlAdmin?.logo_path ?? '/images/company-logo.svg';
     const currentId = conversation?.id ?? null;
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -118,7 +117,6 @@ export default function CabinetLayout({ children }) {
 
     return (
         <div className="h-screen bg-[#F4EFE4] text-slate-900">
-            <ImpersonationBanner />
             <div className="flex h-full">
                 <aside className="hidden w-72 shrink-0 border-r border-slate-200 lg:block">{sidebar}</aside>
 

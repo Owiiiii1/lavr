@@ -53,8 +53,10 @@ class NotificationInboxTest extends TestCase
         $owner = $this->user(UserRole::Owner);
         $user = $this->user(UserRole::User, 2);
 
-        $this->assertSame('/jarvis/chats/9?task=1', $policy->workspacePath($owner, 'task=1', 9));
-        $this->assertSame('/chat?notifications=1', $policy->workspacePath($user, 'notifications=1'));
+        $this->assertSame('/lavr/chats/9?task=1', $policy->workspacePath($owner, 'task=1', 9));
+        $this->assertSame('/lavr?notifications=1', $policy->workspacePath($user, 'notifications=1'));
+        $this->assertTrue($policy->isSafe('/lavr/chats/9'));
+        $this->assertTrue($policy->isSafe('/lavr?task=1'));
         $this->assertTrue($policy->isSafe('/jarvis/chats/9'));
         $this->assertTrue($policy->isSafe('/chat?task=1'));
         $this->assertFalse($policy->isSafe('https://evil.example/'));

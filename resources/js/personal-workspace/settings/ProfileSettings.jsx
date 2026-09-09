@@ -93,7 +93,7 @@ export default function ProfileSettings({
                         </div>
                     ) : (
                         <p className="text-xs text-slate-500">
-                            Ассистент: {assistantProfile?.presentation_name || 'Jarvis'}
+                            Ассистент: {assistantProfile?.presentation_name || 'LAVR'}
                         </p>
                     )}
                     <button

@@ -1,4 +1,3 @@
-import ImpersonationBanner from '@/Components/ImpersonationBanner';
 import { Head } from '@inertiajs/react';
 
 export default function JarvisWorkspaceLayout({ title, header, sidebar, context, children, sidebarOpen, contextCollapsed, contextDrawer }) {
@@ -6,7 +5,6 @@ export default function JarvisWorkspaceLayout({ title, header, sidebar, context,
         <div className="jarvis-workspace h-screen text-slate-100">
             <Head title={title} />
             <div className="flex h-full min-h-0 flex-col">
-                <ImpersonationBanner />
                 {header}
                 <div className="relative flex min-h-0 flex-1">
                     <aside

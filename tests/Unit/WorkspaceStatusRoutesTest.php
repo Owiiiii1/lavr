@@ -6,10 +6,9 @@ use Tests\TestCase;
 
 class WorkspaceStatusRoutesTest extends TestCase
 {
-    public function test_owner_and_user_workspace_expose_the_same_status_endpoint(): void
+    public function test_canonical_workspace_exposes_the_status_endpoint(): void
     {
-        $this->assertSame('/jarvis/workspace/status', route('jarvis.workspace.status', absolute: false));
-        $this->assertSame('/chat/workspace/status', route('chat.workspace.status', absolute: false));
+        $this->assertSame('/lavr/workspace/status', route('jarvis.workspace.status', absolute: false));
     }
 
     public function test_turn_payload_includes_task_and_notification_counts(): void

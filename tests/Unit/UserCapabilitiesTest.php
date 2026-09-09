@@ -51,9 +51,6 @@ class UserCapabilitiesTest extends TestCase
             [UserCapability::GMAIL],
             [UserCapability::GOOGLE_CALENDAR],
             [UserCapability::GITHUB],
-            [UserCapability::STORAGE],
-            [UserCapability::WEB_RESEARCH],
-            [UserCapability::VOICE],
             [UserCapability::IMPERSONATION],
             [UserCapability::SYSTEM_AI_SETTINGS],
         ];

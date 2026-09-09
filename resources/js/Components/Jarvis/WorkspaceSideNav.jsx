@@ -20,7 +20,7 @@ function formatWhen(iso, timezone) {
 }
 
 export default function WorkspaceSideNav({
-    brandName = 'Jarvis',
+    brandName = 'LAVR',
     conversations = [],
     currentConversationId = null,
     storageActive = false,

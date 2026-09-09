@@ -4,12 +4,14 @@ Product direction as of **M26D** (2026-09-05). Executable next work: [IMPLEMENTA
 
 The old four-phase model (Telegram MVP → Memory → Workspace+Desktop+Voice → conversational intelligence) is **HISTORICAL**. It no longer describes what to build next.
 
-**Primary interactive client:** Web Personal Workspace (`/jarvis` Owner, `/chat` users).  
+**Primary interactive client:** Web Personal Workspace (`/lavr`).  
 **Desktop client:** **CANCELLED**.  
 **Mobile:** optional future companion, **not** current priority.  
 **Voice:** a Web modality. STT/Core/TTS pipeline is **MANUAL PASS**; current capture UX is push-to-talk only.
 **Telegram Voice Replies:** MANUAL PASS.  
 **Telegram Voice Input:** IMPLEMENTED / NOT VALIDATED.
+
+LAVR is a dedicated single-client instance (not SaaS). Multi-user product surface from JARVIS is removed in Phase 1.
 
 ---
 
@@ -19,11 +21,12 @@ The old four-phase model (Telegram MVP → Memory → Workspace+Desktop+Voice �
 
 Includes (in code unless noted):
 
-- Identity / owner vs user / no public registration
+- Identity / single client / no public registration
+- Telegram DM pairing + Chat Selector
 - Telegram DM pairing + Chat Selector
 - Persistent conversations / Conversation Engine
 - Shared Personal Workspace
-- Admin user management + impersonation
+- Admin settings (AI, integrations, Telegram) — not a third-party user catalog
 - AI provider abstraction (Owner Conv / Owner Analysis / Default User Conv)
 - Personal Memory Engine + Context Budget
 - Persistent Storage + ephemeral attachments

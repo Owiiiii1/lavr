@@ -41,7 +41,7 @@ export default function StorageIndex() {
         errors = {},
     } = usePage().props;
 
-    const brandName = owlAdmin?.brand_name ?? 'Jarvis';
+    const brandName = owlAdmin?.brand_name ?? 'LAVR';
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [search, setSearch] = useState(initialQuery);
     const [dragging, setDragging] = useState(false);

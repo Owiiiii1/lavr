@@ -61,7 +61,7 @@ export default function KnowledgeSettings({ surface }) {
         <div className="space-y-4">
             <SettingsCard
                 title="Knowledge"
-                description="Структурированные сущности, связи и события с источниками. Это не Memory: Memory — что Jarvis помнит, Knowledge — что существует и как связано."
+                description="Структурированные сущности, связи и события с источниками. Это не Memory: Memory — что LAVR помнит, Knowledge — что существует и как связано."
             >
                 <input
                     type="search"

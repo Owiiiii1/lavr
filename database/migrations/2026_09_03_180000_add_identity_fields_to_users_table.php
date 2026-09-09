@@ -32,8 +32,8 @@ return new class extends Migration
                         'timezone' => 'Europe/Rome',
                     ]);
             }
-        } elseif ($userCount !== 1) {
-            throw new \RuntimeException(
+        } elseif ($userCount > 1) {
+            throw new RuntimeException(
                 'Unexpected users count during identity migration. Manual review required before promoting owner.'
             );
         }
@@ -41,7 +41,7 @@ return new class extends Migration
         $usersWithoutCode = (int) DB::table('users')->whereNull('access_code')->count();
 
         if ($usersWithoutCode > 0) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Users without access_code remain after owner backfill. Aborting migration.'
             );
         }

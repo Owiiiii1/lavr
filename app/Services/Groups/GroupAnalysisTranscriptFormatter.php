@@ -39,7 +39,7 @@ final class GroupAnalysisTranscriptFormatter
             : '';
         $isBot = $message->role === MessageRole::Assistant
             || (($message->metadata['group_outbound'] ?? false) === true);
-        $sender = $isBot ? 'Jarvis' : (trim((string) $message->sender_name) !== '' ? (string) $message->sender_name : 'Unknown');
+        $sender = $isBot ? 'LAVR' : (trim((string) $message->sender_name) !== '' ? (string) $message->sender_name : 'Unknown');
         $username = $isBot ? null : $message->sender_username;
         $body = $this->body($message);
         $parts = [

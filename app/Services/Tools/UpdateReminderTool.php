@@ -28,7 +28,7 @@ final class UpdateReminderTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Updates an owned Jarvis reminder: text, time, timezone, or recurrence. If several reminders match, do not guess — call list_reminders and ask. Never pass user_id.',
+            description: 'Updates an owned LAVR reminder: text, time, timezone, or recurrence. If several reminders match, do not guess — call list_reminders and ask. Never pass user_id.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

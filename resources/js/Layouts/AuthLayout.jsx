@@ -2,7 +2,7 @@ import { usePage } from '@inertiajs/react';
 
 export default function AuthLayout({ children }) {
     const { owlAdmin = {}, locale = 'en' } = usePage().props;
-    const brandName = owlAdmin.brand_name ?? 'Jarvis';
+    const brandName = owlAdmin.brand_name ?? 'LAVR';
     const logoPath = owlAdmin.logo_path ?? '/images/company-logo.svg';
 
     const copy = {

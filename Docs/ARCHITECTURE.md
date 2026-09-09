@@ -3,7 +3,7 @@
 Source of truth is production code plus Owner-confirmed validation. Phases: [ROADMAP.md](ROADMAP.md).
 
 ```
-                    Jarvis Core
+                    LAVR Core
                          |
      +-------------------+-------------------+
      |                   |                 |
@@ -11,8 +11,7 @@ Source of truth is production code plus Owner-confirmed validation. Phases: [ROA
  Web Personal         Telegram         Integrations
  Workspace            adapter           / tools
  (PRIMARY)            (DM + Groups)
-  /jarvis Owner
-  /chat   User
+  /lavr
      |
      +-- Text
      +-- Voice (modality)
@@ -39,10 +38,9 @@ Desktop client: CANCELLED. Not a node in this architecture.
 
 | Surface | Route | Role |
 | --- | --- | --- |
-| Owner Workspace | `/jarvis` | Owner talks to Jarvis |
-| User Workspace | `/chat` | Ordinary users |
+| Personal Workspace | `/lavr` | the single client talks to LAVR |
 | Admin Panel | `/dashboard` | Technical management, not chat |
-| `/cabinet` | compatibility redirects / leftover cabinet APIs | not the product name |
+| `/jarvis`, `/chat`, `/cabinet` | compatibility redirects | not the product name |
 
 Voice is a **modality** of that workspace over an existing `conversation_id`. It is not a separate client or assistant.
 

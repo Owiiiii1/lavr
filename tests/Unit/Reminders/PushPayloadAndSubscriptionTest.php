@@ -29,15 +29,15 @@ class PushPayloadAndSubscriptionTest extends TestCase
 
         $this->assertTrue($builder->isBounded($payload));
         $this->assertSame(44, $payload['reminder_id']);
-        $this->assertSame('JARVIS', $payload['title']);
-        $this->assertSame('/chat/chats/9?reminder=44', $payload['url']);
+        $this->assertSame('LAVR', $payload['title']);
+        $this->assertSame('/lavr/chats/9?reminder=44', $payload['url']);
         $this->assertArrayNotHasKey('prompt', $payload);
         $this->assertArrayNotHasKey('token', $payload);
         $this->assertFalse($builder->isAllowlisted('https://evil.example/phish'));
         $this->assertFalse($builder->isAllowlisted('/settings'));
     }
 
-    public function test_owner_payload_uses_jarvis_route(): void
+    public function test_owner_payload_uses_canonical_workspace_route(): void
     {
         $owner = $this->user(UserRole::Owner);
         $reminder = new Reminder;
@@ -45,7 +45,7 @@ class PushPayloadAndSubscriptionTest extends TestCase
 
         $payload = (new PushPayloadBuilder)->payload($reminder, $owner, '2026-09-06T12:00:00+00:00');
 
-        $this->assertSame('/jarvis?reminder=3', $payload['url']);
+        $this->assertSame('/lavr?reminder=3', $payload['url']);
     }
 
     public function test_foreign_subscription_is_inaccessible(): void

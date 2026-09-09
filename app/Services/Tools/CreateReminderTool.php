@@ -36,7 +36,7 @@ final class CreateReminderTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Создаёт персональное напоминание, когда пользователь сам должен что-то сделать в известное время («напомни мне проверить почту»), без Telegram как обязательного условия. Если Jarvis должен сам прислать отчёт в известное время — create_scheduled_report. Если Jarvis должен следить за событием («жди письмо») — create_watcher. Telegram и Web Push — независимые каналы доставки. Поддерживает recurrence: daily, weekdays, weekly, monthly.',
+            description: 'Создаёт персональное напоминание, когда пользователь сам должен что-то сделать в известное время («напомни мне проверить почту»), без Telegram как обязательного условия. Если LAVR должен сам прислать отчёт в известное время — create_scheduled_report. Если LAVR должен следить за событием («жди письмо») — create_watcher. Telegram и Web Push — независимые каналы доставки. Поддерживает recurrence: daily, weekdays, weekly, monthly.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

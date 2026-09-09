@@ -1,11 +1,15 @@
-# Jarvis — current implementation snapshot
+# LAVR — current implementation snapshot
 
-**Date:** 2026-09-09 (Scheduled Reports — morning body + calendar DI fix)
-**Host path:** `/var/www/jarvis`  
-**Public URL:** https://jarvis.owlsolutions.net  
-**GitHub:** https://github.com/Owiiiii1/JARVIS.git
+**Date:** 2026-09-09 (Phase 1 dedicated instance + Scheduled Reports morning body / mail digest / reasoning-model phrasing budget)
+**Product:** LAVR, created from JARVIS
+**Host path:** `/var/www/lavr`
+**Public URL:** https://lavr.youngfashionshow.com
+**GitHub:** https://github.com/Owiiiii1/lavr.git
+**Model:** one client → one personal assistant → one production instance. Not SaaS. No third-party user registration.
 
-This file is a **runtime snapshot**. If it disagrees with older milestone prose, this file and the code win.
+This file is a **runtime snapshot**. If it disagrees with older milestone prose, this file and the code win. JARVIS multi-user / ordinary-user validation notes below are **historical origin**, not current LAVR product rules.
+
+See [LAVR_MIGRATION.md](LAVR_MIGRATION.md).
 
 ### Status vocabulary
 
@@ -55,12 +59,11 @@ Layer wording after this campaign:
 | B.2 Tasks / Reminder Center as used in the campaign | **MANUAL PASS** for that core productivity chain. Briefs, proactive suggestions, and Notification Center as a full product are not claimed. |
 | Workspace Presentation | **MANUAL PASS** after Scenario 8 revalidation |
 
-**PASS — core ordinary user (M25U.2):**
+**HISTORICAL (JARVIS origin, not LAVR product) — core ordinary user (M25U.2):**
 
-- Owner created an ordinary user via Admin
-- login works
-- `/chat` works
-- normal test requests work
+- JARVIS Owner created an ordinary user via Admin
+- That path is **removed** in LAVR Phase 1
+- LAVR has a single client workspace at `/lavr`
 
 **PASS — Owner Workspace (earlier 2026-09-04):**
 
@@ -74,7 +77,7 @@ Layer wording after this campaign:
 - microphone permission/session starts
 - hold-to-talk recording; release sends the turn
 - Gemini STT
-- Jarvis generates a reply
+- LAVR generates a reply
 - ElevenLabs TTS plays audio
 - each user can select a personal TTS voice
 
@@ -97,26 +100,23 @@ The former hands-free «Диалог» VAD capture was removed from Рация. 
 | Item | Value |
 | --- | --- |
 | Branch | `main` |
-| HEAD | `main`, aligned with `origin/main` after Core Daily Workflow documentation close-out |
-| Origin | `https://github.com/Owiiiii1/JARVIS.git` |
+| Origin | `https://github.com/Owiiiii1/lavr.git` |
 
-Production checkout is the GitHub source of truth. Gemini STT request-shape and bounded ElevenLabs voice fallback are committed. Laravel Boost is require-dev tooling in a separate commit. `.env` stays gitignored.
+This checkout is the LAVR source of truth. Do not push to `Owiiiii1/JARVIS`. `.env` stays gitignored.
 
 ---
 
 ## 2. Runtime / stack
 
-| Component | Actual |
+Runtime on this dedicated host is verified at Phase 1 (see `Docs/Development/LAVR_PHASE_1_REPORT.md`). Do not copy JARVIS PHP 8.5 / MySQL `jarvis` assumptions blindly.
+
+| Component | This LAVR host (2026-09-09) |
 | --- | --- |
-| OS | Ubuntu 24.04 LTS |
-| PHP CLI / FPM | 8.5.8 (`php8.5-fpm.sock`) |
-| Laravel | 13.30.1 |
-| Composer | 2.7.x |
-| Database | MySQL 8.0, database `jarvis` |
-| Redis | **not used** (cache/session/queue = database) |
-| Queue | `database` |
-| APP_ENV | `production` |
-| APP_DEBUG | `false` |
+| OS | Ubuntu 24.04.4 LTS |
+| Project path | `/var/www/lavr` |
+| Public URL | https://lavr.youngfashionshow.com |
+| APP_NAME | LAVR |
+| Product model | single-client / single-user |
 
 Composer (relevant): `owlsolutions/custom-admin-kit` v0.5.0, Inertia, Ziggy, Nutgram (transitive via kit).
 
@@ -128,9 +128,9 @@ AI / Telegram / ElevenLabs credentials: encrypted DB columns, not `.env`. Do not
 
 | Item | Actual |
 | --- | --- |
-| Domain | `jarvis.owlsolutions.net` |
-| nginx | `/var/www/jarvis/public`, HTTP→HTTPS |
-| TLS | Let's Encrypt |
+| Domain | `lavr.youngfashionshow.com` (LAVR vhost/SSL still require root on this host; see Phase 1 report) |
+| Document root | `/var/www/lavr/public` |
+| TLS | Let's Encrypt planned for the LAVR vhost; not installed in Phase 1 without sudo |
 | Scheduler | crontab `schedule:run`; `jarvis:reminders:dispatch` every minute; `jarvis:tasks:dispatch` / `jarvis:proactive:dispatch` every 5 minutes; `jarvis:briefs:dispatch` every minute; attachment purge hourly; `jarvis:voice:cleanup-temp` every 5 minutes; `jarvis:reliability:recover-stale` every 15 minutes; fallback `queue:work` for `analysis,memory,default` (`--timeout=180`). Long-running worker: `jarvis-queue.service` same queues. |
 | Telegram queue | deploy-user crontab `flock` worker (host-specific) |
 
@@ -155,12 +155,12 @@ See [DATABASE.md](DATABASE.md).
 | Surface | Path | Status |
 | --- | --- | --- |
 | Login | `/` | IMPLEMENTED |
-| Owner Workspace | `/jarvis` | PRIMARY, MANUAL PASS (selected flows + Core Daily Workflow) |
-| User Workspace | `/chat` | MANUAL PASS (core) |
+| Personal Workspace | `/lavr` | PRIMARY (Phase 1 canonical) |
+| `/jarvis`, `/chat` | compatibility GET redirects to `/lavr` | LEGACY |
 | `/cabinet` | compatibility redirects + leftover JSON | LEGACY |
 | Admin | `/dashboard`, `/settings/*` | IMPLEMENTED |
 | Voice | workspace Text/Voice + `/…/voice/sessions/*` | MANUAL PASS |
-| Storage page | `/jarvis/storage` | Owner-only, IMPLEMENTED |
+| Storage page | `/lavr/storage` | IMPLEMENTED |
 | Projects | `/projects` | Owner, IMPLEMENTED |
 | Telegram Groups | `/telegram-groups` | Owner, IMPLEMENTED / NOT VALIDATED |
 | Desktop | — | CANCELLED |
@@ -171,7 +171,7 @@ Frontend: `resources/js/personal-workspace/PersonalWorkspace.jsx` shared, with S
 
 Main Workspace is chat + Task / Reminder / Watcher / **Report** / Notification centers + compact **Обзор** (Сегодня и ближайшее / Нужно внимание / Жду / Что изменилось / Открытая работа) + Voice + compact **Настройки**. Memory and Integrations are **not** on the main screen; they live in Settings.
 
-Workspace conversation delete is implemented for Owner and ordinary users. Sidebar overflow menu → confirmation dialog → `DELETE /jarvis/chats/{conversation}` or `DELETE /chat/chats/{conversation}`. Own personal conversations only (`ensureOwned`; Owner is not a bypass for someone else’s chat). Group conversations are 404. Hard delete of the chat and child messages/ephemeral screenshots; tasks, reminders, projects, persistent Storage files, durable memories, and Knowledge entities survive with sources detached. Deleting the open chat switches to the latest remaining personal chat, or creates `Основной` if none remain. No full page reload. **MANUAL PASS** (original Workspace delete + Core Daily Workflow Scenario 10 regression).
+Workspace conversation delete is implemented for the single client account. Sidebar overflow menu → confirmation dialog → `DELETE /lavr/chats/{conversation}` (legacy `/jarvis` and `/chat` GET paths redirect). Own personal conversations only (`ensureOwned`). Group conversations are 404. Hard delete of the chat and child messages/ephemeral screenshots; tasks, reminders, projects, persistent Storage files, durable memories, and Knowledge entities survive with sources detached. Deleting the open chat switches to the latest remaining personal chat, or creates `Основной` if none remain. No full page reload. **MANUAL PASS** (original Workspace delete + Core Daily Workflow Scenario 10 regression).
 
 Phase C.1 Conversation Intelligence is **MANUAL PASS for the tested continuation / reference / clarification behavior**. Same Conversation Engine. Derived working context (topic mode, recent entities, trusted recent tool refs, temporary style) plus clarification/initiative policy. Mutation tools do not guess ids. Web composer can send a new message while a previous turn is thinking; stale JSON is ignored. Server generation is not cancelled. Full Conversation Intelligence coverage is **not** claimed.
 
@@ -189,15 +189,15 @@ Authoritative-domain precedence applies to the derived slices, not only to the n
 
 Workspace Settings sections: Profile, Assistant, Memory, Knowledge, Productivity, Voice, Integrations. Desktop: nav + detail. Mobile: list → detail. Direct section: `?settings=memory` / `?settings=knowledge` / `?settings=integrations` on first load (allowlist only). Opening Settings from the UI does not rewrite `history.state`, so the chat list stays intact.
 
-After a successful foreground chat turn, badges and open panels refresh via `GET /jarvis/workspace/status` and `GET /chat/workspace/status` plus turn-payload counts. A mutation made directly in the Tasks / Reminders / Watchers panel also refreshes an open **Обзор**. No page reload, no polling, no WebSocket. Scheduler events still appear on next open / Push / navigation.
+After a successful foreground chat turn, badges and open panels refresh via `GET /lavr/workspace/status` plus turn-payload counts. A mutation made directly in the Tasks / Reminders / Watchers panel also refreshes an open **Обзор**. No page reload, no polling, no WebSocket. Scheduler events still appear on next open / Push / navigation.
 
-Regular user capabilities: chat, memory, knowledge, watchers, **scheduled_reports**, telegram_dm, reminders, tasks, notifications, cabinet, personal_workspace, profile, web_research, voice, storage. **Not** projects, admin, Google, GitHub. User Settings → Integrations shows Telegram pairing only. External (Gmail/Calendar/GitHub) watchers remain Owner-only.
+LAVR is a single-client instance: there is no ordinary-user product surface. The working client uses the personal workspace plus admin/system settings. Capability flags remain in code as origin/legacy; they are not a second-user product. External (Gmail/Calendar/GitHub) watchers stay on the client account that owns the integrations.
 
 ---
 
 ## 6. Voice
 
-Committed path: two Web modes. **Рация** (default): push-to-talk, Gemini STT, ElevenLabs HTTP TTS, responsive Orb — Owner MANUAL PASS for the core pipeline. **Диалог Beta**: ElevenLabs realtime transport + Jarvis Custom LLM adapter — IMPLEMENTED / NOT VALIDATED; disabled unless env is configured. Admin Voice panel shows Realtime Conversation Configured / Not configured. Each user chooses one of six curated voices in Workspace settings (`users.voice_id`); Beta passes it as an Agent TTS override when the catalog matches. Empty Gemini `audioTranscriptionConfig` is sent as JSON `{}`. If a selected ElevenLabs voice is unavailable on the account, TTS makes at most one fallback request to the instance/default voice; auth, quota, rate-limit, and generic server errors do not retry. Live Gemini/ElevenLabs validation was not run. [VOICE_ARCHITECTURE.md](VOICE_ARCHITECTURE.md).
+Committed path: two Web modes. **Рация** (default): push-to-talk, Gemini STT, ElevenLabs HTTP TTS, responsive Orb — Owner MANUAL PASS for the core pipeline. **Диалог Beta**: ElevenLabs realtime transport + LAVR Custom LLM adapter — IMPLEMENTED / NOT VALIDATED; disabled unless env is configured. Admin Voice panel shows Realtime Conversation Configured / Not configured. Each user chooses one of six curated voices in Workspace settings (`users.voice_id`); Beta passes it as an Agent TTS override when the catalog matches. Empty Gemini `audioTranscriptionConfig` is sent as JSON `{}`. If a selected ElevenLabs voice is unavailable on the account, TTS makes at most one fallback request to the instance/default voice; auth, quota, rate-limit, and generic server errors do not retry. Live Gemini/ElevenLabs validation was not run. [VOICE_ARCHITECTURE.md](VOICE_ARCHITECTURE.md).
 
 Telegram Voice Replies (`sendVoice`): **MANUAL PASS** for delivery; Telegram TTS speed is **IMPLEMENTED / READY FOR OWNER VALIDATION**. Admin Voice/Speech setting `telegram_tts_speed` (default **1.15**, range **0.70…1.20**) applies only to Telegram ElevenLabs HTTP TTS. Web Рация and Диалог Beta are unchanged.
 Telegram Voice Input (DM `Message.voice` → existing Gemini STT → Core): **IMPLEMENTED / NOT VALIDATED**. Groups still store `[voice]` placeholder (no STT). Default Telegram reply mode remains **text**. C.2 does **not** instantiate a realtime ElevenLabs agent on Telegram. [TELEGRAM_VOICE.md](TELEGRAM_VOICE.md).
@@ -206,7 +206,7 @@ Telegram Voice Input (DM `Message.voice` → existing Gemini STT → Core): **IM
 
 ## 7. Personalization (M25U.3)
 
-Table `user_assistant_profiles`. Tools: `get_assistant_profile`, `update_assistant_profile`, `complete_assistant_onboarding`. Owner seeded Jarvis / completed. User onboarding UI exists; Owner confirmed **entry**. Completion E2E not confirmed.
+Table `user_assistant_profiles`. Tools: `get_assistant_profile`, `update_assistant_profile`, `complete_assistant_onboarding`. Default assistant name is **LAVR**. Personal onboarding UI exists; entry was confirmed on origin JARVIS. Completion E2E not confirmed. Third-party user onboarding is removed.
 
 Personal voice preference: nullable `users.voice_id`; effective fallback is the configured instance/default voice. The same selected voice is passed explicitly to Web Voice and Telegram TTS.
 
@@ -246,7 +246,7 @@ Panel presentation: one card per task with its schedule as the secondary line, p
 
 ## 9. Integrations
 
-Code: Google OAuth (Gmail + Calendar tools; **no Drive**), GitHub OAuth + tools, Telegram bot, ElevenLabs TTS, Web Research (`gemini_google` / `tavily` / disabled). Owner-only except Voice/research/storage capabilities for users as listed above. Live Google/GitHub campaign: NOT VALIDATED.
+Code: Google OAuth (Gmail + Calendar tools; **no Drive**), GitHub OAuth + tools, Telegram bot, ElevenLabs TTS, Web Research (`gemini_google` / `tavily` / disabled). Integrations belong to the single client account. Live Google/GitHub campaign: NOT VALIDATED.
 
 Google OAuth **client** configuration (Client ID / Client Secret / Redirect URI) can be managed in Admin → Settings → Integrations → Google. Stored in `google_oauth_settings`; Client Secret encrypted at rest. DB overrides `.env`; `.env` remains fallback. OAuth **account** tokens stay separately encrypted in `integration_accounts`. Admin save is **READY FOR OWNER VALIDATION**, not MANUAL PASS. Cursor did not Connect Google or call Gmail/Calendar.
 

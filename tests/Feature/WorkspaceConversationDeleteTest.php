@@ -20,7 +20,7 @@ class WorkspaceConversationDeleteTest extends TestCase
 
     public function test_guest_is_redirected_from_chat_delete(): void
     {
-        $this->delete(route('chat.chats.destroy', 1))->assertRedirect(route('login'));
+        $this->delete(route('jarvis.chats.destroy', 1))->assertRedirect(route('login'));
         $this->delete(route('jarvis.chats.destroy', 1))->assertRedirect(route('login'));
     }
 
@@ -35,7 +35,7 @@ class WorkspaceConversationDeleteTest extends TestCase
             $remove = $service->createPersonal($user, 'Remove');
             $message = $this->addMessage($remove, $user->id, 'secret note');
 
-            $response = $this->actingAs($user)->deleteJson(route('chat.chats.destroy', $remove->id));
+            $response = $this->actingAs($user)->deleteJson(route('jarvis.chats.destroy', $remove->id));
 
             $response->assertOk();
             $response->assertJsonPath('success', true);
@@ -60,7 +60,7 @@ class WorkspaceConversationDeleteTest extends TestCase
             $foreign = app(ConversationService::class)->createPersonal($owner, 'Private');
 
             $this->actingAs($stranger)
-                ->deleteJson(route('chat.chats.destroy', $foreign->id))
+                ->deleteJson(route('jarvis.chats.destroy', $foreign->id))
                 ->assertNotFound();
 
             $this->assertDatabaseHas('conversations', ['id' => $foreign->id, 'user_id' => $owner->id]);
@@ -107,7 +107,7 @@ class WorkspaceConversationDeleteTest extends TestCase
             ]);
 
             $this->actingAs($user)
-                ->deleteJson(route('chat.chats.destroy', $group->id))
+                ->deleteJson(route('jarvis.chats.destroy', $group->id))
                 ->assertNotFound();
 
             $this->assertDatabaseHas('conversations', ['id' => $group->id, 'kind' => ConversationKind::Group->value]);
@@ -128,7 +128,7 @@ class WorkspaceConversationDeleteTest extends TestCase
             $current = $service->createPersonal($user, 'Current');
             $current->forceFill(['last_activity_at' => now()])->save();
 
-            $response = $this->actingAs($user)->deleteJson(route('chat.chats.destroy', $current->id));
+            $response = $this->actingAs($user)->deleteJson(route('jarvis.chats.destroy', $current->id));
 
             $response->assertOk();
             $response->assertJsonPath('conversation.id', $older->id);

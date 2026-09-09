@@ -47,7 +47,7 @@ const SUGGESTIONS = [
     'Что у меня сегодня?',
     'Проверь календарь',
     'Посмотри новые письма',
-    'Что изменилось в JARVIS?',
+    'Что изменилось в LAVR?',
     'Напомни...',
 ];
 
@@ -269,7 +269,7 @@ export default function PersonalWorkspace() {
     const storageExtensions = jarvisStorage?.allowed_extensions || [];
     const allowedMimes = chatAttachments?.allowed_mime_types || [];
     const retentionHours = Number(chatAttachments?.retention_hours || 24);
-    const productBrand = owlAdmin?.brand_name ?? 'Jarvis';
+    const productBrand = owlAdmin?.brand_name ?? 'LAVR';
     const [mode, setMode] = useState('text');
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [contextCollapsed, setContextCollapsed] = useState(!capabilities.ownerContext);
@@ -883,7 +883,7 @@ export default function PersonalWorkspace() {
             if (caught?.name === 'AbortError' || generation !== turnGenerationRef.current) {
                 return;
             }
-            setError(caught.message || 'Не удалось получить ответ от Jarvis. Попробуйте ещё раз позже.');
+            setError(caught.message || 'Не удалось получить ответ от LAVR. Попробуйте ещё раз позже.');
             setMessages((current) => [
                 ...current.filter((item) => item.id !== optimistic.id),
                 {
@@ -1612,7 +1612,7 @@ export default function PersonalWorkspace() {
                                     {sending ? (
                                         <div className="flex items-center gap-2 text-sm text-slate-400" aria-live="polite">
                                             <Loader2 className="h-4 w-4 animate-spin" />
-                                            Jarvis is thinking...
+                                            LAVR is thinking...
                                         </div>
                                     ) : null}
                                 </div>

@@ -47,7 +47,7 @@ final class CreateWatcherTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Creates an explicit Jarvis watcher for a future condition or event (not a reminder, not a scheduled report). Reminder: “напомни мне проверить почту”. Scheduled report: “каждое утро дай сводку почты / планы на завтра” → create_scheduled_report. Event: “жди письмо от школы / следи за письмами от @example.com / когда Marco ответит” → gmail_message recurring event watcher. Never use knowledge_event for Gmail. Never invent user_id or integration_account_id.',
+            description: 'Creates an explicit LAVR watcher for a future condition or event (not a reminder, not a scheduled report). Reminder: “напомни мне проверить почту”. Scheduled report: “каждое утро дай сводку почты / планы на завтра” → create_scheduled_report. Event: “жди письмо от школы / следи за письмами от @example.com / когда Marco ответит” → gmail_message recurring event watcher. Never use knowledge_event for Gmail. Never invent user_id or integration_account_id.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

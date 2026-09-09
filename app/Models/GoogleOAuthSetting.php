@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class GoogleOAuthSetting extends Model
 {
+    protected $table = 'google_oauth_settings';
+
     protected $hidden = [
         'client_secret',
     ];

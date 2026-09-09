@@ -2,14 +2,14 @@
 
 return [
 
-    'name' => env('OWL_ADMIN_BRAND', 'Jarvis'),
+    'name' => env('OWL_ADMIN_BRAND', 'LAVR'),
 
-    'brand_name' => env('OWL_ADMIN_BRAND', 'Jarvis'),
+    'brand_name' => env('OWL_ADMIN_BRAND', 'LAVR'),
 
     'logo_path' => env('OWL_ADMIN_LOGO', '/images/company-logo.svg'),
 
     'branding' => [
-        'brand_name' => env('OWL_ADMIN_BRAND', 'Jarvis'),
+        'brand_name' => env('OWL_ADMIN_BRAND', 'LAVR'),
         'logo_path' => env('OWL_ADMIN_LOGO', '/images/company-logo.svg'),
         'tagline' => env('OWL_ADMIN_TAGLINE', 'Workspace'),
     ],

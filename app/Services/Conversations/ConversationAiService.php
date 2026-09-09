@@ -33,7 +33,7 @@ use Throwable;
 
 final class ConversationAiService
 {
-    public const PAIRING_GREETING_EVENT = 'Пользователь только что подключил Jarvis. Поприветствуй его и коротко представься.';
+    public const PAIRING_GREETING_EVENT = 'Пользователь только что подключил LAVR. Поприветствуй его и коротко представься.';
 
     public const ONBOARDING_GREETING_EVENT = 'Начни знакомство: поприветствуй пользователя и мягко спроси, как тебя называть. Не используй анкету. Не завершай знакомство в этом первом сообщении.';
 

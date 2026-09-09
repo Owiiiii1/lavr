@@ -1,12 +1,12 @@
 # Personal Web Workspace
 
-**Status.** PRIMARY product UI. Core user workflow **MANUAL PASS**. Voice **MANUAL PASS**. M25U.3 onboarding entry **MANUAL PARTIAL**. Reminders 2.0 **MANUAL PASS for confirmed live core flow**. Tasks / Notification Center **IMPLEMENTED / NOT VALIDATED**. Workspace Settings structured; Memory and Integrations live in Settings. Foreground chat turn live-refreshes productivity badges/panels (no F5). `/cabinet` is compatibility only.
+**Status.** PRIMARY product UI for **LAVR** (single client). Canonical route: `/lavr`. Legacy `/jarvis` and `/chat` redirect here.
 
-Owner and ordinary users share **one Personal Workspace product**. Role/capabilities change available features, not the chat implementation.
+Core user workflow **MANUAL PASS** (JARVIS origin). Voice **MANUAL PASS**. M25U.3 onboarding entry **MANUAL PARTIAL**. Reminders 2.0 **MANUAL PASS for confirmed live core flow**. Tasks / Notification Center **IMPLEMENTED / NOT VALIDATED**. Workspace Settings structured; Memory and Integrations live in Settings.
 
 This is **not** the Admin Panel. `/cabinet` is a compatibility redirect only.
 
-Workspace is part of `Owiiiii1/JARVIS`: Laravel + Inertia/React, one deployment with Core.
+LAVR is a dedicated instance created from `Owiiiii1/JARVIS`: Laravel + Inertia/React. Not SaaS.
 
 ---
 
@@ -14,12 +14,12 @@ Workspace is part of `Owiiiii1/JARVIS`: Laravel + Inertia/React, one deployment 
 
 | Surface | Route | For |
 | --- | --- | --- |
-| Admin Panel | `/dashboard` | technical management: users, AI providers, integrations, Telegram groups, diagnostics |
-| Owner Personal Workspace | `/jarvis` | Owner talking to Jarvis + compact Projects context; Memory/Integrations in Settings |
-| User Personal Workspace | `/chat` | `role=user` talking to Jarvis (full chat, no owner chrome) |
-| Cabinet (deprecated) | `/cabinet` | redirects to `/chat` (owner → `/jarvis`) |
+| Admin Panel | `/dashboard` | technical setup: AI providers, integrations, Telegram groups, diagnostics |
+| Personal Workspace | `/lavr` | the client talking to LAVR |
+| Legacy workspaces | `/jarvis`, `/chat` | redirect to `/lavr` |
+| Cabinet (deprecated) | `/cabinet` | redirects to `/lavr` |
 
-Owner default landing after ordinary login is `/jarvis`. User landing is `/chat`. Admin remains one click from Owner Workspace (`Admin`) and has a reciprocal **Open Jarvis**.
+Owner landing after login is `/lavr`. Admin remains `/dashboard`. There is no ordinary-user catalog.
 
 Frontend: `resources/js/personal-workspace/PersonalWorkspace.jsx`. Inertia pages `Jarvis/Workspace` and `Chat/Workspace` re-export it. UI `capabilities` props are presentation-only; backend ownership/capability checks are authoritative.
 

@@ -28,7 +28,7 @@ final class CancelReminderTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Cancels an owned Jarvis reminder. Distinct from done. Recurring series stop. If several reminders match, do not guess.',
+            description: 'Cancels an owned LAVR reminder. Distinct from done. Recurring series stop. If several reminders match, do not guess.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

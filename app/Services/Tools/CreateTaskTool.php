@@ -28,7 +28,7 @@ final class CreateTaskTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Creates a personal Jarvis task (a commitment), not a reminder. Call only when the user explicitly asked to create/remember a task or stated a clear commitment. Do not create tasks from vague “надо бы”. Optional due datetime, priority, description, Owner project_id, optional Google calendar reference.',
+            description: 'Creates a personal LAVR task (a commitment), not a reminder. Call only when the user explicitly asked to create/remember a task or stated a clear commitment. Do not create tasks from vague “надо бы”. Optional due datetime, priority, description, Owner project_id, optional Google calendar reference.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

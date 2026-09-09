@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\CabinetChatController;
 use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\ImpersonationController;
 use App\Http\Controllers\Jarvis\JarvisAttachmentController;
 use App\Http\Controllers\Jarvis\JarvisConfirmationController;
 use App\Http\Controllers\Jarvis\JarvisKnowledgeController;
@@ -28,8 +27,6 @@ use App\Http\Controllers\Settings\GoogleOAuthSettingsController;
 use App\Http\Controllers\Settings\IntegrationsController;
 use App\Http\Controllers\Settings\SettingsController;
 use App\Http\Controllers\Settings\TelegramSettingsController;
-use App\Http\Controllers\Settings\UserController as SettingsUserController;
-use App\Http\Controllers\Settings\UserMemoryController;
 use App\Http\Controllers\Settings\VoiceSettingsController;
 use App\Http\Controllers\Settings\WebResearchSettingsController;
 use App\Http\Controllers\TelegramGroupController;
@@ -54,29 +51,17 @@ Route::post('/telegram/webhook', TelegramWebhookController::class)
     ])
     ->name('telegram.webhook');
 
-Route::middleware(['web', 'auth'])->post('/impersonation/stop', [ImpersonationController::class, 'stop'])
-    ->name('impersonation.stop');
-
 Route::middleware(['web', 'auth', 'user.active'])->group(function () {
     Route::get('/cabinet', function () {
-        $user = request()->user();
-
-        return redirect()->route($user?->isOwner() ? 'jarvis.index' : 'chat.index');
+        return redirect()->route('jarvis.index');
     })->name('cabinet.index');
     Route::get('/cabinet/ai-settings', function () {
-        $user = request()->user();
-
-        return redirect()->route($user?->isOwner() ? 'jarvis.index' : 'chat.index');
+        return redirect()->route('jarvis.index');
     })->name('cabinet.ai-settings.edit');
     Route::patch('/cabinet/ai-settings', [UserAiSettingsController::class, 'update'])
         ->name('cabinet.ai-settings.update');
     Route::get('/cabinet/chats/{conversation}', function (int $conversation) {
-        $user = request()->user();
-
-        return redirect()->route(
-            $user?->isOwner() ? 'jarvis.chats.show' : 'chat.chats.show',
-            $conversation,
-        );
+        return redirect()->route('jarvis.chats.show', $conversation);
     })->name('cabinet.chats.show');
     Route::post('/cabinet/chats', [CabinetChatController::class, 'store'])->name('cabinet.chats.store');
     Route::patch('/cabinet/chats/{conversation}', [CabinetChatController::class, 'update'])->name('cabinet.chats.update');
@@ -271,8 +256,24 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
     });
 };
 
-$registerPersonalWorkspace('/jarvis', 'jarvis', ['web', 'auth', 'user.active', 'owner.workspace'], true);
-$registerPersonalWorkspace('/chat', 'chat', ['web', 'auth', 'user.active', 'personal.workspace'], false);
+$registerPersonalWorkspace('/lavr', 'jarvis', ['web', 'auth', 'user.active'], true);
+
+$redirectLegacyWorkspace = static function (string $from): void {
+    Route::get($from, function () {
+        $query = request()->getQueryString();
+
+        return redirect('/lavr'.($query ? '?'.$query : ''));
+    })->middleware('web');
+
+    Route::get($from.'/{path}', function (string $path) {
+        $query = request()->getQueryString();
+
+        return redirect('/lavr/'.$path.($query ? '?'.$query : ''));
+    })->where('path', '.*')->middleware('web');
+};
+
+$redirectLegacyWorkspace('/jarvis');
+$redirectLegacyWorkspace('/chat');
 
 Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'owner']))->group(function () {
     Route::get('/dashboard', function () {
@@ -326,19 +327,6 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::get('/integrations/github/callback', [GitHubOAuthController::class, 'callback'])
         ->name('integrations.github.callback');
     Route::post('/settings/language', [SettingsController::class, 'updateLanguage'])->name('settings.language.update');
-    Route::post('/settings/users', [SettingsUserController::class, 'store'])->name('settings.users.store');
-    Route::get('/settings/users/{user}', [SettingsUserController::class, 'show'])->name('settings.users.show');
-    Route::get('/settings/users/{user}/memory', [UserMemoryController::class, 'show'])->name('settings.users.memory.show');
-    Route::patch('/settings/users/{user}', [SettingsUserController::class, 'update'])->name('settings.users.update');
-    Route::post('/settings/users/{user}/status', [SettingsUserController::class, 'setStatus'])->name('settings.users.status');
-    Route::post('/settings/users/{user}/password', [SettingsUserController::class, 'setPassword'])->name('settings.users.password');
-    Route::patch('/settings/users/{user}/general-prompt', [SettingsUserController::class, 'updateGeneralPrompt'])->name('settings.users.prompt');
-    Route::delete('/settings/users/{user}', [SettingsUserController::class, 'destroy'])->name('settings.users.destroy');
-    Route::post('/settings/users/{user}/telegram/unlink', [SettingsUserController::class, 'unlinkTelegram'])->name('settings.users.telegram.unlink');
-    Route::post('/settings/users/{user}/access-code/regenerate', [SettingsUserController::class, 'regenerateAccessCode'])->name('settings.users.access-code.regenerate');
-    Route::post('/settings/users/{user}/impersonate', [SettingsUserController::class, 'impersonate'])
-        ->middleware('throttle:10,1')
-        ->name('settings.users.impersonate');
 
     Route::post('/settings/web-research', [WebResearchSettingsController::class, 'update'])
         ->name('settings.web-research.update');

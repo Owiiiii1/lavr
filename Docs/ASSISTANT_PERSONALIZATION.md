@@ -1,5 +1,7 @@
 # Assistant personalization
 
+> **LAVR Phase 1.** Product identity is **LAVR** (dedicated single-client instance from JARVIS). Default assistant name is `LAVR`. Personal onboarding (name, character, preferences) remains. Third-party user onboarding / ordinary-user provisioning is removed. See [LAVR_MIGRATION.md](LAVR_MIGRATION.md).
+
 **Status.** IMPLEMENTED. Owner confirmed onboarding **entry** («Знакомство») — MANUAL PARTIAL. Full onboarding completion / profile-update E2E is **not** MANUAL PASS.
 
 Per-user assistant identity is a **first-class profile**, not concatenated into `user_ai_settings.general_prompt`.
@@ -32,9 +34,9 @@ Fields: `assistant_name`, `personality`, `interaction_style`, `about_user`, `onb
 
 No vendor/provider config here.
 
-Owner: migration/bootstrap defaults `assistant_name = Jarvis`, `onboarding_status = completed`. Owner is not forced through onboarding. Header stays **Jarvis**.
+Single client: migration/bootstrap defaults `assistant_name = LAVR`. Existing personal profile data is not overwritten unless `assistant_name` is still the origin default `Jarvis`. The client is not forced through onboarding if the profile is already completed. Header uses the profile name (default **LAVR**).
 
-Ordinary user without a row: treated as `not_started` (lazy create). Chat is **not** blocked.
+A missing profile row is treated as `not_started` (lazy create). Chat is **not** blocked. Third-party / ordinary-user provisioning is not part of LAVR.
 
 ---
 

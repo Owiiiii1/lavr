@@ -4,7 +4,7 @@ namespace App\Services\Telegram;
 
 final class TelegramConversationMessages
 {
-    public const CONNECTED_WITH_CHAT = 'Jarvis подключён. Текущий чат: «%s».';
+    public const CONNECTED_WITH_CHAT = 'LAVR подключён. Текущий чат: «%s».';
 
     public const SELECT_CHAT = 'Выберите чат:';
 

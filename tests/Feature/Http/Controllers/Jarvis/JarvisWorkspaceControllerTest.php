@@ -36,7 +36,7 @@ class JarvisWorkspaceControllerTest extends TestCase
             $secondUser = $this->createTemporaryUser();
             $secondUser->forceFill(['voice_id' => 'cjVigY5qzO86Huf0OWal'])->save();
 
-            $response = $this->actingAs($firstUser)->patch(route('chat.settings.profile.update'), [
+            $response = $this->actingAs($firstUser)->patch(route('jarvis.settings.profile.update'), [
                 'name' => $firstUser->name,
                 'timezone' => $firstUser->timezone,
                 'voice_id' => 'cgSgspJ2msm6clMCkdW9',
@@ -58,7 +58,7 @@ class JarvisWorkspaceControllerTest extends TestCase
         try {
             $user = $this->createTemporaryUser();
 
-            $response = $this->actingAs($user)->patch(route('chat.settings.profile.update'), [
+            $response = $this->actingAs($user)->patch(route('jarvis.settings.profile.update'), [
                 'name' => $user->name,
                 'timezone' => $user->timezone,
                 'voice_id' => 'unlisted-voice',

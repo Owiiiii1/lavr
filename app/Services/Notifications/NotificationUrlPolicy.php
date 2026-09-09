@@ -4,6 +4,7 @@ namespace App\Services\Notifications;
 
 use App\Models\User;
 use App\Services\Reminders\PushPayloadBuilder;
+use App\Support\WorkspaceUrl;
 
 final class NotificationUrlPolicy
 {
@@ -13,19 +14,7 @@ final class NotificationUrlPolicy
 
     public function workspacePath(User $user, ?string $query = null, ?int $conversationId = null): string
     {
-        $prefix = $user->isOwner() ? '/jarvis' : '/chat';
-
-        if ($conversationId !== null && $conversationId > 0) {
-            $path = $prefix.'/chats/'.$conversationId;
-        } else {
-            $path = $prefix;
-        }
-
-        if ($query !== null && $query !== '') {
-            $path .= (str_contains($path, '?') ? '&' : '?').ltrim($query, '?');
-        }
-
-        return $path;
+        return WorkspaceUrl::path($conversationId, $query);
     }
 
     public function isSafe(?string $url): bool

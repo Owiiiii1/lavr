@@ -9,7 +9,7 @@ class DispatchTaskDueNotificationsCommand extends Command
 {
     protected $signature = 'jarvis:tasks:dispatch {--limit=80}';
 
-    protected $description = 'Create in-app notifications for due and overdue Jarvis tasks';
+    protected $description = 'Create in-app notifications for due and overdue LAVR tasks';
 
     public function handle(TaskDueDispatchService $dispatch): int
     {

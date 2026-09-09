@@ -7,7 +7,7 @@ self.addEventListener('push', (event) => {
         data = {};
     }
 
-    const title = typeof data.title === 'string' && data.title !== '' ? data.title : 'JARVIS';
+    const title = typeof data.title === 'string' && data.title !== '' ? data.title : 'LAVR';
     const body = typeof data.body === 'string' ? data.body.slice(0, 180) : 'Напоминание';
     const url = safeUrl(data.url);
 
@@ -48,24 +48,31 @@ self.addEventListener('notificationclick', (event) => {
 
 function safeUrl(value) {
     if (typeof value !== 'string' || value === '' || value.includes('://') || value.startsWith('//')) {
-        return '/chat';
+        return '/lavr';
     }
 
     try {
         const parsed = new URL(value, self.location.origin);
 
         if (parsed.origin !== self.location.origin) {
-            return '/chat';
+            return '/lavr';
         }
 
         const path = parsed.pathname;
 
-        if (path === '/jarvis' || path === '/chat' || path.startsWith('/jarvis/') || path.startsWith('/chat/')) {
+        if (
+            path === '/lavr'
+            || path === '/jarvis'
+            || path === '/chat'
+            || path.startsWith('/lavr/')
+            || path.startsWith('/jarvis/')
+            || path.startsWith('/chat/')
+        ) {
             return `${path}${parsed.search}`;
         }
     } catch {
-        return '/chat';
+        return '/lavr';
     }
 
-    return '/chat';
+    return '/lavr';
 }

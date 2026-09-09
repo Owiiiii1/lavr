@@ -19,6 +19,10 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * @deprecated LAVR is a single-client instance. Product-level user administration
+ * routes were removed in Phase 1. This class is kept only as unused legacy.
+ */
 class UserController extends Controller
 {
     public function __construct(

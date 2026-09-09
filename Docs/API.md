@@ -15,13 +15,13 @@ Do not expose secrets.
 | GET/POST | `/` | Login |
 | POST | `/logout` | |
 
-Owner landing `/jarvis`. User landing `/chat`. No public registration.
+Owner landing `/lavr`. No public registration. No ordinary-user workspace.
 
 ---
 
 ## Personal Workspace
 
-Prefixes: `/jarvis` (owner) and `/chat` (user). Names: `jarvis.*` / `chat.*`.
+Prefixes: `/lavr` (canonical; named routes remain `jarvis.*`). `/jarvis` and `/chat` redirect to `/lavr`.
 
 - `GET /{prefix}` workspace
 - chats store/show/update

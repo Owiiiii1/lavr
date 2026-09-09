@@ -4,11 +4,12 @@ namespace App\Services\Reminders;
 
 use App\Models\Reminder;
 use App\Models\User;
+use App\Support\WorkspaceUrl;
 use Illuminate\Support\Str;
 
 final class PushPayloadBuilder
 {
-    public const TITLE = 'JARVIS';
+    public const TITLE = 'LAVR';
 
     /**
      * @return array{reminder_id: int, title: string, body: string, url: string, timestamp: string}
@@ -28,14 +29,12 @@ final class PushPayloadBuilder
 
     public function urlFor(User $user, Reminder $reminder): string
     {
-        $prefix = $user->isOwner() ? '/jarvis' : '/chat';
         $conversationId = (int) ($reminder->source_conversation_id ?? 0);
 
-        if ($conversationId > 0) {
-            return $prefix.'/chats/'.$conversationId.'?reminder='.(int) $reminder->id;
-        }
-
-        return $prefix.'?reminder='.(int) $reminder->id;
+        return WorkspaceUrl::path(
+            $conversationId > 0 ? $conversationId : null,
+            'reminder='.(int) $reminder->id,
+        );
     }
 
     public function isAllowlisted(string $url): bool
@@ -50,10 +49,7 @@ final class PushPayloadBuilder
             return false;
         }
 
-        return $path === '/jarvis'
-            || $path === '/chat'
-            || str_starts_with($path, '/jarvis/')
-            || str_starts_with($path, '/chat/');
+        return WorkspaceUrl::isAllowlistedPath($path);
     }
 
     /**

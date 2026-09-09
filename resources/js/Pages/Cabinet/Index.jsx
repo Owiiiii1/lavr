@@ -17,13 +17,13 @@ export default function CabinetIndex() {
     };
 
     return (
-        <CabinetLayout title="Jarvis Cabinet">
-            <Head title="Jarvis Cabinet" />
+        <CabinetLayout title="LAVR Cabinet">
+            <Head title="LAVR Cabinet" />
 
             <div className="space-y-6">
                 <div className="app-widget space-y-4 p-6">
                     <p className="text-sm text-slate-600">
-                        Welcome to your personal Jarvis workspace. Chat input will arrive in a later milestone.
+                        Welcome to your personal LAVR workspace. Chat input will arrive in a later milestone.
                     </p>
 
                     <dl className="grid gap-4 sm:grid-cols-2">

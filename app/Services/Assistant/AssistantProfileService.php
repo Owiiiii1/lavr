@@ -14,7 +14,7 @@ final class AssistantProfileService
 {
     public const ONBOARDING_TITLE = 'Знакомство';
 
-    public const OWNER_DEFAULT_NAME = 'Jarvis';
+    public const OWNER_DEFAULT_NAME = 'LAVR';
 
     public const USER_FALLBACK_NAME = 'Assistant';
 
@@ -48,13 +48,9 @@ final class AssistantProfileService
 
     public function presentationName(User $user): string
     {
-        if ($user->isOwner()) {
-            return self::OWNER_DEFAULT_NAME;
-        }
-
         $name = trim((string) ($this->profileFor($user)->assistant_name ?? ''));
 
-        return $name !== '' ? $name : self::USER_FALLBACK_NAME;
+        return $name !== '' ? $name : self::OWNER_DEFAULT_NAME;
     }
 
     /**

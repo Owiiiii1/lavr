@@ -5,7 +5,6 @@ import AiPanel from './AiPanel';
 import AppPanel from './AppPanel';
 import GeneralPanel from './GeneralPanel';
 import IntegrationsPanel from './IntegrationsPanel';
-import UsersPanel from './UsersPanel';
 
 export default function SettingsIndex() {
     const { locale = 'en', tab: initialTab = 'general' } = usePage().props;
@@ -19,7 +18,6 @@ export default function SettingsIndex() {
         en: {
             pageTitle: 'Settings',
             general: 'General',
-            users: 'Users',
             ai: 'AI',
             app: 'App settings',
             integrations: 'Integrations',
@@ -27,7 +25,6 @@ export default function SettingsIndex() {
         ru: {
             pageTitle: 'Settings',
             general: 'General',
-            users: 'Users',
             ai: 'AI',
             app: 'App settings',
             integrations: 'Integrations',
@@ -35,7 +32,6 @@ export default function SettingsIndex() {
         uk: {
             pageTitle: 'Settings',
             general: 'General',
-            users: 'Users',
             ai: 'AI',
             app: 'App settings',
             integrations: 'Integrations',
@@ -46,12 +42,11 @@ export default function SettingsIndex() {
     const tabs = useMemo(
         () => [
             { id: 'general', label: t.general },
-            { id: 'users', label: t.users },
             { id: 'ai', label: t.ai },
             { id: 'app', label: t.app },
             { id: 'integrations', label: t.integrations },
         ],
-        [t.ai, t.app, t.general, t.integrations, t.users],
+        [t.ai, t.app, t.general, t.integrations],
     );
 
     const switchTab = (nextTab) => {
@@ -98,7 +93,6 @@ export default function SettingsIndex() {
                 </div>
 
                 {activeTab === 'general' && <GeneralPanel />}
-                {activeTab === 'users' && <UsersPanel />}
                 {activeTab === 'ai' && <AiPanel />}
                 {activeTab === 'app' && <AppPanel />}
                 {activeTab === 'integrations' && <IntegrationsPanel />}

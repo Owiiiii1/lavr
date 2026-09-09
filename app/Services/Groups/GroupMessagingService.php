@@ -77,7 +77,7 @@ final class GroupMessagingService
                 'group_bot' => true,
             ],
             telegramGroupId: $group->id,
-            senderName: 'Jarvis',
+            senderName: 'LAVR',
         ));
 
         if ($persisted->created) {

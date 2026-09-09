@@ -9,7 +9,7 @@ class DispatchDueRemindersCommand extends Command
 {
     protected $signature = 'jarvis:reminders:dispatch {--limit=25}';
 
-    protected $description = 'Dispatch due Jarvis Core reminders';
+    protected $description = 'Dispatch due LAVR Core reminders';
 
     public function handle(ReminderDispatchService $dispatch): int
     {

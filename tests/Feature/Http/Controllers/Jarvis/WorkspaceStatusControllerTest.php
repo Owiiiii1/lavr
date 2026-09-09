@@ -11,7 +11,7 @@ class WorkspaceStatusControllerTest extends TestCase
 
     public function test_guest_is_redirected_from_workspace_status(): void
     {
-        $this->get(route('chat.workspace.status'))->assertRedirect(route('login'));
+        $this->get(route('jarvis.workspace.status'))->assertRedirect(route('login'));
         $this->get(route('jarvis.workspace.status'))->assertRedirect(route('login'));
     }
 
@@ -22,7 +22,7 @@ class WorkspaceStatusControllerTest extends TestCase
         try {
             $user = $this->createTemporaryUser();
 
-            $response = $this->actingAs($user)->getJson(route('chat.workspace.status'));
+            $response = $this->actingAs($user)->getJson(route('jarvis.workspace.status'));
 
             $response->assertOk();
             $response->assertJsonPath('tasks.active_count', 0);

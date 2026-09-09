@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\TelegramBotSetting;
-use App\Services\Users\UserAdministrationService;
 use App\Services\Voice\VoiceSettingsService;
 use App\Services\WebResearch\WebResearchSettingsService;
 use App\Support\Timezones;
@@ -16,11 +15,9 @@ use Inertia\Response;
 
 class SettingsController extends Controller
 {
-    public function index(Request $request, UserAdministrationService $users): Response
+    public function index(Request $request): Response
     {
-        $catalog = $users->catalog();
-
-        $allowedTabs = ['general', 'users', 'ai', 'app', 'integrations'];
+        $allowedTabs = ['general', 'ai', 'app', 'integrations'];
         $allowedSections = ['overview', 'web-research', 'voice', 'telegram', 'activity'];
         $tab = (string) $request->query('tab', 'general');
         $section = (string) $request->query('section', 'overview');
@@ -39,7 +36,6 @@ class SettingsController extends Controller
         $aiSettings = app(AiSettingsController::class);
 
         return Inertia::render('Settings/Index', [
-            'users' => $catalog,
             'timezones' => Timezones::common(),
             'providers' => $aiSettings->providersPayload(),
             'aiRoles' => $aiSettings->rolesPayload(),

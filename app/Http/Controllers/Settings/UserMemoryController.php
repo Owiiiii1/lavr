@@ -12,6 +12,10 @@ use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * @deprecated LAVR is a single-client instance. Third-party user memory admin
+ * was removed from the product surface in Phase 1.
+ */
 class UserMemoryController extends Controller
 {
     public function show(User $user): Response

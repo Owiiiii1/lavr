@@ -27,7 +27,7 @@ final class SetTelegramResponseModeTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Sets how Jarvis replies in Telegram for the current user. Call when the user asks to be answered by voice, by text, or automatically. Modes: text, voice, auto. Never pass user_id. No confirmation modal.',
+            description: 'Sets how LAVR replies in Telegram for the current user. Call when the user asks to be answered by voice, by text, or automatically. Modes: text, voice, auto. Never pass user_id. No confirmation modal.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

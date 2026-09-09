@@ -30,7 +30,7 @@ function statusLabel(status) {
 
 export default function StorageShow() {
     const { file, preview = {}, conversations = [], user = {}, owlAdmin = {}, flash = {} } = usePage().props;
-    const brandName = owlAdmin?.brand_name ?? 'Jarvis';
+    const brandName = owlAdmin?.brand_name ?? 'LAVR';
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const rename = useForm({ display_name: file.display_name });
@@ -185,7 +185,7 @@ export default function StorageShow() {
                     <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#10182a] p-5" onClick={(event) => event.stopPropagation()}>
                         <h2 className="text-base font-semibold text-white">Delete this file?</h2>
                         <p className="mt-2 text-sm text-slate-400">
-                            {file.display_name} will be removed from Jarvis Storage. This cannot be undone.
+                            {file.display_name} will be removed from LAVR Storage. This cannot be undone.
                         </p>
                         <div className="mt-4 flex justify-end gap-2">
                             <button type="button" onClick={() => setConfirmDelete(false)} className="rounded-lg px-3 py-2 text-sm text-slate-400">

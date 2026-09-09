@@ -682,13 +682,13 @@ class CrossSourceSynthesisTest extends TestCase
             $this->assertArrayHasKey('synthesis_context', $assembled['diagnostics']['sources']);
             $this->assertLessThanOrEqual(1, $assembled['diagnostics']['sources']['synthesis_context']['count']);
 
-            $this->actingAs($user)->getJson(route('chat.synthesis.index'))->assertOk();
+            $this->actingAs($user)->getJson(route('jarvis.synthesis.index'))->assertOk();
             $foreign = $this->ingest($other, KnowledgeEntityType::Person, 'NoPeek', $this->chat($other), 'no-peek');
             $this->actingAs($user)
-                ->getJson(route('chat.synthesis.entity', $foreign->id))
+                ->getJson(route('jarvis.synthesis.entity', $foreign->id))
                 ->assertNotFound();
             $this->actingAs($user)
-                ->getJson(route('chat.synthesis.index', ['project_id' => 999999999]))
+                ->getJson(route('jarvis.synthesis.index', ['project_id' => 999999999]))
                 ->assertForbidden();
         } finally {
             $this->deleteTemporaryUser($user);

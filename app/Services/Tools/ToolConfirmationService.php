@@ -262,7 +262,7 @@ final class ToolConfirmationService
             'comment_github_issue' => 'Add a GitHub issue or pull request comment.',
             'create_github_branch' => 'Create a GitHub branch.',
             'create_github_pull_request' => 'Create a GitHub pull request. It will not be merged.',
-            'delete_storage_file' => 'Delete this file from Jarvis Storage. This cannot be undone.',
+            'delete_storage_file' => 'Delete this file from LAVR Storage. This cannot be undone.',
             default => 'Run the pending tool action '.$confirmation->tool_name.'.',
         };
     }

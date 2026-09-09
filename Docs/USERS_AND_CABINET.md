@@ -1,9 +1,11 @@
 # Users, workspaces, and Telegram pairing
 
-«Cabinet» is **legacy wording**. Canonical:
+> **LAVR Phase 1.** This document describes the **JARVIS origin** multi-user model (Owner vs ordinary users, `/jarvis` vs `/chat`, Admin Users, impersonation). That product surface is **removed**. Current LAVR: one client, workspace `/lavr`, no third-party accounts. See [LAVR_MIGRATION.md](LAVR_MIGRATION.md). Kept as historical origin.
 
-- Owner Personal Workspace = `/jarvis`
-- User Personal Workspace = `/chat`
+«Cabinet» is **legacy wording**. Canonical for LAVR:
+
+- Personal Workspace = `/lavr`
+- `/jarvis` and `/chat` = compatibility redirects
 - `/cabinet` = compatibility redirects only
 
 Два **логических пространства** на общих engines. Role задаёт default **capability set**, не второй Conversation Engine и не второй chat frontend.

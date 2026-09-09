@@ -362,7 +362,7 @@ class RemindersTest extends TestCase
             $fake->queueToolThenText(CreateReminderTool::NAME, [
                 'text' => 'магазин',
                 'run_at_local' => $runAtLocal,
-            ], 'Напоминание создано. Оно сохранено в Jarvis.');
+            ], 'Напоминание создано. Оно сохранено в LAVR.');
 
             $this->actingAs($user)->postJson('/cabinet/chats/'.$conversation->id.'/messages', [
                 'body' => 'Напомни завтра в 11 сходить в магазин',
@@ -411,7 +411,7 @@ class RemindersTest extends TestCase
                     throw new AiEmptyResponseException;
                 },
                 new AiChatResponse(
-                    text: 'Напоминание создано. Оно сохранено в Jarvis.',
+                    text: 'Напоминание создано. Оно сохранено в LAVR.',
                     provider: 'fake',
                     model: 'fake-model',
                     finishReason: 'stop',
@@ -426,7 +426,7 @@ class RemindersTest extends TestCase
             $this->assertSame(1, Reminder::query()->where('user_id', $user->id)->count());
             $this->assertSame(3, count($fake->conversationCalls()));
             $this->assertSame(
-                'Напоминание создано. Оно сохранено в Jarvis.',
+                'Напоминание создано. Оно сохранено в LAVR.',
                 Message::query()->where('conversation_id', $conversation->id)->where('role', MessageRole::Assistant)->value('body'),
             );
         } finally {

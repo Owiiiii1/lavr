@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * @deprecated LAVR is a single-client instance. Impersonation routes were
+ * removed from the product surface in Phase 1.
+ */
 final class ImpersonationService
 {
     public const OWNER_ID = 'impersonation.original_owner_user_id';

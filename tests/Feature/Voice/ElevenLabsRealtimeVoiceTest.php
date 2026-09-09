@@ -46,7 +46,7 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $user = $this->createTemporaryUser();
             $conversation = app(ConversationService::class)->createPersonal($user, 'PTT');
 
-            $response = $this->actingAs($user)->postJson(route('chat.voice.sessions.store', $conversation), [
+            $response = $this->actingAs($user)->postJson(route('jarvis.voice.sessions.store', $conversation), [
                 'origin' => 'web',
             ]);
 
@@ -71,7 +71,7 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $user = $this->createTemporaryUser();
             $conversation = app(ConversationService::class)->createPersonal($user, 'Beta');
 
-            $response = $this->actingAs($user)->postJson(route('chat.voice.realtime.session.store', $conversation));
+            $response = $this->actingAs($user)->postJson(route('jarvis.voice.realtime.session.store', $conversation));
 
             $response->assertCreated();
             $json = $response->json();
@@ -107,7 +107,7 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $foreign = app(ConversationService::class)->createPersonal($userB, 'Secret');
 
             $this->actingAs($userA)
-                ->postJson(route('chat.voice.realtime.session.store', $foreign))
+                ->postJson(route('jarvis.voice.realtime.session.store', $foreign))
                 ->assertNotFound();
 
             $this->assertSame(0, VoiceSession::query()->where('user_id', $userA->id)->count());
@@ -135,7 +135,7 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $conversation = app(ConversationService::class)->createPersonal($user, 'Off');
 
             $this->actingAs($user)
-                ->postJson(route('chat.voice.realtime.session.store', $conversation))
+                ->postJson(route('jarvis.voice.realtime.session.store', $conversation))
                 ->assertStatus(503)
                 ->assertJsonPath('error', 'voice_realtime_not_configured');
 
@@ -165,7 +165,7 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $conversation = app(ConversationService::class)->createPersonal($user, 'Bound');
             $foreign = app(ConversationService::class)->createPersonal($other, 'Foreign');
 
-            $start = $this->actingAs($user)->postJson(route('chat.voice.realtime.session.store', $conversation));
+            $start = $this->actingAs($user)->postJson(route('jarvis.voice.realtime.session.store', $conversation));
             $start->assertCreated();
             $token = $start->json('adapter_token');
 
@@ -246,11 +246,11 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $first = app(ConversationService::class)->createPersonal($user, 'One');
             $second = app(ConversationService::class)->createPersonal($user, 'Two');
 
-            $a = $this->actingAs($user)->postJson(route('chat.voice.realtime.session.store', $first));
+            $a = $this->actingAs($user)->postJson(route('jarvis.voice.realtime.session.store', $first));
             $a->assertCreated();
             $oldId = $a->json('public_id');
 
-            $b = $this->actingAs($user)->postJson(route('chat.voice.realtime.session.store', $second));
+            $b = $this->actingAs($user)->postJson(route('jarvis.voice.realtime.session.store', $second));
             $b->assertCreated();
 
             $old = VoiceSession::query()->where('public_id', $oldId)->first();
@@ -276,11 +276,11 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $user = $this->createTemporaryUser();
             $conversation = app(ConversationService::class)->createPersonal($user, 'Keep');
 
-            $start = $this->actingAs($user)->postJson(route('chat.voice.realtime.session.store', $conversation));
+            $start = $this->actingAs($user)->postJson(route('jarvis.voice.realtime.session.store', $conversation));
             $start->assertCreated();
 
             $this->actingAs($user)
-                ->deleteJson(route('chat.voice.realtime.session.destroy', $start->json('public_id')))
+                ->deleteJson(route('jarvis.voice.realtime.session.destroy', $start->json('public_id')))
                 ->assertOk()
                 ->assertJsonPath('status', VoiceSessionStatus::Ended->value);
 
@@ -301,7 +301,7 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $conversation = app(ConversationService::class)->createPersonal($user, 'Flags');
 
             $this->actingAs($user)
-                ->get(route('chat.chats.show', $conversation))
+                ->get(route('jarvis.chats.show', $conversation))
                 ->assertOk();
 
             $payload = app(ElevenLabsRealtimeSessionService::class)->workspacePayload();
@@ -378,7 +378,7 @@ class ElevenLabsRealtimeVoiceTest extends TestCase
             $user = $this->createTemporaryUser();
             $conversation = app(ConversationService::class)->createPersonal($user, 'Task');
             $token = $this->actingAs($user)
-                ->postJson(route('chat.voice.realtime.session.store', $conversation))
+                ->postJson(route('jarvis.voice.realtime.session.store', $conversation))
                 ->json('adapter_token');
 
             $this->withToken(self::SECRET)->postJson('/api/voice/elevenlabs/chat/completions', [

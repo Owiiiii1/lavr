@@ -28,7 +28,7 @@ final class CompleteReminderTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Marks an owned Jarvis reminder as done by the user. Distinct from delivered. Recurring series advance to the next occurrence. If several reminders match, do not guess.',
+            description: 'Marks an owned LAVR reminder as done by the user. Distinct from delivered. Recurring series advance to the next occurrence. If several reminders match, do not guess.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

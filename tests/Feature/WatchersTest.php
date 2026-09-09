@@ -418,8 +418,8 @@ class WatchersTest extends TestCase
             $task = app(TaskService::class)->create($user, 'Scoped');
             $watcher = $this->createTaskWatcher($user, $task);
 
-            $this->actingAs($user)->getJson(route('chat.watchers.index'))->assertOk()->assertJsonPath('active_count', 1);
-            $this->actingAs($other)->getJson(route('chat.watchers.show', $watcher->id))->assertNotFound();
+            $this->actingAs($user)->getJson(route('jarvis.watchers.index'))->assertOk()->assertJsonPath('active_count', 1);
+            $this->actingAs($other)->getJson(route('jarvis.watchers.show', $watcher->id))->assertNotFound();
 
             $watcher->forceFill(['next_check_at' => CarbonImmutable::now('UTC')->subMinute()])->save();
             $this->assertSame(1, app(WatcherDispatchService::class)->dispatchDue(40));

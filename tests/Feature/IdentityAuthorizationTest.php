@@ -40,7 +40,7 @@ class IdentityAuthorizationTest extends TestCase
             $this->actingAs($temporaryUser)->get('/calendar')->assertForbidden();
             $this->actingAs($temporaryUser)->get('/statistics/logs')->assertForbidden();
             $this->actingAs($temporaryUser)->get('/cabinet')->assertRedirect();
-            $this->actingAs($temporaryUser)->get('/cabinet/ai-settings')->assertOk();
+            $this->actingAs($temporaryUser)->get('/cabinet/ai-settings')->assertRedirect(route('jarvis.index'));
         } finally {
             $this->deleteTemporaryUser($temporaryUser);
         }

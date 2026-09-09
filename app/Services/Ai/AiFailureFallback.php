@@ -61,7 +61,7 @@ final class AiFailureFallback
                 if ($linked) {
                     $reply .= ' Я также пришлю его в Telegram.';
                 } else {
-                    $reply .= ' Оно сохранено в Jarvis.';
+                    $reply .= ' Оно сохранено в LAVR.';
                 }
 
                 return $reply;

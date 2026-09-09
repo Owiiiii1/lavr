@@ -16,6 +16,10 @@ use App\Support\Timezones;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
+/**
+ * @deprecated LAVR is a single-client instance. Product-level user catalog
+ * create/update/impersonate was removed from routes in Phase 1.
+ */
 final class UserAdministrationService
 {
     public function __construct(

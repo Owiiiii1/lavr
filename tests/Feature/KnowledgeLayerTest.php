@@ -211,7 +211,7 @@ class KnowledgeLayerTest extends TestCase
             $otherChat = $this->chat($other);
 
             $this->actingAs($other)
-                ->getJson(route('chat.knowledge.entities.show', $entity->id))
+                ->getJson(route('jarvis.knowledge.entities.show', $entity->id))
                 ->assertNotFound();
 
             $result = app(GetEntityTool::class)->execute(
@@ -239,7 +239,7 @@ class KnowledgeLayerTest extends TestCase
             $entity = $this->ingestPerson($owner, 'Owner Only', $this->chat($owner), 'own-1');
 
             $this->actingAs($user)
-                ->getJson(route('chat.knowledge.entities.show', $entity->id))
+                ->getJson(route('jarvis.knowledge.entities.show', $entity->id))
                 ->assertNotFound();
         } finally {
             $this->deleteTemporaryUser($owner);
@@ -507,7 +507,7 @@ class KnowledgeLayerTest extends TestCase
             $this->ingestPerson($user, 'Visible', $this->chat($user), 'http-1');
 
             $this->actingAs($user)
-                ->getJson(route('chat.knowledge.index'))
+                ->getJson(route('jarvis.knowledge.index'))
                 ->assertOk()
                 ->assertJsonPath('counts.people', 1);
         } finally {

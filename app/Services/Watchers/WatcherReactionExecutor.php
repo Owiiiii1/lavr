@@ -110,7 +110,7 @@ final class WatcherReactionExecutor
             $watcher,
             $occurrence,
             $observation,
-            'Proposed action «'.$tool.'» is waiting for your confirmation. Jarvis did not send anything.',
+            'Proposed action «'.$tool.'» is waiting for your confirmation. LAVR did not send anything.',
             [
                 'pending_action' => [
                     'tool' => $tool,

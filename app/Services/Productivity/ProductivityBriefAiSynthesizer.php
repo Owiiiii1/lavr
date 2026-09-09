@@ -59,9 +59,9 @@ final class ProductivityBriefAiSynthesizer implements SynthesizesProductivityBri
     private function systemPrompt(string $mode): string
     {
         if ($mode === 'mail_groups_digest') {
-            return 'You write a spoken-style Russian morning digest of new mail and Telegram groups for Jarvis. Write it as if telling the owner over coffee what arrived and what needs his attention. Every word must be Russian: retell foreign subjects and snippets as their Russian gist, and keep only proper names in the original. Merge letters from the same sender or topic into one thought. Group newsletters, no-reply, receipts, and other noise as a count — do not list them. Never output a sender-subject list, quoted subject lines, or raw email text. Do not invent senders, subjects, facts, or actions. Use only the provided facts. Max 160 words. No markdown headings.';
+            return 'You write a spoken-style Russian morning digest of new mail and Telegram groups for LAVR. Write it as if telling the owner over coffee what arrived and what needs his attention. Every word must be Russian: retell foreign subjects and snippets as their Russian gist, and keep only proper names in the original. Merge letters from the same sender or topic into one thought. Group newsletters, no-reply, receipts, and other noise as a count — do not list them. Never output a sender-subject list, quoted subject lines, or raw email text. Do not invent senders, subjects, facts, or actions. Use only the provided facts. Max 160 words. No markdown headings.';
         }
 
-        return 'You rewrite a source-grounded Jarvis productivity brief. Keep every listed fact. Do not invent news, memories, or extra tasks. Write concise Russian, max 180 words. No markdown headings.';
+        return 'You rewrite a source-grounded LAVR productivity brief. Keep every listed fact. Do not invent news, memories, or extra tasks. Write concise Russian, max 180 words. No markdown headings.';
     }
 }

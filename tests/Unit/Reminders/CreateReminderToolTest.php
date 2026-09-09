@@ -19,7 +19,7 @@ class CreateReminderToolTest extends TestCase
     {
         $definition = (new CreateReminderTool(new ReminderService))->definition();
 
-        $this->assertStringContainsString('Jarvis', $definition->description);
+        $this->assertStringContainsString('LAVR', $definition->description);
         $this->assertStringContainsString('без Telegram', $definition->description);
         $this->assertStringNotContainsString('только в Telegram', $definition->description);
     }

@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\User;
+use App\Services\Users\AccessCodeGenerator;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +17,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (User::query()->exists()) {
+            return;
+        }
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'LAVR Client',
+            'email' => 'client@example.com',
+            'role' => UserRole::Owner,
+            'access_code' => AccessCodeGenerator::OWNER_CODE,
         ]);
     }
 }

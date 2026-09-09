@@ -3,28 +3,28 @@ import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function Dashboard() {
     const { locale = 'en', owlAdmin = {} } = usePage().props;
-    const brandName = owlAdmin.brand_name ?? 'Jarvis';
+    const brandName = owlAdmin.brand_name ?? 'LAVR';
     const text = {
         en: {
             title: 'Home',
             hello: `Good to have you back in ${brandName}.`,
-            body: 'Open Jarvis to talk. Admin stays here for technical setup.',
-            jarvis: 'Open Jarvis',
+            body: 'Open LAVR to talk. Admin stays here for technical setup.',
+            jarvis: 'Open LAVR',
             jarvisHint: 'Personal workspace',
             calendar: 'Calendar',
             calendarHint: 'Your personal schedule',
             projects: 'Projects',
-            projectsHint: 'Owner work containers',
+            projectsHint: 'Work containers',
             logs: 'Logs',
             logsHint: 'Recent activity and diagnostics',
             settings: 'Settings',
-            settingsHint: 'AI, users and Telegram',
+            settingsHint: 'AI, integrations and Telegram',
         },
         ru: {
             title: 'Главная',
             hello: `С возвращением в ${brandName}.`,
-            body: 'Общение — в Jarvis. Здесь остаётся техническая админка.',
-            jarvis: 'Open Jarvis',
+            body: 'Общение — в LAVR. Здесь остаётся техническая админка.',
+            jarvis: 'Open LAVR',
             jarvisHint: 'Личный workspace',
             calendar: 'Календарь',
             calendarHint: 'Личное расписание',
@@ -33,13 +33,13 @@ export default function Dashboard() {
             logs: 'Логи',
             logsHint: 'Активность и диагностика',
             settings: 'Настройки',
-            settingsHint: 'ИИ, пользователи и Telegram',
+            settingsHint: 'ИИ, интеграции и Telegram',
         },
         uk: {
             title: 'Головна',
             hello: `З поверненням у ${brandName}.`,
-            body: 'Спілкування — у Jarvis. Тут залишається технічна адмінка.',
-            jarvis: 'Open Jarvis',
+            body: 'Спілкування — у LAVR. Тут залишається технічна адмінка.',
+            jarvis: 'Open LAVR',
             jarvisHint: 'Особистий workspace',
             calendar: 'Календар',
             calendarHint: 'Особистий розклад',
@@ -48,7 +48,7 @@ export default function Dashboard() {
             logs: 'Логи',
             logsHint: 'Активність і діагностика',
             settings: 'Налаштування',
-            settingsHint: 'ШІ, користувачі та Telegram',
+            settingsHint: 'ШІ, інтеграції та Telegram',
         },
     };
     const t = text[locale] ?? text.en;

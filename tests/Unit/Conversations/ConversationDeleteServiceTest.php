@@ -251,14 +251,14 @@ class ConversationDeleteServiceTest extends TestCase
                 'body' => 'Срок',
                 'severity' => JarvisNotificationSeverity::Info,
                 'dedupe_key' => 'delete-chat-'.Str::lower(Str::random(8)),
-                'action_url' => '/chat/chats/'.$conversation->id.'?task=9',
+                'action_url' => '/lavr/chats/'.$conversation->id.'?task=9',
                 'occurred_at' => now(),
             ]);
 
             app(ConversationService::class)->deletePersonal($user, $conversation);
 
             $notification->refresh();
-            $this->assertSame('/chat?task=9', $notification->action_url);
+            $this->assertSame('/lavr?task=9', $notification->action_url);
             $this->assertDatabaseHas('jarvis_notifications', ['id' => $notification->id]);
         } finally {
             $this->deleteTemporaryUser($user);

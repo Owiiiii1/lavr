@@ -432,7 +432,7 @@ class ScheduledReportsTest extends TestCase
                 'sources' => ['tasks', ['type' => 'google_calendar', 'calendar_scope' => 'all_relevant', 'calendar_names' => ['Семья']]],
             ]);
 
-            $response = $this->actingAs($user)->getJson(route('chat.reports.index'));
+            $response = $this->actingAs($user)->getJson(route('jarvis.reports.index'));
             $response->assertOk();
             $response->assertJsonPath('items.0.name', 'Планы на завтра');
             $this->assertStringContainsString('22:00', (string) $response->json('items.0.schedule_label'));

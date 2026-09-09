@@ -28,7 +28,7 @@ final class SnoozeReminderTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Snoozes an owned Jarvis reminder. Presets: 10m, 1h, tomorrow, or custom with run_at_local. If several reminders match, do not guess.',
+            description: 'Snoozes an owned LAVR reminder. Presets: 10m, 1h, tomorrow, or custom with run_at_local. If several reminders match, do not guess.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

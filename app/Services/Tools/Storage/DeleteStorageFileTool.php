@@ -42,7 +42,7 @@ final class DeleteStorageFileTool extends StorageTool
 
     protected function confirmationHint(): ?string
     {
-        return 'Delete this file from Jarvis Storage. This cannot be undone.';
+        return 'Delete this file from LAVR Storage. This cannot be undone.';
     }
 
     public function isAvailable(ToolExecutionContext $context): bool

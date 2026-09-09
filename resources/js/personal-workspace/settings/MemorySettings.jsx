@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import SettingsCard from '@/personal-workspace/settings/SettingsCard';
 
 function formatWhen(iso) {
@@ -16,14 +15,14 @@ function formatWhen(iso) {
     }
 }
 
-export default function MemorySettings({ memory, capabilities }) {
+export default function MemorySettings({ memory }) {
     const summary = memory || {};
 
     return (
         <div className="space-y-4">
             <SettingsCard
                 title="Память"
-                description="Jarvis запоминает устойчивые факты из ваших разговоров. Это не настройки личности и не сырые таблицы."
+                description="LAVR запоминает устойчивые факты из ваших разговоров. Это не настройки личности и не сырые таблицы."
             >
                 <dl className="grid grid-cols-2 gap-2 text-xs">
                     <div className="rounded-xl bg-black/20 px-3 py-3">
@@ -48,20 +47,6 @@ export default function MemorySettings({ memory, capabilities }) {
                     </p>
                 )}
             </SettingsCard>
-
-            {capabilities.admin ? (
-                <SettingsCard
-                    title="Диагностика"
-                    description="Подробные записи Memory Engine доступны только в Admin User Card."
-                >
-                    <Link
-                        href={route('settings.index', { tab: 'users' })}
-                        className="inline-flex rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/5"
-                    >
-                        Открыть Users в Admin
-                    </Link>
-                </SettingsCard>
-            ) : null}
         </div>
     );
 }

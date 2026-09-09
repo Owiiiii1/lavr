@@ -1,4 +1,3 @@
-import ImpersonationBanner from '@/Components/ImpersonationBanner';
 import { Link, router, usePage } from '@inertiajs/react';
 import {
     ChevronDown,
@@ -54,7 +53,7 @@ function navLabel(routeName, t) {
 export default function AdminLayout({ title, children }) {
     const { auth, locale = 'en', owlAdmin = {} } = usePage().props;
     const user = auth?.user;
-    const brandName = owlAdmin?.brand_name ?? 'Jarvis';
+    const brandName = owlAdmin?.brand_name ?? 'LAVR';
     const logoPath = owlAdmin?.logo_path ?? '/images/company-logo.svg';
     const brandTagline = owlAdmin?.tagline ?? 'Workspace';
 
@@ -99,7 +98,7 @@ export default function AdminLayout({ title, children }) {
             statistics: 'Statistics',
             logs: 'Logs',
             adminPanel: 'Admin Panel',
-            openJarvis: 'Open Jarvis',
+            openWorkspace: 'Open LAVR',
             profile: 'Profile',
             language: 'Language',
         },
@@ -113,7 +112,7 @@ export default function AdminLayout({ title, children }) {
             statistics: 'Статистика',
             logs: 'Логи',
             adminPanel: 'Админ-панель',
-            openJarvis: 'Open Jarvis',
+            openWorkspace: 'Open LAVR',
             profile: 'Профиль',
             language: 'Язык',
         },
@@ -127,7 +126,7 @@ export default function AdminLayout({ title, children }) {
             statistics: 'Статистика',
             logs: 'Логи',
             adminPanel: 'Адмін-панель',
-            openJarvis: 'Open Jarvis',
+            openWorkspace: 'Open LAVR',
             profile: 'Профіль',
             language: 'Мова',
         },
@@ -246,7 +245,7 @@ export default function AdminLayout({ title, children }) {
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-amber-200 hover:bg-white/5 hover:text-white"
         >
             <Sparkles className="h-4 w-4" />
-            <span>{t.openJarvis}</span>
+            <span>{t.openWorkspace}</span>
         </Link>
     );
 
@@ -275,7 +274,6 @@ export default function AdminLayout({ title, children }) {
 
     return (
         <div className="h-screen overflow-hidden bg-[#F4EFE4] text-slate-900">
-            <ImpersonationBanner />
             <div className="flex h-screen">
                 <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#0B1220] text-white shadow-2xl lg:flex">
                     <div className="px-6 py-6">
@@ -353,7 +351,7 @@ export default function AdminLayout({ title, children }) {
                                     href={route('jarvis.index')}
                                     className="hidden rounded-full border border-amber-300/70 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-50 sm:inline-flex"
                                 >
-                                    {t.openJarvis}
+                                    {t.openWorkspace}
                                 </Link>
                                 <span
                                     className={`hidden max-w-[280px] truncate rounded-full px-3 py-1 text-xs font-semibold lg:inline-flex ${

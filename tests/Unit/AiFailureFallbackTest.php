@@ -117,7 +117,7 @@ class AiFailureFallbackTest extends TestCase
             ],
         );
 
-        $this->assertSame('Хорошо, напомню: проверить чайник. Оно сохранено в Jarvis.', $fallback);
+        $this->assertSame('Хорошо, напомню: проверить чайник. Оно сохранено в LAVR.', $fallback);
         $this->assertStringNotContainsString('подключите Telegram', mb_strtolower((string) $fallback));
     }
 

@@ -340,7 +340,7 @@ export default function RemindersPanel({
                 {telegramConnected ? null : (
                     <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300">
                         {telegramHint ||
-                            'Telegram не подключён. Напоминание сохранено в Jarvis. Подключите Telegram, если нужна доставка ещё и туда.'}
+                            'Telegram не подключён. Напоминание сохранено в LAVR. Подключите Telegram, если нужна доставка ещё и туда.'}
                     </p>
                 )}
                 {editing ? (

@@ -1,6 +1,8 @@
 # User administration (M25U.2)
 
-**Status.** Ordinary user create + login + `/chat` + ordinary requests: **MANUAL PASS** (Owner). Full A/B isolation campaign: **IMPLEMENTED / NOT VALIDATED**. Automated tests not run.
+> **SUPERSEDED for LAVR.** Ordinary-user create, User Card, impersonation, and `/chat` are **removed** from the product. LAVR does not register or provision third-party users. Historical JARVIS text follows. See [LAVR_MIGRATION.md](LAVR_MIGRATION.md).
+
+**Status.** Ordinary user create + login + `/chat` + ordinary requests: **HISTORICAL (JARVIS)**. On LAVR this admin surface is gone.
 
 Owner-only management of ordinary Jarvis users. Canonical product doc for lifecycle, isolation, and impersonation. Related: [USERS_AND_CABINET.md](USERS_AND_CABINET.md), [CLIENTS/WEB_WORKSPACE.md](CLIENTS/WEB_WORKSPACE.md).
 

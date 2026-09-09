@@ -6,16 +6,12 @@ use Tests\TestCase;
 
 class TaskWorkspaceRoutesTest extends TestCase
 {
-    public function test_owner_and_user_workspace_expose_the_same_task_and_notification_routes(): void
+    public function test_canonical_workspace_exposes_task_and_notification_routes(): void
     {
-        $this->assertSame('/jarvis/tasks', route('jarvis.tasks.index', absolute: false));
-        $this->assertSame('/chat/tasks', route('chat.tasks.index', absolute: false));
-        $this->assertSame('/jarvis/tasks/9/complete', route('jarvis.tasks.complete', ['task' => 9], absolute: false));
-        $this->assertSame('/chat/tasks/9/cancel', route('chat.tasks.cancel', ['task' => 9], absolute: false));
-        $this->assertSame('/jarvis/notifications', route('jarvis.notifications.index', absolute: false));
-        $this->assertSame('/chat/notifications/4/read', route('chat.notifications.read', ['notification' => 4], absolute: false));
-        $this->assertSame('/jarvis/settings/productivity', route('jarvis.settings.productivity.update', absolute: false));
-        $this->assertSame('/chat/settings/productivity', route('chat.settings.productivity.update', absolute: false));
+        $this->assertSame('/lavr/tasks', route('jarvis.tasks.index', absolute: false));
+        $this->assertSame('/lavr/tasks/9/complete', route('jarvis.tasks.complete', ['task' => 9], absolute: false));
+        $this->assertSame('/lavr/notifications', route('jarvis.notifications.index', absolute: false));
+        $this->assertSame('/lavr/settings/productivity', route('jarvis.settings.productivity.update', absolute: false));
     }
 
     public function test_header_keeps_three_distinct_entries(): void

@@ -1,8 +1,11 @@
-# JARVIS
+# LAVR
 
-Personal AI assistant (Web Workspace, Telegram, voice, memory, tasks, knowledge, watchers).
+Personal AI assistant for **one client** (Web Workspace, Telegram, voice, memory, tasks, knowledge, watchers).
 
-- Product overview (Russian, for first-time readers): [Docs/JARVIS_USER_OVERVIEW.md](Docs/JARVIS_USER_OVERVIEW.md)
+LAVR is a dedicated production instance created from JARVIS. It is **not SaaS**, not a multi-tenant platform, and **not** intended for registration of third-party users. The product UI and business logic are single-user / single-client.
+
+- Migration note: [Docs/LAVR_MIGRATION.md](Docs/LAVR_MIGRATION.md)
+- Product overview: [Docs/JARVIS_USER_OVERVIEW.md](Docs/JARVIS_USER_OVERVIEW.md) (origin overview; current identity is LAVR)
 - Documentation index: [Docs/README.md](Docs/README.md)
 - Runtime snapshot: [Docs/CURRENT_STATE.md](Docs/CURRENT_STATE.md)
 

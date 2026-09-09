@@ -10,9 +10,9 @@ export default function Login({ status, canResetPassword }) {
 
     const translations = {
         ru: {
-            title: 'Вход в Jarvis',
+            title: 'Вход в LAVR',
             welcome: 'С возвращением',
-            subtitle: 'Войдите в рабочее пространство Jarvis',
+            subtitle: 'Войдите в рабочее пространство LAVR',
             email: 'Email',
             emailPlaceholder: 'name@company.com',
             password: 'Пароль',
@@ -24,9 +24,9 @@ export default function Login({ status, canResetPassword }) {
             hide: 'Скрыть',
         },
         en: {
-            title: 'Sign in to Jarvis',
+            title: 'Sign in to LAVR',
             welcome: 'Welcome back',
-            subtitle: 'Sign in to your Jarvis workspace',
+            subtitle: 'Sign in to your LAVR workspace',
             email: 'Email address',
             emailPlaceholder: 'name@company.com',
             password: 'Password',
@@ -38,9 +38,9 @@ export default function Login({ status, canResetPassword }) {
             hide: 'Hide',
         },
         uk: {
-            title: 'Вхід у Jarvis',
+            title: 'Вхід у LAVR',
             welcome: 'З поверненням',
-            subtitle: 'Увійдіть у робочий простір Jarvis',
+            subtitle: 'Увійдіть у робочий простір LAVR',
             email: 'Email',
             emailPlaceholder: 'name@company.com',
             password: 'Пароль',

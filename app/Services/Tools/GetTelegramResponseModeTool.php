@@ -26,7 +26,7 @@ final class GetTelegramResponseModeTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Reads how Jarvis currently replies in Telegram for this user: text, voice, or auto. Use when the user asks how Telegram replies work. Never pass user_id.',
+            description: 'Reads how LAVR currently replies in Telegram for this user: text, voice, or auto. Use when the user asks how Telegram replies work. Never pass user_id.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => new \stdClass,

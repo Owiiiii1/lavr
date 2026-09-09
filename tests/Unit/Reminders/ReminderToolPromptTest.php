@@ -11,7 +11,7 @@ class ReminderToolPromptTest extends TestCase
     {
         $text = implode("\n", ReminderToolPrompt::lines());
 
-        $this->assertStringContainsString('Jarvis Core reminder', $text);
+        $this->assertStringContainsString('LAVR Core reminder', $text);
         $this->assertStringContainsString('Telegram and Web Push are optional independent delivery adapters', $text);
         $this->assertStringContainsString('Web reminders panel', $text);
         $this->assertStringContainsString('list_reminders', $text);

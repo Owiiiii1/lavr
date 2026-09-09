@@ -227,7 +227,7 @@ final class JarvisNotificationService
         $limit = max(20, (int) config('productivity.notifications.push_body_limit', 120));
         $url = $this->urls->sanitize($notification->action_url) ?? $this->urls->workspacePath($user, 'notifications=1');
         $payload = [
-            'title' => 'JARVIS',
+            'title' => 'LAVR',
             'body' => Str::limit((string) $notification->body, $limit, '…'),
             'url' => $url,
             'timestamp' => optional($notification->occurred_at)?->toIso8601String() ?? CarbonImmutable::now('UTC')->toIso8601String(),

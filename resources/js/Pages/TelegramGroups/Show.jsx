@@ -273,7 +273,7 @@ export default function TelegramGroupShow() {
                                     }`}
                                 >
                                     <div className={`mb-1 text-[11px] ${isBot ? 'text-amber-200/80' : 'text-slate-500'}`}>
-                                        {isBot ? 'Jarvis' : (message.sender_name || 'Unknown')}
+                                        {isBot ? 'LAVR' : (message.sender_name || 'Unknown')}
                                         {message.sender_username && !isBot ? ` @${message.sender_username}` : ''}
                                         {' · '}
                                         {formatStamp(message.occurred_at, timezone)}

@@ -6,7 +6,6 @@ use App\Enums\AiRoleKey;
 use App\Models\AiProviderSetting;
 use App\Models\AiRoleSetting;
 use App\Models\TelegramBotSetting;
-use App\Services\Users\ImpersonationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Middleware;
@@ -50,8 +49,6 @@ class HandleInertiaRequests extends Middleware
                 'warning' => $request->session()->get('warning'),
                 'error' => $request->session()->get('error'),
             ],
-
-            'impersonation' => fn () => app(ImpersonationService::class)->banner($request),
 
             'owlAdmin' => fn () => [
                 ...config('owl-admin.branding', [

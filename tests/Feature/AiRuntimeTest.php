@@ -221,7 +221,7 @@ class AiRuntimeTest extends TestCase
             $this->assertSame(AiRoleKey::UserConversation->value, $assistant->metadata['ai']['configuration'] ?? null);
             $this->assertSame('pairing_greeting', $assistant->metadata['ai']['event'] ?? null);
             $this->assertSame(1, count($fake->conversationCalls()));
-            $this->assertStringContainsString('Пользователь только что подключил Jarvis', $fake->calls[0]['request']->systemPrompt);
+            $this->assertStringContainsString('Пользователь только что подключил LAVR', $fake->calls[0]['request']->systemPrompt);
             $this->assertSame(0, Message::query()->where('user_id', $user->id)->where('role', MessageRole::User)->count());
         } finally {
             $this->restoreAiRoleSettings();

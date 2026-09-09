@@ -27,7 +27,7 @@ final class ListRemindersTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Lists the current user’s open Jarvis reminders (scheduled and due). Use before update/snooze/done/cancel when the target reminder is unclear. Never guess among several matches.',
+            description: 'Lists the current user’s open LAVR reminders (scheduled and due). Use before update/snooze/done/cancel when the target reminder is unclear. Never guess among several matches.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

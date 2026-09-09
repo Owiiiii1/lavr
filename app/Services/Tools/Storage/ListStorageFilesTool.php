@@ -21,7 +21,7 @@ final class ListStorageFilesTool extends StorageTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Lists the current user’s persistent Jarvis Storage files. Use when the user asks what files they have stored. Does not return file contents.',
+            description: 'Lists the current user’s persistent LAVR Storage files. Use when the user asks what files they have stored. Does not return file contents.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [

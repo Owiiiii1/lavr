@@ -12,36 +12,40 @@ use App\Enums\MemoryStatus;
 use App\Enums\MessageChannel;
 use App\Enums\MessageRole;
 use App\Enums\MessageType;
-use App\Enums\UserRole;
 use App\Jobs\AnalyzeConversationTurnJob;
 use App\Jobs\UpdateConversationSummaryJob;
 use App\Models\AiRoleSetting;
+use App\Models\Conversation;
 use App\Models\ConversationSummary;
 use App\Models\Memory;
 use App\Models\MemoryAnalysisRun;
+use App\Models\MemoryRevision;
 use App\Models\MemorySource;
 use App\Models\Message;
 use App\Models\MessageTopicRelation;
 use App\Models\Topic;
-use App\Models\User;
 use App\Services\Ai\Contracts\AiChatGateway;
+use App\Services\Ai\DTO\ToolCall;
+use App\Services\Conversations\ChannelContext;
 use App\Services\Conversations\ConversationContextBuilder;
 use App\Services\Conversations\ConversationService;
 use App\Services\Conversations\ConversationTurnService;
-use App\Services\Conversations\ChannelContext;
 use App\Services\Memory\ConversationSummaryService;
 use App\Services\Memory\ConversationTurnAnalyzer;
 use App\Services\Memory\DTO\MemoryAnalysisResult;
 use App\Services\Memory\DTO\MemoryCandidate;
 use App\Services\Memory\DTO\TopicCandidate;
+use App\Services\Memory\Exceptions\MemoryAnalysisException;
 use App\Services\Memory\MemoryAnalysisResultParser;
 use App\Services\Memory\MemoryWriter;
 use App\Services\Memory\PersonalMemoryRetriever;
+use App\Services\Memory\UserProfileService;
 use App\Services\Tools\CreateReminderTool;
 use App\Services\Tools\SearchConversationHistoryTool;
 use App\Services\Tools\ToolExecutionContext;
 use App\Services\Tools\ToolRegistry;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Tests\Support\CleansTemporaryJarvisRecords;
 use Tests\Support\FakeAiChatGateway;
@@ -224,7 +228,7 @@ class MemoryEngineTest extends TestCase
             $this->assertSame(1, Memory::query()->where('user_id', $user->id)->where('status', MemoryStatus::Superseded)->count());
             $this->assertSame(1, Memory::query()->where('user_id', $user->id)->where('status', MemoryStatus::Active)->count());
             $this->assertSame('Машину уже забрал', Memory::query()->where('user_id', $user->id)->where('status', MemoryStatus::Active)->value('content'));
-            $this->assertGreaterThan(0, \App\Models\MemoryRevision::query()->whereIn('memory_id', Memory::query()->where('user_id', $user->id)->pluck('id'))->count());
+            $this->assertGreaterThan(0, MemoryRevision::query()->whereIn('memory_id', Memory::query()->where('user_id', $user->id)->pluck('id'))->count());
         } finally {
             $this->deleteTemporaryUser($user);
         }
@@ -377,7 +381,7 @@ class MemoryEngineTest extends TestCase
             $this->assertContains(SearchConversationHistoryTool::NAME, $names);
 
             $tool = app(SearchConversationHistoryTool::class);
-            $result = $tool->execute(new \App\Services\Ai\DTO\ToolCall('c1', SearchConversationHistoryTool::NAME, [
+            $result = $tool->execute(new ToolCall('c1', SearchConversationHistoryTool::NAME, [
                 'query' => 'Niagara Unreal',
                 'limit' => 50,
             ]), $context);
@@ -387,7 +391,7 @@ class MemoryEngineTest extends TestCase
             $snippets = collect($result->payload['snippets']);
             $this->assertTrue($snippets->contains(fn ($row) => str_contains($row['snippet'], 'Niagara')));
             $this->assertFalse($snippets->contains(fn ($row) => str_contains($row['snippet'], 'Cascade')));
-            $this->assertTrue($snippets->every(fn ($row) => \App\Models\Conversation::query()->whereKey($row['conversation_id'])->where('user_id', $userA->id)->exists()));
+            $this->assertTrue($snippets->every(fn ($row) => Conversation::query()->whereKey($row['conversation_id'])->where('user_id', $userA->id)->exists()));
         } finally {
             $this->deleteTemporaryUser($userA);
             $this->deleteTemporaryUser($userB);
@@ -435,19 +439,19 @@ class MemoryEngineTest extends TestCase
 
             $fake->analysisResponseText = '{"topics":[{"name":"Цвета","message_ids":['.$from->id.']}],"memories":[{"kind":"preference","content":"Любимый тестовый цвет — бирюзовый","normalized_key":"favorite test color","confidence":0.91,"action":"create","source_message_ids":['.$from->id.']}]}';
             $job = new AnalyzeConversationTurnJob($user->id, $conversation->id, $from->id, $to->id);
-            $job->handle(app(ConversationTurnAnalyzer::class), app(\App\Services\Memory\UserProfileService::class));
+            $job->handle(app(ConversationTurnAnalyzer::class), app(UserProfileService::class));
 
             $this->assertSame(1, Memory::query()->where('user_id', $user->id)->count());
             $this->assertSame('completed', MemoryAnalysisRun::query()->where('user_id', $user->id)->first()?->status->value);
 
-            $job->handle(app(ConversationTurnAnalyzer::class), app(\App\Services\Memory\UserProfileService::class));
+            $job->handle(app(ConversationTurnAnalyzer::class), app(UserProfileService::class));
             $this->assertSame(1, Memory::query()->where('user_id', $user->id)->count());
 
             $second = $this->addDialogue($conversation, 'Ещё факт', 'Ок');
             $fake->analysisResponseText = 'this is not json';
             $rawCount = Message::query()->where('conversation_id', $conversation->id)->count();
             $failedJob = new AnalyzeConversationTurnJob($user->id, $conversation->id, $second[0]->id, $second[1]->id);
-            $failedJob->handle(app(ConversationTurnAnalyzer::class), app(\App\Services\Memory\UserProfileService::class));
+            $failedJob->handle(app(ConversationTurnAnalyzer::class), app(UserProfileService::class));
 
             $this->assertSame(1, Memory::query()->where('user_id', $user->id)->count());
             $this->assertSame($rawCount, Message::query()->where('conversation_id', $conversation->id)->count());
@@ -464,24 +468,15 @@ class MemoryEngineTest extends TestCase
     public function test_parser_rejects_malformed_structured_output(): void
     {
         $parser = app(MemoryAnalysisResultParser::class);
-        $this->expectException(\App\Services\Memory\Exceptions\MemoryAnalysisException::class);
+        $this->expectException(MemoryAnalysisException::class);
         $parser->parse('{"memories":[{"kind":"nope","content":"x","confidence":2,"action":"create"}]}', [1]);
     }
 
-    public function test_owner_can_view_user_memory_and_regular_user_cannot(): void
+    public function test_third_party_user_memory_admin_is_not_routed(): void
     {
-        $user = null;
-
-        try {
-            $user = $this->createTemporaryUser();
-            $owner = User::query()->where('role', UserRole::Owner)->first();
-            $this->assertNotNull($owner);
-
-            $this->actingAs($owner)->get(route('settings.users.memory.show', $user))->assertOk();
-            $this->actingAs($user)->get(route('settings.users.memory.show', $user))->assertForbidden();
-        } finally {
-            $this->deleteTemporaryUser($user);
-        }
+        $this->assertFalse(Route::has('settings.users.memory.show'));
+        $this->assertFalse(Route::has('settings.users.store'));
+        $this->assertFalse(Route::has('settings.users.impersonate'));
     }
 
     public function test_search_and_reminder_share_multi_tool_loop(): void

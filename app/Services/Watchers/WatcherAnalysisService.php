@@ -42,7 +42,7 @@ final class WatcherAnalysisService
             $configuration = $this->resolver->resolveAnalysis();
             $response = $this->gateway->chat($configuration, new AiChatRequest(
                 model: (string) $configuration->model,
-                systemPrompt: 'You are Jarvis analysis. Write a short actionable brief for the owner. No chain of thought. No secrets. Max 80 words.',
+                systemPrompt: 'You are LAVR analysis. Write a short actionable brief for the owner. No chain of thought. No secrets. Max 80 words.',
                 messages: [new AiChatMessage('user', 'Watcher: '.$watcher->name."\nObservation: ".$snippet)],
                 parameters: [
                     'temperature' => 0.2,

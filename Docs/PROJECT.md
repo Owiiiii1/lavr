@@ -1,24 +1,26 @@
-# Jarvis — проект
+# LAVR — проект
+
+LAVR создан на основе JARVIS как **отдельный production instance для одного клиента**. Это не SaaS и не публичная мультиюзерная система. Регистрация сторонних пользователей не предусмотрена. UI и бизнес-логика — single-user / single-client. [LAVR_MIGRATION.md](LAVR_MIGRATION.md).
 
 ## Назначение
 
-Jarvis — персональный AI-ассистент. Один собеседник на пользователя, с долговременной памятью, общей между его чатами и каналами.
+LAVR — персональный AI-ассистент. Один собеседник на инстанс, с долговременной памятью между его чатами и каналами.
 
-**Основной interactive client — Web Personal Workspace** (`/jarvis` Owner, `/chat` users). Telegram — вторичный адаптер. Voice — модальность Web, не отдельный продукт. Mobile — возможный будущий companion. **Desktop отменён.**
+**Основной interactive client — Web Personal Workspace** (`/lavr`). Legacy `/jarvis` и `/chat` редиректят на `/lavr`. Telegram — вторичный адаптер. Voice — модальность Web, не отдельный продукт. Mobile — возможный будущий companion. **Desktop отменён.**
 
-Разговор, начатый в Telegram, доступен в Web **этого же** user.
+Разговор, начатый в Telegram, доступен в Web **этого же** клиента.
 
-Jarvis должен:
+LAVR должен:
 
 - общаться текстом и голосом (Voice **MANUAL PASS** на Web)
 - помнить историю
 - накапливать персональный контекст
 - выбирать релевантный контекст (Memory + Context Budget)
 - пассивно слушать Telegram-группы (Owner)
-- держать Owner Space и User Spaces изолированными
-- reminders как Core-объект (сегодня create/delivery ещё Telegram; target — без обязательного Telegram)
+- держать один личный контекст клиента (не Owner Space vs User Space)
+- reminders как Core-объект
 
-## Что Jarvis не является
+## Что LAVR не является
 
 - Не набор изолированных чатов с обнуляемым контекстом.
 - Не Telegram-бот с AI-логикой внутри адаптера.
@@ -29,18 +31,19 @@ Jarvis должен:
 
 ## Принцип одного ядра
 
-Существует один **Jarvis Core**. Клиенты — адаптеры:
+Существует один **assistant core**. Клиенты — адаптеры:
 
 - Telegram (implemented);
-- User Personal Workspace `/chat` (implemented);
-- Owner Personal Workspace `/jarvis` (PRIMARY);
+- Personal Workspace `/lavr` (PRIMARY);
 - Voice mode over Web (MANUAL PASS);
 - Mobile companion (DEFERRED);
 - Desktop — **CANCELLED**.
 
-Ядро владеет пользователями, разговорами, памятью, оркестрацией AI и сборкой контекста. Канал только доставляет нормализованное сообщение и возвращает ответ.
+Ядро владеет разговорами, памятью, оркестрацией AI и сборкой контекста. Канал только доставляет нормализованное сообщение и возвращает ответ.
 
-Owner — запись `users` с `role=owner` (не hardcoded id). Telegram pairing: уникальный `access_code` (owner **`2000`**). Код не web-пароль и не создаёт User из чата. [USERS_AND_CABINET.md](USERS_AND_CABINET.md).
+Единственный рабочий аккаунт клиента — запись `users` (обычно `role=owner`). Telegram pairing: уникальный `access_code` (зарезервированный owner-код **`2000`**). Код не web-пароль и не создаёт User из чата.
+
+Мультиюзерная модель JARVIS (ordinary users, `/chat`, Admin Users, impersonation) **снята с продукта** в Phase 1.
 
 Telegram-группы — отдельный модуль. [TELEGRAM_GROUPS.md](TELEGRAM_GROUPS.md).
 

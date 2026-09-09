@@ -15,6 +15,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Services\ChatAttachments\ChatAttachmentService;
 use App\Services\Knowledge\KnowledgeDeletionService;
+use App\Support\WorkspaceUrl;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -263,8 +264,9 @@ final class ConversationService
 
     private function rewireNotificationLinks(User $user, int $conversationId): void
     {
-        $root = $user->isOwner() ? '/jarvis' : '/chat';
+        $root = WorkspaceUrl::PREFIX;
         $prefixes = [
+            '/lavr/chats/'.$conversationId,
             '/jarvis/chats/'.$conversationId,
             '/chat/chats/'.$conversationId,
         ];
