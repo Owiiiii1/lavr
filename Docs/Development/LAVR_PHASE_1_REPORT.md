@@ -3,7 +3,7 @@
 **Дата:** 2026-09-09  
 **Ветка:** `main`  
 **Remote:** `https://github.com/Owiiiii1/lavr.git` (`Owiiiii1/lavr`)  
-**Commit SHA:** *заполняется сразу после git commit (см. раздел Git ниже)*
+**Commit SHA:** `f42cfe68e766861c3d9f4a12665cdd78b478f1dd`
 
 Этот файл — полный отчёт Phase 1. В чат он не дублируется.
 
@@ -242,11 +242,12 @@ Paid AI, реальный Telegram, реальная почта, production inte
 
 ---
 
-## Git (заполняется после commit)
+## Git (после commit)
 
 | Поле | Значение |
 | --- | --- |
-| Commit SHA | PENDING |
-| Commit message | PENDING |
-| Push `Owiiiii1/lavr` | PENDING |
-| Working tree | PENDING |
+| Implementation commit SHA | `f42cfe68e766861c3d9f4a12665cdd78b478f1dd` |
+| Implementation commit message | `feat: convert LAVR to a single-client instance` |
+| SHA-recording commit | этот же файл, следующий commit на `main` |
+| Push `Owiiiii1/lavr` | выполняется сразу после записи SHA |
+| Working tree | должна быть чистой после push |
