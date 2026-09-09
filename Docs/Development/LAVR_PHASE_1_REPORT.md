@@ -248,6 +248,12 @@ Paid AI, реальный Telegram, реальная почта, production inte
 | --- | --- |
 | Implementation commit SHA | `f42cfe68e766861c3d9f4a12665cdd78b478f1dd` |
 | Implementation commit message | `feat: convert LAVR to a single-client instance` |
-| SHA-recording commit | этот же файл, следующий commit на `main` |
-| Push `Owiiiii1/lavr` | выполняется сразу после записи SHA |
-| Working tree | должна быть чистой после push |
+| SHA-recording commit | `e838228` (`docs: record LAVR Phase 1 implementation commit SHA`) |
+| Push `Owiiiii1/lavr` | **FAIL** |
+| Push error | `fatal: could not read Username for 'https://github.com': No such device or address` |
+| SSH `git@github.com` | **FAIL** `Permission denied (publickey)` (ключ `~/.ssh/id_ed25519`, comment `deploy@yfs-prod-yfs-ai`, не принят GitHub для этого remote) |
+| Remote | без изменений: `https://github.com/Owiiiii1/lavr.git` (не JARVIS) |
+| `origin/main` на GitHub | всё ещё `682b8e1` (публичный `ls-remote` без write auth) |
+| Working tree | чистая после локальных commit; **два commit не запушены** |
+
+Ручная проверка владельцем: добавить deploy key / HTTPS credentials с write access на `Owiiiii1/lavr` и выполнить `git push origin main`. Не пушить в `Owiiiii1/JARVIS`.
