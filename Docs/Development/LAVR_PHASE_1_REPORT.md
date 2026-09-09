@@ -246,14 +246,61 @@ Paid AI, реальный Telegram, реальная почта, production inte
 
 | Поле | Значение |
 | --- | --- |
+| Репозиторий на сервере | `/var/www/lavr` |
+| Branch | `main` |
+| Remote `origin` | `https://github.com/Owiiiii1/lavr.git` (не JARVIS) |
 | Implementation commit SHA | `f42cfe68e766861c3d9f4a12665cdd78b478f1dd` |
 | Implementation commit message | `feat: convert LAVR to a single-client instance` |
 | SHA-recording commit | `e838228` (`docs: record LAVR Phase 1 implementation commit SHA`) |
-| Push `Owiiiii1/lavr` | **FAIL** |
-| Push error | `fatal: could not read Username for 'https://github.com': No such device or address` |
-| SSH `git@github.com` | **FAIL** `Permission denied (publickey)` (ключ `~/.ssh/id_ed25519`, comment `deploy@yfs-prod-yfs-ai`, не принят GitHub для этого remote) |
-| Remote | без изменений: `https://github.com/Owiiiii1/lavr.git` (не JARVIS) |
-| `origin/main` на GitHub | всё ещё `682b8e1` (публичный `ls-remote` без write auth) |
-| Working tree | чистая после локальных commit; **два commit не запушены** |
+| Local `HEAD` before this note | `053ef4a` — `docs: record failed GitHub push for Phase 1` |
+| Working tree before this note | clean |
+| Ahead of `origin/main` | 3 commits (Phase 1 **есть локально**, на GitHub **нет**) |
+| GitHub `origin/main` (`ls-remote`) | `682b8e1aac07737ea5302425153d14f0e4c5c6df` |
 
-Ручная проверка владельцем: добавить deploy key / HTTPS credentials с write access на `Owiiiii1/lavr` и выполнить `git push origin main`. Не пушить в `Owiiiii1/JARVIS`.
+### Повторный push 2026-09-09 ~10:01 UTC+2 — FAIL
+
+Команда: `GIT_TERMINAL_PROMPT=0 git push origin main`
+
+Точная ошибка HTTPS:
+
+```text
+fatal: could not read Username for 'https://github.com': terminal prompts disabled
+```
+
+Ранее без `GIT_TERMINAL_PROMPT=0`:
+
+```text
+fatal: could not read Username for 'https://github.com': No such device or address
+```
+
+SSH (`ssh -i ~/.ssh/id_ed25519 -o BatchMode=yes -T git@github.com`):
+
+```text
+Offering public key: /home/deploy/.ssh/id_ed25519 ED25519 SHA256:aEV7/Lknjlwmi7mPi8XoxT9iNs7+kNB4avPnKZi9euo
+git@github.com: Permission denied (publickey).
+```
+
+Проверено, что **не** помогает:
+
+- `GH_TOKEN` / `GITHUB_TOKEN` в окружении — не заданы
+- `gh auth status` — не залогинен ни на один GitHub host
+- `~/.git-credentials`, `~/.netrc`, git credential helper — отсутствуют
+- `git config --global` — пустой
+- OAuth app keys в `.env` (`GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET`) — это не PAT и не дают `git push`
+- таблица `integration_accounts` пустая — GitHub пользователя к инстансу не подключён
+
+Публичный ключ сервера (можно добавить как **Deploy key** с write access на `Owiiiii1/lavr`):
+
+```text
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKhZZoW3Ct/NBNH8mXG/45ZVzJdxg9qdf+pMJ/8VKmMq deploy@yfs-prod-yfs-ai
+```
+
+После добавления ключа или `gh auth login` / PAT с `repo` на этом сервере:
+
+```bash
+cd /var/www/lavr
+git push origin main
+```
+
+Не пушить в `Owiiiii1/JARVIS`.
+
