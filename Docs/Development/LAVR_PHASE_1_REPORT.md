@@ -426,7 +426,7 @@ LAVR artisan uses `/usr/bin/php8.5`. Other cron jobs keep `php` / `/usr/bin/php`
 | `php artisan about` | LAVR, Laravel 13.30.1, PHP 8.5.10, production, debug off |
 | `migrate:status` | all Ran on MySQL |
 | `route:list --path=lavr` | 72 routes |
-| `LavrSingleUserSurfaceTest` | 4 PASS (login/register/redirects); 2 FAIL — no Owner row on empty MySQL (expected for clean instance) |
+| `LavrSingleUserSurfaceTest` | **PASS** 6/6 after Owner created (see section K) |
 | `npm run build` | PASS |
 | `https://app.youngfashionshow.com` | still 302 |
 | `https://ai.youngfashionshow.com` | still 302 |
@@ -440,4 +440,40 @@ LAVR artisan uses `/usr/bin/php8.5`. Other cron jobs keep `php` / `/usr/bin/php`
 - MySQL users/DBs of other apps unchanged
 - `yfs-voice-runtime` still running
 - existing crontab entries kept
+
+---
+
+## K. Single Owner account — 2026-09-09
+
+**Phase 1 status: COMPLETE**
+
+| Item | Value |
+| --- | --- |
+| Database | MySQL `lavr` (`DB_CONNECTION=mysql`) |
+| `users` count | **1** |
+| Owner email | `admin@admin.com` |
+| Role / status | `owner` / `active` |
+| Capabilities | Owner (`UserCapabilities` returns true for all) |
+| Second user | not created |
+| `user_assistant_profiles.assistant_name` | **LAVR** |
+| Personality / about_user / interaction_style | empty |
+| Onboarding | `completed` — project default for Owner (`AssistantProfileService::defaultsFor`); Owner is not sent through third-party onboarding (`startOnboarding` throws; `show_onboarding` is false) |
+
+Password is not recorded in Git.
+
+### Production login (`https://lavr.youngfashionshow.com`)
+
+| Check | Result |
+| --- | --- |
+| Login page | PASS — 200, branded LAVR, no Jarvis title, no Register |
+| Login | PASS — 200, redirect `https://lavr.youngfashionshow.com/lavr/chats/1` |
+| `/lavr` | PASS — 200 |
+| `/dashboard` | PASS — 200 |
+| `/settings` | PASS — 200, no `Add user`, no `UsersPanel` |
+| `/register` | PASS — 404 |
+| Logout | PASS — guest `/lavr` follows to login `/` |
+
+### Tests
+
+`/usr/bin/php8.5 artisan test --compact tests/Feature/LavrSingleUserSurfaceTest.php` — **PASS** 6 tests, 36 assertions.
 
