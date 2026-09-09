@@ -39,7 +39,8 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | People | Knowledge entity `person` + synthesis | `people` + roles + `employee_profiles` |
 | Organizations | Knowledge entity `organization` | `organizations` + relationships |
 | Projects | Work container + pivots | Business context (mailboxes, meetings, commitments, …) |
-| Meetings | Calendar live + knowledge events | `meetings` + transcript pipeline |
+| Meetings | Calendar live + knowledge events | `meetings` + transcript pipeline (Phase 5A manual; **Phase 5B Zoom automatic**) |
+| Zoom Integration | **Absent** | **TARGET Phase 5B / NOT IMPLEMENTED** |
 | Commitments | Derived (`CommitmentResolver`, knowledge events) | First-class `commitments` + evidence |
 | Decisions | Group knowledge / events | First-class `decisions` |
 | Automation | Watchers + scheduled reports + briefs + proactive | Deterministic engine + events + validation ([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md)) |
@@ -182,7 +183,7 @@ One user: `admin@admin.com`, role `owner`, assistant_name **LAVR**. Password is 
 
 - Full Telegram Mini App E2E on a real client (needs bot token + Owner pairing in MySQL `lavr`)
 - `people` / `meetings` / `commitments` / `decisions` / org relationship tables
-- Zoom → Meeting pipeline
+- Zoom Integration: **TARGET Phase 5B / NOT IMPLEMENTED** (no OAuth, webhook, or transcript import)
 - Deterministic Automation Engine as specified (watchers/reports exist but are not the full TARGET)
 - Executive Brief section model
 - Leadership Review
@@ -195,6 +196,6 @@ Live campaigns still open: [DEFERRED_VALIDATION.md](DEFERRED_VALIDATION.md).
 
 ## 9. TARGET (pointer only)
 
-Do not implement from this section. Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phases 3–10.
+Do not implement from this section. Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phases 3A–12.
 
 Architecture sketch: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Decisions: ADR-266+ in [DECISIONS.md](DECISIONS.md).

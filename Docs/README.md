@@ -29,7 +29,7 @@ Deep rewrite: Phase 2 (this index). Origin: [LAVR_MIGRATION.md](LAVR_MIGRATION.m
 | Leadership Review | [LEADERSHIP_REVIEW.md](LEADERSHIP_REVIEW.md) |
 | Onboarding | [ONBOARDING.md](ONBOARDING.md) |
 | Runtime snapshot | [CURRENT_STATE.md](CURRENT_STATE.md) |
-| Implementation phases 3–10 | [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) |
+| Implementation phases 3A–12 | [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) |
 
 Each domain concept has **one** canonical file. Other docs link; they must not restate the full model.
 

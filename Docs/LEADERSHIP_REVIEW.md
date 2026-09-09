@@ -30,4 +30,4 @@ Boundaries:
 - no personality labels, no “morale”, no clinical language;
 - output is operational: gaps in ownership, deadlines, decision clarity.
 
-Phase 9. Depends on Meetings (Phase 5) and preferably Commitments (Phase 6).
+Phase 9. Depends on Meetings (Phase 5A; Zoom-sourced meetings from Phase 5B) and preferably Commitments (Phase 6).

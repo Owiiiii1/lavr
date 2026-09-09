@@ -31,18 +31,22 @@ Existing `projects`, watchers, and scheduled reports are **reused and hardened**
 
 | Phase | Slice | Canonical docs |
 | --- | --- | --- |
-| **3** | Telegram WebApp foundation (same Workspace, TG + browser) | [INTERFACES.md](INTERFACES.md) |
+| **3A** | Telegram WebApp foundation (same Workspace, TG + browser) | [INTERFACES.md](INTERFACES.md) |
+| **3B** | WebApp UX completion | [INTERFACES.md](INTERFACES.md), [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md) |
 | **4** | People / Organizations / Projects as business contexts | [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md), [PROJECTS.md](PROJECTS.md) |
-| **5** | Meetings + transcript import | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) |
+| **5A** | Meetings + manual transcript import | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) |
+| **5B** | Zoom integration (automatic transcript import) | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md), [DATA_SOURCES.md](DATA_SOURCES.md) |
 | **6** | Commitment extraction + tracking | [COMMITMENTS.md](COMMITMENTS.md) |
 | **7** | Automation Engine hardening | [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md), [EVENT_MODEL.md](EVENT_MODEL.md) |
 | **8** | Executive Brief | [EXECUTIVE_BRIEF.md](EXECUTIVE_BRIEF.md) |
 | **9** | Leadership Review | [LEADERSHIP_REVIEW.md](LEADERSHIP_REVIEW.md) |
-| **10** | External integrations / dashboards; multi-mailbox | [DATA_SOURCES.md](DATA_SOURCES.md) |
+| **10** | Multi-source business integration | [DATA_SOURCES.md](DATA_SOURCES.md) |
+| **11** | Proactive operational control | [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md), [COMMITMENTS.md](COMMITMENTS.md) |
+| **12** | Production polish | [CURRENT_STATE.md](CURRENT_STATE.md) |
 
 Phase 7 can start **in parallel** with 5–6 for report/watcher validation (already burning in production). Full event bus waits for operational entities.
 
-Onboarding business map ([ONBOARDING.md](ONBOARDING.md)) spans 3–8; do not block Phase 3 on it.
+Onboarding business map ([ONBOARDING.md](ONBOARDING.md)) spans 3–8; do not block Phase 3B on it.
 
 ---
 
@@ -73,6 +77,12 @@ Code is in this repository. Report: [Development/LAVR_PHASE_3A_REPORT.md](Develo
 
 Remaining for later Phase 3 work: live Mini App after production Telegram token + Owner pairing are present in MySQL `lavr`; Menu Button; optional “Open in LAVR” buttons on selected Chat messages.
 
+### Phase 3B — WebApp UX completion
+
+**Goal.** Finish the Mini App as a daily CEO surface: real Telegram-client E2E, Menu Button, remaining shell/UX gaps from the Phase 3A report. Same Workspace; no second frontend.
+
+**Not in this phase.** People/Meetings/Commitments tables (Phase 4–6); Zoom.
+
 ---
 
 ## Phase 4 — People / Organizations / Projects
@@ -85,11 +95,27 @@ Remaining for later Phase 3 work: live Mini App after production Telegram token 
 
 ---
 
-## Phase 5 — Meetings + transcripts
+## Phase 5A — Meetings + manual transcript import
 
-**Goal.** `meetings` + transcript ingest + extraction into structured facts (participants, topics, decisions, tasks, commitments-as-drafts if Phase 6 not done).
+**Goal.** First-class `meetings` with participants, project binding, **manual** transcript upload, original transcript storage, and Meeting Intelligence (topics, summary, decisions, tasks, open questions, risks, Leadership Review foundation). Commitments-as-drafts if Phase 6 is not done yet.
 
-**Exit.** A Zoom/upload transcript becomes a Meeting, not only a Knowledge document.
+Manual upload is a **permanent** fallback (old Zoom meetings, non-CEO Zoom accounts, Google Meet, Teams, third-party transcripts, `.txt` / `.vtt` / later formats).
+
+**Not in this phase.** Zoom OAuth, Zoom webhooks, automatic Zoom download.
+
+**Exit.** An uploaded transcript becomes a Meeting with a stored original artifact, not only a Knowledge document.
+
+---
+
+## Phase 5B — Zoom integration
+
+**Goal.** Zoom meetings appear in LAVR automatically when the cloud transcript is ready. No CEO upload for meetings on the connected Zoom account.
+
+Target: `recording.transcript_completed` webhook → validate → deduplicate → queue → `GET /meetings/{meetingId}/transcript` → download original → Meeting Intelligence. Webhook returns HTTP 200/204 immediately. [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md), [DATA_SOURCES.md](DATA_SOURCES.md#zoom).
+
+**Not in this phase.** New People/Commitments tables (those are Phase 4 / 6). Do not hardcode an unconfirmed Zoom OAuth app type before checking current Zoom docs and the client account.
+
+**Exit.** After a Zoom meeting on the connected account, a Meeting exists in LAVR with the original transcript, without a manual file upload. Duplicates are not created on webhook retry.
 
 ---
 
@@ -121,15 +147,29 @@ Remaining for later Phase 3 work: live Mini App after production Telegram token 
 
 **Goal.** Observable meeting execution quality. No psychometrics.
 
-**Depends on** Phase 5 (and preferably 6).
+**Depends on** Phase 5A (and preferably 6). Zoom-sourced meetings from 5B should feed the same review.
 
 ---
 
-## Phase 10 — External integrations / dashboards
+## Phase 10 — Multi-source business integration
 
-**Goal.** Additional APIs; **multiple mailboxes** bound to projects (superseding one-Google-account MVP where the CEO needs it).
+**Goal.** Additional APIs; **multiple mailboxes** bound to projects (superseding one-Google-account MVP where the CEO needs it). Conferencing beyond Zoom remains upload/fallback unless a later slice names a provider.
 
 LAVR still does not become CRM/ERP.
+
+---
+
+## Phase 11 — Proactive operational control
+
+**Goal.** Once People, Meetings, Commitments, and the Automation Engine exist, LAVR puts agreements on control without a special CEO command, and notifies only when attention is due.
+
+**Depends on** Phases 4–7 (and 5B for automatic Zoom-sourced commitments).
+
+---
+
+## Phase 12 — Production polish
+
+**Goal.** Harden what already ships: validation, UX, reliability, Owner-confirmed campaigns. Not a new domain model.
 
 ---
 

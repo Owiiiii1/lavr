@@ -77,6 +77,8 @@ If in a meeting someone says «завтра до обеда отправлю п�
 
 Normal system behavior (Phase 6), not a special command.
 
+After Phase 5B, Zoom transcripts are a primary automatic source of commitments (same extraction; source = Meeting).
+
 ### Completion evidence
 
 Do not close only by hand.

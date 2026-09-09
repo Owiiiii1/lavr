@@ -21,6 +21,8 @@ LAVR must do more than answer questions and store memory. It must:
 - notify the CEO only about events that deserve attention;
 - answer “what is the current state of this company / project / person?” from structured facts.
 
+LAVR automatically receives meeting transcripts from connected conferencing providers, starting with Zoom. Manual upload remains the fallback for other meetings. Technical ingest: [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md).
+
 ## Product principle
 
 **LAVR = Leadership · Accountability · Vision · Results**

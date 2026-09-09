@@ -77,7 +77,7 @@ Target sections (product UX, not a current route map):
 | Today | Attention-reduced day view |
 | People | [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md) |
 | Projects | [PROJECTS.md](PROJECTS.md) |
-| Meetings | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) |
+| Meetings | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) — list/detail; **import status** (manual vs Zoom); source; unresolved project/people |
 | Commitments | [COMMITMENTS.md](COMMITMENTS.md) |
 | Tasks | Formal tasks — [TASKS.md](TASKS.md) |
 | Waiting For | What the CEO is waiting on |
@@ -87,7 +87,7 @@ Target sections (product UX, not a current route map):
 | Notifications | Inbox |
 | Settings | Assistant, voice, integrations, policies |
 
-Phase 3 in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the WebApp foundation (auth, shell, shared Workspace), not the full domain UI.
+Phase 3A–3B in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the WebApp foundation and UX completion, not the full domain UI.
 
 ---
 
@@ -107,6 +107,7 @@ Admin remains necessary for:
 
 - manual data correction;
 - People, Organizations, Projects, Meetings, Commitments, Tasks (when those tables exist);
+- confirming Meeting project binding and unresolved Zoom/manual participants;
 - Sources, Integrations, Watchers, Scheduled Reports;
 - system settings, diagnostics, AI prompts/configuration;
 - confirming difficult identity / relationship links.

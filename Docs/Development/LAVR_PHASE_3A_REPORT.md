@@ -235,3 +235,9 @@ Do **not** rotate the bot token. Do **not** change webhook URL.
 Backend: `TelegramWebAppController`, `TelegramWebAppInitDataValidator`, `TelegramWebAppAuthenticator`, `TelegramWebAppDeepLink`, `TelegramWebAppUrl`, `TodayBriefService`, workspace page controllers, `config/telegram.php`, `telegram:set-webapp-menu`.
 
 Frontend: `TelegramWebAppBridge`, `LavrAppShell`, `LavrBottomNav`, `Telegram/WebAppBoot`, `Telegram/WebAppBlocked`, `Jarvis/Today|People|More|Projects|ProjectShow|ComingFoundation`.
+
+---
+
+## Post-Phase-3A planning note
+
+Zoom integration formally added to Phase 5B roadmap. Documentation only; no Zoom code in Phase 3A. See [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md), [MEETING_INTELLIGENCE.md](../MEETING_INTELLIGENCE.md), [DATA_SOURCES.md](../DATA_SOURCES.md).
