@@ -10,6 +10,7 @@ use App\Services\Ai\Exceptions\AiSafetyException;
 use App\Services\Groups\Exceptions\GroupAnalysisException;
 use App\Services\Integrations\Exceptions\IntegrationException;
 use App\Services\Knowledge\Exceptions\KnowledgeExtractionException;
+use App\Services\Meetings\Exceptions\MeetingIntelligenceException;
 use App\Services\Memory\Exceptions\MemoryAnalysisException;
 use App\Services\Reliability\Exceptions\ClassifiedAsyncException;
 use App\Services\Storage\Exceptions\StoredFileException;
@@ -85,7 +86,7 @@ final class AsyncFailureClassifier
             return new AsyncFailure(AsyncFailureCategory::ProviderAuth, 'provider_config', false, $exception::class);
         }
 
-        if ($exception instanceof MemoryAnalysisException || $exception instanceof GroupAnalysisException || $exception instanceof KnowledgeExtractionException) {
+        if ($exception instanceof MemoryAnalysisException || $exception instanceof GroupAnalysisException || $exception instanceof KnowledgeExtractionException || $exception instanceof MeetingIntelligenceException) {
             return new AsyncFailure(AsyncFailureCategory::MalformedProviderResponse, 'structured_output', false, $exception::class);
         }
 

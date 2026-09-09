@@ -18,12 +18,14 @@ use App\Http\Controllers\Jarvis\JarvisTodayController;
 use App\Http\Controllers\Jarvis\JarvisVoiceController;
 use App\Http\Controllers\Jarvis\JarvisWatcherController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceController;
+use App\Http\Controllers\Jarvis\JarvisWorkspaceMeetingsController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceOrganizationsController;
 use App\Http\Controllers\Jarvis\JarvisWorkspacePageController;
 use App\Http\Controllers\Jarvis\JarvisWorkspacePeopleController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceProjectsController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceSearchController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceStatusController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\ProfileController;
@@ -96,7 +98,15 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
         Route::get('/organizations/{organization}', [JarvisWorkspaceOrganizationsController::class, 'show'])->name('organizations.show');
         Route::get('/search', [JarvisWorkspaceSearchController::class, 'show'])->name('search.show');
         Route::get('/more', [JarvisWorkspacePageController::class, 'more'])->name('more.show');
-        Route::get('/meetings', [JarvisWorkspacePageController::class, 'meetings'])->name('meetings.index');
+        Route::get('/meetings', [JarvisWorkspaceMeetingsController::class, 'index'])->name('meetings.index');
+        Route::post('/meetings', [JarvisWorkspaceMeetingsController::class, 'store'])->name('meetings.store');
+        Route::get('/meetings/{meeting}', [JarvisWorkspaceMeetingsController::class, 'show'])->name('meetings.show');
+        Route::patch('/meetings/{meeting}', [JarvisWorkspaceMeetingsController::class, 'update'])->name('meetings.update');
+        Route::post('/meetings/{meeting}/rerun', [JarvisWorkspaceMeetingsController::class, 'rerun'])->name('meetings.rerun');
+        Route::post('/meetings/{meeting}/participants/{participant}/link', [JarvisWorkspaceMeetingsController::class, 'linkParticipant'])->name('meetings.participants.link');
+        Route::post('/meetings/{meeting}/participants/{participant}/unlink', [JarvisWorkspaceMeetingsController::class, 'unlinkParticipant'])->name('meetings.participants.unlink');
+        Route::post('/meetings/{meeting}/participants/{participant}/create-person', [JarvisWorkspaceMeetingsController::class, 'createPersonFromParticipant'])->name('meetings.participants.create-person');
+        Route::get('/meetings/{meeting}/artifacts/{artifact}/download', [JarvisWorkspaceMeetingsController::class, 'downloadArtifact'])->name('meetings.artifacts.download');
         Route::get('/commitments', [JarvisWorkspacePageController::class, 'commitments'])->name('commitments.index');
         Route::get('/projects', [JarvisWorkspaceProjectsController::class, 'index'])->name('workspace.projects.index');
         Route::get('/projects/{project}', [JarvisWorkspaceProjectsController::class, 'show'])->name('workspace.projects.show');
@@ -361,6 +371,18 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::post('/organizations/{organization}/projects', [OrganizationsController::class, 'attachProject'])->name('organizations.projects.store');
     Route::delete('/organizations/{organization}/projects/{project}', [OrganizationsController::class, 'detachProject'])->name('organizations.projects.destroy');
     Route::post('/organizations/{organization}/knowledge', [OrganizationsController::class, 'linkKnowledge'])->name('organizations.knowledge.store');
+
+    Route::get('/meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::post('/meetings', [MeetingController::class, 'store'])->name('meetings.store');
+    Route::get('/meetings/{meeting}', [MeetingController::class, 'show'])->name('meetings.show');
+    Route::patch('/meetings/{meeting}', [MeetingController::class, 'update'])->name('meetings.update');
+    Route::post('/meetings/{meeting}/archive', [MeetingController::class, 'archive'])->name('meetings.archive');
+    Route::post('/meetings/{meeting}/restore', [MeetingController::class, 'restore'])->name('meetings.restore');
+    Route::post('/meetings/{meeting}/rerun', [MeetingController::class, 'rerun'])->name('meetings.rerun');
+    Route::post('/meetings/{meeting}/participants/{participant}/link', [MeetingController::class, 'linkParticipant'])->name('meetings.participants.link');
+    Route::post('/meetings/{meeting}/participants/{participant}/unlink', [MeetingController::class, 'unlinkParticipant'])->name('meetings.participants.unlink');
+    Route::post('/meetings/{meeting}/participants/{participant}/create-person', [MeetingController::class, 'createPersonFromParticipant'])->name('meetings.participants.create-person');
+    Route::get('/meetings/{meeting}/artifacts/{artifact}/download', [MeetingController::class, 'downloadArtifact'])->name('meetings.artifacts.download');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
 

@@ -74,6 +74,11 @@ class Person extends Model
         return $this->hasMany(Project::class, 'owner_person_id');
     }
 
+    public function meetingParticipants(): HasMany
+    {
+        return $this->hasMany(MeetingParticipant::class);
+    }
+
     public function knowledgeEntities(): HasMany
     {
         return $this->hasMany(KnowledgeEntity::class, 'canonical_id')

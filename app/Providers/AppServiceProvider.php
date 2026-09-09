@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Project;
 use App\Models\TelegramGroup;
+use App\Policies\MeetingPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\PersonPolicy;
 use App\Policies\ProjectPolicy;
@@ -117,6 +119,10 @@ use App\Services\Tools\Knowledge\SearchKnowledgeTool;
 use App\Services\Tools\LinkTaskReminderTool;
 use App\Services\Tools\ListRemindersTool;
 use App\Services\Tools\ListTasksTool;
+use App\Services\Tools\Meetings\FindMeetingTool;
+use App\Services\Tools\Meetings\GetMeetingAnalysisTool;
+use App\Services\Tools\Meetings\GetMeetingTool;
+use App\Services\Tools\Meetings\ListMeetingsTool;
 use App\Services\Tools\Reports\CancelScheduledReportTool;
 use App\Services\Tools\Reports\CreateScheduledReportTool;
 use App\Services\Tools\Reports\GetScheduledReportTool;
@@ -368,6 +374,10 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(GetOrganizationTool::class),
                 $app->make(FindProjectTool::class),
                 $app->make(GetProjectTool::class),
+                $app->make(ListMeetingsTool::class),
+                $app->make(FindMeetingTool::class),
+                $app->make(GetMeetingTool::class),
+                $app->make(GetMeetingAnalysisTool::class),
                 $app->make(GetProjectStatusTool::class),
                 $app->make(GetSynthesisTool::class),
                 $app->make(GetPersonStatusTool::class),
@@ -457,6 +467,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TelegramGroup::class, TelegramGroupPolicy::class);
         Gate::policy(Person::class, PersonPolicy::class);
         Gate::policy(Organization::class, OrganizationPolicy::class);
+        Gate::policy(Meeting::class, MeetingPolicy::class);
 
         RateLimiter::for('telegram-webapp', function (Request $request) {
             $perMinute = max(5, (int) config('telegram.webapp.rate_limit_per_minute', 20));

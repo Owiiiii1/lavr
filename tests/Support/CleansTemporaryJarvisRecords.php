@@ -18,6 +18,10 @@ use App\Models\KnowledgeEntityAlias;
 use App\Models\KnowledgeEntitySource;
 use App\Models\KnowledgeEvent;
 use App\Models\KnowledgeRelationship;
+use App\Models\Meeting;
+use App\Models\MeetingAnalysis;
+use App\Models\MeetingArtifact;
+use App\Models\MeetingParticipant;
 use App\Models\Memory;
 use App\Models\MemoryAnalysisRun;
 use App\Models\MemoryRevision;
@@ -53,6 +57,7 @@ use App\Services\Users\AccessCodeGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 trait CleansTemporaryJarvisRecords
@@ -142,6 +147,15 @@ trait CleansTemporaryJarvisRecords
         }
         if (Schema::hasTable('directory_relationships')) {
             DirectoryRelationship::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('meetings')) {
+            $meetingIds = Meeting::query()->where('user_id', $user->id)->pluck('id');
+            Meeting::query()->where('user_id', $user->id)->update(['current_analysis_id' => null]);
+            MeetingAnalysis::query()->whereIn('meeting_id', $meetingIds)->delete();
+            MeetingArtifact::query()->whereIn('meeting_id', $meetingIds)->delete();
+            MeetingParticipant::query()->whereIn('meeting_id', $meetingIds)->delete();
+            Meeting::query()->where('user_id', $user->id)->delete();
+            Storage::disk((string) config('meetings.disk', 'local'))->deleteDirectory('meetings/'.$user->id);
         }
         if (Schema::hasTable('employee_profiles') && Schema::hasTable('people')) {
             EmployeeProfile::query()

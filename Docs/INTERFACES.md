@@ -21,7 +21,7 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | --- | --- | --- |
 | Telegram DM | Bot webhook `/telegram/webhook` | Fast chat, pairing via `access_code`, optional voice in/out |
 | Telegram Groups | Same bot | Source / analysis; not the CEO’s personal UI |
-| Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice |
+| Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice + People / Organizations / Projects / Meetings |
 | Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED (needs token + pairing) |
 | Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/people`, `/organizations`, `/telegram-groups`, …) | Technical management |
 | Legacy paths | `GET /jarvis`, `GET /chat` | Redirect to `/lavr` |
@@ -114,7 +114,7 @@ The CEO must not be required to use Admin for normal work.
 Admin remains necessary for:
 
 - manual data correction;
-- People, Organizations, Projects (CURRENT); Meetings, Commitments, Tasks (when those tables exist);
+- People, Organizations, Projects, Meetings (CURRENT); Commitments, Tasks (when those tables exist / Tasks already exist);
 - confirming Meeting project binding and unresolved Zoom/manual participants;
 - Sources, Integrations, Watchers, Scheduled Reports;
 - system settings, diagnostics, AI prompts/configuration;

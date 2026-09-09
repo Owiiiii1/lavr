@@ -9,6 +9,7 @@ use App\Services\Tools\Directory\GetProjectTool;
 use App\Services\Tools\GetAssistantProfileTool;
 use App\Services\Tools\ListRemindersTool;
 use App\Services\Tools\ListTasksTool;
+use App\Services\Tools\Meetings\ListMeetingsTool;
 use App\Services\Tools\ToolRegistry;
 use Tests\TestCase;
 
@@ -25,5 +26,6 @@ class ToolRegistryResolutionTest extends TestCase
         $this->assertInstanceOf(ListTasksTool::class, $registry->resolve(ListTasksTool::NAME));
         $this->assertInstanceOf(FindPersonTool::class, $registry->resolve(FindPersonTool::NAME));
         $this->assertInstanceOf(GetProjectTool::class, $registry->resolve(GetProjectTool::NAME));
+        $this->assertInstanceOf(ListMeetingsTool::class, $registry->resolve(ListMeetingsTool::NAME));
     }
 }

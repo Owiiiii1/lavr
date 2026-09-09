@@ -89,6 +89,11 @@ class Project extends Model
             ->withTimestamps();
     }
 
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class);
+    }
+
     public function sourceBindings(): HasMany
     {
         return $this->hasMany(ProjectSourceBinding::class);

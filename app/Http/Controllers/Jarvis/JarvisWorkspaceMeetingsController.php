@@ -1,0 +1,194 @@
+<?php
+
+namespace App\Http\Controllers\Jarvis;
+
+use App\Http\Controllers\Controller;
+use App\Models\Meeting;
+use App\Models\MeetingArtifact;
+use App\Models\MeetingParticipant;
+use App\Models\Organization;
+use App\Models\Person;
+use App\Models\Project;
+use App\Services\Meetings\Exceptions\MeetingException;
+use App\Services\Meetings\MeetingConfig;
+use App\Services\Meetings\MeetingService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class JarvisWorkspaceMeetingsController extends Controller
+{
+    public function __construct(
+        private readonly MeetingService $meetings,
+    ) {}
+
+    public function index(Request $request): Response
+    {
+        $this->authorize('viewAny', Meeting::class);
+
+        $items = $this->meetings->list(
+            $request->user(),
+            $request->query('q'),
+            $request->integer('project_id') ?: null,
+            $request->query('from'),
+            $request->query('to'),
+            $request->query('analysis_status'),
+        );
+
+        return Inertia::render('Jarvis/Meetings', [
+            'meetings' => $items->map(fn (Meeting $meeting): array => $this->meetings->serializeSummary($meeting))->values()->all(),
+            'filters' => [
+                'q' => (string) $request->query('q', ''),
+                'project_id' => $request->integer('project_id') ?: null,
+                'from' => (string) $request->query('from', ''),
+                'to' => (string) $request->query('to', ''),
+                'analysis_status' => (string) $request->query('analysis_status', ''),
+            ],
+            'projects' => Project::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
+            'organizations' => Organization::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
+            'maxFileMb' => MeetingConfig::maxFileSizeMb(),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $this->authorize('create', Meeting::class);
+
+        try {
+            $meeting = $this->meetings->createManual(
+                $request->user(),
+                $request->validate([
+                    'title' => ['nullable', 'string', 'max:190'],
+                    'started_at' => ['nullable', 'date'],
+                    'project_id' => ['nullable', 'integer'],
+                    'organization_id' => ['nullable', 'integer'],
+                    'transcript' => ['nullable', 'file', 'max:'.(MeetingConfig::maxFileSizeMb() * 1024)],
+                    'pasted_text' => ['nullable', 'string', 'max:'.MeetingConfig::maxPasteChars()],
+                ]),
+                $request->file('transcript'),
+                $request->input('pasted_text'),
+            );
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['transcript' => $exception->error]);
+        }
+
+        return redirect()->route('jarvis.meetings.show', $meeting);
+    }
+
+    public function show(Request $request, Meeting $meeting): Response
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('view', $meeting);
+
+        return Inertia::render('Jarvis/MeetingShow', [
+            'meeting' => $this->meetings->serialize($meeting),
+            'projects' => Project::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
+            'organizations' => Organization::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
+            'people' => Person::query()->where('user_id', $request->user()->id)->orderBy('display_name')->get(['id', 'display_name']),
+            'pollSeconds' => (int) config('meetings.poll_seconds', 3),
+        ]);
+    }
+
+    public function update(Request $request, Meeting $meeting): RedirectResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('update', $meeting);
+
+        try {
+            $this->meetings->update($request->user(), $meeting, $request->validate([
+                'title' => ['sometimes', 'string', 'max:190'],
+                'started_at' => ['nullable', 'date'],
+                'project_id' => ['nullable', 'integer'],
+                'organization_id' => ['nullable', 'integer'],
+                'notes' => ['nullable', 'string', 'max:5000'],
+            ]));
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['title' => $exception->error]);
+        }
+
+        return back();
+    }
+
+    public function rerun(Request $request, Meeting $meeting): RedirectResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('update', $meeting);
+
+        try {
+            $this->meetings->rerunAnalysis($request->user(), $meeting);
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['analysis' => $exception->error]);
+        }
+
+        return back();
+    }
+
+    public function linkParticipant(Request $request, Meeting $meeting, MeetingParticipant $participant): RedirectResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('update', $meeting);
+        $validated = $request->validate(['person_id' => ['required', 'integer']]);
+
+        try {
+            $this->meetings->linkParticipant($request->user(), $meeting, $participant, (int) $validated['person_id']);
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['person_id' => $exception->error]);
+        }
+
+        return back();
+    }
+
+    public function unlinkParticipant(Request $request, Meeting $meeting, MeetingParticipant $participant): RedirectResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('update', $meeting);
+        $this->meetings->unlinkParticipant($request->user(), $meeting, $participant);
+
+        return back();
+    }
+
+    public function createPersonFromParticipant(Request $request, Meeting $meeting, MeetingParticipant $participant): RedirectResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('update', $meeting);
+
+        try {
+            $this->meetings->createPersonFromParticipant($request->user(), $meeting, $participant);
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['display_name' => $exception->error]);
+        }
+
+        return back();
+    }
+
+    public function downloadArtifact(Request $request, Meeting $meeting, MeetingArtifact $artifact): StreamedResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('view', $meeting);
+
+        return $this->meetings->downloadArtifact($request->user(), $meeting, $artifact);
+    }
+}

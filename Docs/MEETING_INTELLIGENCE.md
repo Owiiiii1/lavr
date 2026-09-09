@@ -4,16 +4,25 @@ Canonical meeting model. Commitments: [COMMITMENTS.md](COMMITMENTS.md). Leadersh
 
 ## CURRENT
 
-There is **no** `meetings` table.
+First-class Meetings exist (Phase 5A, 2026-09-09).
 
-Related pieces:
+| Piece | Status |
+| --- | --- |
+| `meetings` / `meeting_participants` / `meeting_artifacts` / `meeting_analyses` | **IMPLEMENTED** |
+| Manual file upload `.txt` `.vtt` `.srt` `.md` | **IMPLEMENTED** |
+| Pasted transcript text | **IMPLEMENTED** |
+| Private disk storage (same `local` disk as Storage, path `meetings/{user}/{meeting}/…`) | **IMPLEMENTED** |
+| Meeting Intelligence queue (`analysis`) + versioned JSON | **IMPLEMENTED** |
+| Workspace `/lavr/meetings` + Admin `/meetings` | **IMPLEMENTED** |
+| AI read tools `list_meetings` `find_meeting` `get_meeting` `get_meeting_analysis` | **IMPLEMENTED** |
+| First-class `commitments` / `decisions` rows | **NOT** — analysis JSON only |
+| Zoom OAuth / webhook / audio-video transcription | **TARGET Phase 5B / later** |
+| Google Calendar | Live external source (no local event mirror) — ADR-072. Optional `source_external_id` on Meeting; no auto ingest |
+| Knowledge events | Index only — not a Meeting |
 
-- Google Calendar is a **live** external source (no local event mirror) — ADR-072;
-- Knowledge events may include calendar-related types;
-- Telegram group knowledge types include `decision` / `task` / `event_fact`;
-- Zoom transcripts are **not** a first-class import pipeline (**TARGET Phase 5B / NOT IMPLEMENTED**).
+A Zoom or manual transcript must **not** be stored only as a Knowledge document. Original artifact is source of truth for words. Analysis is derived.
 
-A Zoom transcript must **not** be stored only as a Knowledge document.
+Detail: [Development/LAVR_PHASE_5A_REPORT.md](Development/LAVR_PHASE_5A_REPORT.md).
 
 ---
 
@@ -57,7 +66,7 @@ Automatic Zoom import must not replace that fallback.
 
 ### Phases
 
-**Phase 5A — Meetings + Manual Transcript Import.** First-class `meetings`, participants, project binding, manual upload, original transcript storage, analysis (topics, summary, decisions, tasks, open questions, risks), Leadership Review foundation. SQL is defined in that slice, not here.
+**Phase 5A — Meetings + Manual Transcript Import.** **IMPLEMENTED.** First-class `meetings`, participants, project binding, manual upload/paste, original transcript storage, analysis (topics, summary, decisions, action items, detected commitments, open questions, risks). Leadership Review product slice remains Phase 9. SQL lives in `database/migrations/2026_09_09_160000_create_meetings_tables.php`.
 
 **Phase 5B — Zoom Integration.** After 5A. Zoom meetings appear in LAVR when the cloud transcript is ready, without a manual upload. [DATA_SOURCES.md](DATA_SOURCES.md#zoom).
 

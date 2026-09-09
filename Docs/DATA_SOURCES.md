@@ -31,6 +31,7 @@ On-demand translation for the Owner (UI or assistant) must not overwrite the sto
 | Telegram private bot | Webhook, pairing, DM text/voice. |
 | Telegram groups | Persist + analysis tools; Owner; campaign not fully validated. |
 | Uploaded documents | Storage / attachments / Knowledge ingest. |
+| Manual meeting transcripts | **IMPLEMENTED (Phase 5A).** Private `meeting_artifacts` (.txt/.vtt/.srt/.md or pasted text). Not Knowledge documents. |
 | GitHub | OAuth + tools + watcher source; not a CEO ops source of first importance. |
 | Zoom | **TARGET Phase 5B / NOT IMPLEMENTED.** Not a meeting import pipeline today. |
 | External dashboards / APIs | **Not** integrated (Phase 10). |
@@ -46,7 +47,7 @@ Permissions: Owner/client account owns integrations. Encrypted credentials. Tool
 - Telegram groups (source + policy)
 - Telegram private bot (CEO channel)
 - Zoom (OAuth + `recording.transcript_completed` → Meeting) — [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md)
-- Manual / other conferencing transcripts (upload fallback, Phase 5A)
+- Manual / other conferencing transcripts (upload fallback, Phase 5A) — **IMPLEMENTED**
 - Uploaded documents
 - Future external APIs
 - Internal dashboards (read via API, do not clone ERP/CRM)

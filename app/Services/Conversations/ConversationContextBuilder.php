@@ -21,6 +21,7 @@ use App\Services\ConversationIntelligence\WorkingContext;
 use App\Services\ConversationIntelligence\WorkingContextBuilder;
 use App\Services\Knowledge\KnowledgeRetriever;
 use App\Services\Knowledge\KnowledgeToolPrompt;
+use App\Services\Meetings\MeetingToolPrompt;
 use App\Services\Memory\DTO\MemoryContextPackage;
 use App\Services\Memory\PersonalMemoryRetriever;
 use App\Services\Productivity\ProductivitySnapshot;
@@ -301,6 +302,10 @@ final class ConversationContextBuilder
 
         if (array_intersect(SynthesisToolPrompt::toolNames(), $names) !== []) {
             $lines = array_merge($lines, SynthesisToolPrompt::lines());
+        }
+
+        if (array_intersect(MeetingToolPrompt::toolNames(), $names) !== []) {
+            $lines = array_merge($lines, MeetingToolPrompt::lines());
         }
 
         if (in_array(GetProjectContextTool::NAME, $names, true)) {

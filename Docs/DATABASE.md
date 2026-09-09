@@ -1,6 +1,6 @@
 # Database (actual schema)
 
-> **CURRENT tables.** TARGET operational entities are not in this snapshot (`people`, `meetings`, `commitments`, …). See [DOMAIN_MODEL.md](DOMAIN_MODEL.md), [CURRENT_STATE.md](CURRENT_STATE.md).
+> **CURRENT tables.** See `database/migrations/` and [CURRENT_STATE.md](CURRENT_STATE.md). People/organizations (Phase 4) and meetings (Phase 5A) are in MySQL. First-class `commitments` / `decisions` remain TARGET.
 
 **Status.** Snapshot 2026-09-05 (plus later migrations in git). Source of truth: `database/migrations/`. This file lists **what exists**; it may omit post-snapshot tables (watchers, scheduled_reports). Code wins.
 

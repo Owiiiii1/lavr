@@ -51,6 +51,11 @@ class Organization extends Model
             ->withTimestamps();
     }
 
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class);
+    }
+
     public function knowledgeEntities(): HasMany
     {
         return $this->hasMany(KnowledgeEntity::class, 'canonical_id')
