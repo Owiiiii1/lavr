@@ -5,7 +5,7 @@ export default function ProjectShow({ project, hint, admin_href }) {
     return (
         <LavrAppShell>
             <Head title={project?.name || 'Project'} />
-            <div className="jarvis-workspace min-h-[100dvh] px-4 pb-6 pt-8 text-slate-100 sm:px-8">
+            <div className="jarvis-workspace px-4 pb-8 pt-8 text-slate-100 sm:px-8">
                 <Link href="/lavr/projects" className="text-sm text-sky-300">
                     Все проекты
                 </Link>

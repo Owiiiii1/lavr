@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Telegram;
 
 use App\Http\Controllers\Controller;
+use App\Services\Telegram\TelegramBotManager;
 use App\Services\Telegram\WebApp\TelegramWebAppAuthenticator;
 use App\Services\Telegram\WebApp\TelegramWebAppAuthException;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,7 @@ class TelegramWebAppController extends Controller
 {
     public function __construct(
         private readonly TelegramWebAppAuthenticator $authenticator,
+        private readonly TelegramBotManager $bots,
     ) {}
 
     public function show(Request $request): Response
@@ -39,9 +41,7 @@ class TelegramWebAppController extends Controller
                 isset($validated['next']) ? (string) $validated['next'] : null,
             );
         } catch (TelegramWebAppAuthException $exception) {
-            return Inertia::render('Telegram/WebAppBlocked', [
-                'reason' => $exception->reason,
-            ]);
+            return Inertia::render('Telegram/WebAppBlocked', $this->blockedProps($exception->reason));
         }
 
         return redirect()->to($result['path']);
@@ -62,5 +62,19 @@ class TelegramWebAppController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * @return array{reason: string, bot_username: ?string, bot_chat_href: ?string}
+     */
+    private function blockedProps(string $reason): array
+    {
+        $username = ltrim((string) ($this->bots->existingSetting()?->bot_username ?? ''), '@');
+
+        return [
+            'reason' => $reason,
+            'bot_username' => $username !== '' ? $username : null,
+            'bot_chat_href' => $username !== '' ? 'https://t.me/'.$username : null,
+        ];
     }
 }

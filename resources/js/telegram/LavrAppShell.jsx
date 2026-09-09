@@ -1,10 +1,17 @@
 import LavrBottomNav from '@/telegram/LavrBottomNav';
 import TelegramWebAppBridge from '@/telegram/TelegramWebAppBridge';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function LavrAppShell({ children, showBottomNav = true }) {
+function isRootPath(path) {
+    return path === '/lavr/today' || path === '/lavr';
+}
+
+export default function LavrAppShell({ children, showBottomNav = true, fill = false }) {
+    const page = usePage();
+    const path = String(page.url || '').split('?')[0];
     const [isTelegram, setIsTelegram] = useState(false);
+    const [keyboardOpen, setKeyboardOpen] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -12,11 +19,19 @@ export default function LavrAppShell({ children, showBottomNav = true }) {
         TelegramWebAppBridge.boot().then((inside) => {
             if (!cancelled) {
                 setIsTelegram(inside);
+                setKeyboardOpen(document.documentElement.classList.contains('lavr-keyboard-open'));
             }
         });
 
+        const onViewport = () => {
+            setKeyboardOpen(document.documentElement.classList.contains('lavr-keyboard-open'));
+        };
+
+        window.addEventListener('lavr-telegram-viewport', onViewport);
+
         return () => {
             cancelled = true;
+            window.removeEventListener('lavr-telegram-viewport', onViewport);
         };
     }, []);
 
@@ -27,10 +42,7 @@ export default function LavrAppShell({ children, showBottomNav = true }) {
             return undefined;
         }
 
-        const path = window.location.pathname;
-        const atRoot = path === '/lavr/today' || path === '/lavr';
-
-        if (atRoot) {
+        if (isRootPath(path)) {
             TelegramWebAppBridge.backButton.hide();
 
             return undefined;
@@ -48,11 +60,23 @@ export default function LavrAppShell({ children, showBottomNav = true }) {
 
         TelegramWebAppBridge.backButton.show(onBack);
 
-        return () => TelegramWebAppBridge.backButton.hide();
-    }, [isTelegram]);
+        return () => {
+            TelegramWebAppBridge.backButton.offClick(onBack);
+            TelegramWebAppBridge.backButton.hide();
+        };
+    }, [isTelegram, path]);
+
+    const shellClass = [
+        'lavr-shell',
+        isTelegram ? 'lavr-shell--telegram' : '',
+        fill ? 'lavr-shell--fill' : '',
+        keyboardOpen ? 'lavr-shell--keyboard' : '',
+    ]
+        .filter(Boolean)
+        .join(' ');
 
     return (
-        <div className={`lavr-shell ${isTelegram ? 'lavr-shell--telegram' : ''}`}>
+        <div className={shellClass}>
             <div className="lavr-shell__body">{children}</div>
             {showBottomNav ? <LavrBottomNav force={isTelegram} /> : null}
         </div>

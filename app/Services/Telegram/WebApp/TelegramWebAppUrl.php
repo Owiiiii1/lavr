@@ -29,7 +29,7 @@ final class TelegramWebAppUrl
      */
     public function telegramAppLink(?string $startParam = null): ?string
     {
-        $username = ltrim((string) $this->bots->setting()->bot_username, '@');
+        $username = ltrim((string) ($this->bots->existingSetting()?->bot_username ?? ''), '@');
         $shortName = trim((string) config('telegram.webapp.short_name', 'app'));
 
         if ($username === '' || $shortName === '') {

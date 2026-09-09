@@ -1199,7 +1199,7 @@ export default function PersonalWorkspace() {
                         role="tab"
                         aria-selected={mode === 'text'}
                         onClick={() => setMode('text')}
-                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${
+                        className={`inline-flex min-h-11 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${
                             mode === 'text' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'
                         }`}
                     >
@@ -1214,7 +1214,7 @@ export default function PersonalWorkspace() {
                             onClick={() => {
                                 primeVoiceMediaFromUserGesture().finally(() => setMode('voice'));
                             }}
-                            className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${
+                            className={`inline-flex min-h-11 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${
                                 mode === 'voice' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'
                             }`}
                         >
@@ -1514,8 +1514,8 @@ export default function PersonalWorkspace() {
         ?.pending_confirmation ?? null;
 
     return (
-        <LavrAppShell>
-        <div onClick={closeOverlaysFromBackdrop}>
+        <LavrAppShell fill>
+        <div className="flex h-full min-h-0 flex-col" onClick={closeOverlaysFromBackdrop}>
             <JarvisWorkspaceLayout
                 title={conversation?.title ?? workspaceTitle}
                 header={header}
@@ -1621,7 +1621,7 @@ export default function PersonalWorkspace() {
                             )}
                         </div>
 
-                        <div className="border-t border-white/10 bg-black/30 px-4 py-3 sm:px-8">
+                        <div className="lavr-chat-composer border-t border-white/10 bg-black/30 px-4 py-3 sm:px-8">
                             {error ? <p className="mb-2 text-sm text-rose-300">{error}</p> : null}
                             {flash?.success ? <p className="mb-2 text-sm text-emerald-300">{flash.success}</p> : null}
                             <form
@@ -1854,8 +1854,9 @@ export default function PersonalWorkspace() {
 function Bubble({ message, time, sending = false, onConfirm, onCancel, onOpenImage, retentionHours = 24, storagePage = false }) {
     if (message.kind === 'error' || message.status === 'failed') {
         return (
-            <div className="mx-auto max-w-xl rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-center text-sm text-rose-200">
-                {message.body}
+            <div className="mx-auto max-w-xl rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-center text-sm text-rose-200">
+                <p>Не удалось отправить. Текст сохранён — нажмите Send ещё раз.</p>
+                {message.body ? <p className="mt-1 text-xs text-rose-200/80">{message.body}</p> : null}
             </div>
         );
     }

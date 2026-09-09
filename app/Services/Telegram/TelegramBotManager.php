@@ -20,6 +20,11 @@ class TelegramBotManager
         return $setting;
     }
 
+    public function existingSetting(): ?TelegramBotSetting
+    {
+        return TelegramBotSetting::query()->first();
+    }
+
     /**
      * @return array{id: int|null, username: string|null, first_name: string|null}
      */
@@ -165,9 +170,10 @@ class TelegramBotManager
     }
 
     /**
+     * @param  array<string, mixed>|null  $replyMarkup
      * @return array{message_id: string}
      */
-    public function sendTextMessage(string $chatId, string $text): array
+    public function sendTextMessage(string $chatId, string $text, ?array $replyMarkup = null): array
     {
         $token = (string) $this->setting()->bot_token;
 
@@ -175,10 +181,16 @@ class TelegramBotManager
             throw new RuntimeException('Telegram bot token is missing.');
         }
 
-        $response = Http::timeout(15)->post($this->apiUrl($token, 'sendMessage'), [
+        $payload = [
             'chat_id' => $chatId,
             'text' => $text,
-        ]);
+        ];
+
+        if ($replyMarkup !== null && $replyMarkup !== []) {
+            $payload['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE);
+        }
+
+        $response = Http::timeout(15)->post($this->apiUrl($token, 'sendMessage'), $payload);
 
         if (! $response->successful() || $response->json('ok') !== true) {
             throw TelegramSendException::fromResponse($response);

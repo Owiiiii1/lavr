@@ -18,6 +18,7 @@ Vertical slices. Prefer shipping a thin path through UI + data + one CEO questio
 | LAVR Phase 1 | Single-client product, `/lavr`, no register/user-admin, production PHP 8.5 FPM + MySQL `lavr` + nginx/SSL, one Owner |
 | LAVR Phase 2 | This documentation set — operational architecture, CURRENT vs TARGET |
 | LAVR Phase 3A | Telegram WebApp foundation: initData auth, shared Workspace shell, Today, bottom nav, placeholders |
+| LAVR Phase 3B | Telegram WebApp UX: Today/Chat/nav/theme/deep-link helpers; real Mini App E2E still blocked on empty bot settings |
 
 Validation of origin flows: [CURRENT_STATE.md](CURRENT_STATE.md), [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
 
@@ -32,7 +33,7 @@ Existing `projects`, watchers, and scheduled reports are **reused and hardened**
 | Phase | Slice | Canonical docs |
 | --- | --- | --- |
 | **3A** | Telegram WebApp foundation (same Workspace, TG + browser) | [INTERFACES.md](INTERFACES.md) |
-| **3B** | WebApp UX completion | [INTERFACES.md](INTERFACES.md), [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md) |
+| **3B** | WebApp UX completion | [INTERFACES.md](INTERFACES.md), [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md) |
 | **4** | People / Organizations / Projects as business contexts | [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md), [PROJECTS.md](PROJECTS.md) |
 | **5A** | Meetings + manual transcript import | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) |
 | **5B** | Zoom integration (automatic transcript import) | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md), [DATA_SOURCES.md](DATA_SOURCES.md) |
@@ -77,11 +78,22 @@ Code is in this repository. Report: [Development/LAVR_PHASE_3A_REPORT.md](Develo
 
 Remaining for later Phase 3 work: live Mini App after production Telegram token + Owner pairing are present in MySQL `lavr`; Menu Button; optional “Open in LAVR” buttons on selected Chat messages.
 
-### Phase 3B — WebApp UX completion
+### Phase 3B — IMPLEMENTED (2026-09-09)
 
-**Goal.** Finish the Mini App as a daily CEO surface: real Telegram-client E2E, Menu Button, remaining shell/UX gaps from the Phase 3A report. Same Workspace; no second frontend.
+Code is in this repository. Report: [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md). Same Workspace; no second frontend; no new domain tables.
 
-**Not in this phase.** People/Meetings/Commitments tables (Phase 4–6); Zoom.
+| Item | Status |
+| --- | --- |
+| Today as CEO home from current tasks/reminders/notifications/reports + primary calendar read | IMPLEMENTED |
+| Mobile nav / keyboard / safe-area / light-dark theme CSS | IMPLEMENTED / NOT VALIDATED on a real Telegram client |
+| Notifications + Reports mobile surfaces from More | IMPLEMENTED |
+| Allowlisted deep links + Open in LAVR on reminders and scheduled reports only | IMPLEMENTED |
+| Menu Button command | Prepared; **not run** (no production bot token in MySQL) |
+| Real Telegram client Mini App E2E | NOT VALIDATED |
+
+**Stop condition:** production `telegram_bot_settings` is still empty and Owner Telegram identity is missing. Exact Owner steps are in the Phase 3B report. Do not create a second bot. Do not change webhook.
+
+**Not in this phase.** People/Meetings/Commitments tables (Phase 4–6); Zoom; Executive Brief.
 
 ---
 

@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-09 (Phase 3A Telegram WebApp foundation; runtime as after Phase 1 infrastructure + Owner)  
+**Date:** 2026-09-09 (Phase 3B Telegram WebApp UX; runtime as after Phase 1 infrastructure + Owner)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -46,7 +46,7 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Automation | Watchers + scheduled reports + briefs + proactive | Deterministic engine + events + validation ([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md)) |
 | Executive Brief | Scheduled reports + opt-in briefs | Attention-reduced daily/weekly brief |
 | Onboarding | Owner profile `completed` (legacy skip) | Business-map onboarding |
-| Telegram WebApp | **Foundation IMPLEMENTED / NOT VALIDATED** on a real Telegram client | Same Workspace; HMAC session; Menu Button still manual |
+| Telegram WebApp | **UX IMPLEMENTED / Mini App E2E NOT VALIDATED** on a real Telegram client | Same Workspace; HMAC session; Menu Button still needs token + Owner pairing |
 
 ---
 
@@ -130,7 +130,7 @@ See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names
 | Storage | `/lavr/storage` | IMPLEMENTED |
 | Projects | `/projects` | IMPLEMENTED (work container) |
 | Telegram Groups | `/telegram-groups` | IMPLEMENTED / NOT VALIDATED as campaign |
-| Telegram WebApp | `/telegram/webapp` → session → `/lavr/today` | IMPLEMENTED / NOT VALIDATED (real Telegram client) |
+| Telegram WebApp | `/telegram/webapp` → session → `/lavr/today` | UX IMPLEMENTED / NOT VALIDATED (real Telegram client) |
 | Desktop | — | CANCELLED |
 | Mobile / Client API | — | DEFERRED |
 | Register / user admin | — | Removed (Phase 1) |
@@ -181,7 +181,7 @@ One user: `admin@admin.com`, role `owner`, assistant_name **LAVR**. Password is 
 
 ## 8. What is not here (CURRENT)
 
-- Full Telegram Mini App E2E on a real client (needs bot token + Owner pairing in MySQL `lavr`)
+- Full Telegram Mini App E2E on a real client (needs existing bot token + Owner pairing in MySQL `lavr`; see [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md))
 - `people` / `meetings` / `commitments` / `decisions` / org relationship tables
 - Zoom Integration: **TARGET Phase 5B / NOT IMPLEMENTED** (no OAuth, webhook, or transcript import)
 - Deterministic Automation Engine as specified (watchers/reports exist but are not the full TARGET)

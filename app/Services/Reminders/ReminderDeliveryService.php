@@ -90,7 +90,7 @@ final class ReminderDeliveryService
         }
 
         try {
-            $this->telegram->send($chatId, '⏰ Напоминание: '.$reminder->text);
+            $this->telegram->send($chatId, '⏰ Напоминание: '.$reminder->text, 'today');
         } catch (Throwable $exception) {
             Log::warning('reminder telegram delivery failed', [
                 'reminder_id' => $reminder->id,

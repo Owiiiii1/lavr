@@ -27,6 +27,24 @@ function loadOfficialScript() {
     });
 }
 
+function luminance(hex) {
+    const value = String(hex || '').replace('#', '');
+
+    if (value.length !== 6) {
+        return null;
+    }
+
+    const r = parseInt(value.slice(0, 2), 16) / 255;
+    const g = parseInt(value.slice(2, 4), 16) / 255;
+    const b = parseInt(value.slice(4, 6), 16) / 255;
+
+    if ([r, g, b].some((channel) => Number.isNaN(channel))) {
+        return null;
+    }
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
 function applyTheme(webApp) {
     const theme = webApp?.themeParams || {};
     const root = document.documentElement;
@@ -47,14 +65,48 @@ function applyTheme(webApp) {
         }
     });
 
+    const scheme = webApp?.colorScheme;
+    const bgLuminance = luminance(theme.bg_color);
+    const isLight = scheme === 'light' || (scheme !== 'dark' && bgLuminance !== null && bgLuminance > 0.62);
+
+    root.classList.toggle('lavr-tg-light', Boolean(isLight));
+    root.classList.toggle('lavr-tg-dark', !isLight);
+
     const safe = webApp?.safeAreaInset || {};
     const contentSafe = webApp?.contentSafeAreaInset || {};
     root.style.setProperty('--lavr-safe-top', `${Number(contentSafe.top || safe.top || 0)}px`);
     root.style.setProperty('--lavr-safe-bottom', `${Number(contentSafe.bottom || safe.bottom || 0)}px`);
 
-    if (webApp?.viewportStableHeight) {
-        root.style.setProperty('--lavr-viewport-height', `${webApp.viewportStableHeight}px`);
+    const height = Number(webApp?.viewportHeight || 0);
+    const stable = Number(webApp?.viewportStableHeight || 0);
+    const nextHeight = height > 0 ? height : stable;
+
+    if (nextHeight > 0) {
+        root.style.setProperty('--lavr-viewport-height', `${nextHeight}px`);
     }
+
+    applyKeyboardInset(webApp);
+}
+
+function applyKeyboardInset(webApp) {
+    const root = document.documentElement;
+    const height = Number(webApp?.viewportHeight || 0);
+    const stable = Number(webApp?.viewportStableHeight || 0);
+    let inset = 0;
+
+    if (stable > 0 && height > 0) {
+        inset = Math.max(0, stable - height);
+    }
+
+    if (typeof window !== 'undefined' && window.visualViewport) {
+        const visual = window.visualViewport;
+        const visualInset = Math.max(0, window.innerHeight - visual.height - visual.offsetTop);
+        inset = Math.max(inset, visualInset);
+    }
+
+    root.style.setProperty('--lavr-keyboard-inset', `${Math.round(inset)}px`);
+    root.classList.toggle('lavr-keyboard-open', inset > 80);
+    window.dispatchEvent(new Event('lavr-telegram-viewport'));
 }
 
 const TelegramWebAppBridge = {
@@ -63,6 +115,13 @@ const TelegramWebAppBridge = {
         const webApp = telegramApi();
 
         if (!webApp) {
+            if (typeof window !== 'undefined' && window.visualViewport) {
+                const onVisual = () => applyKeyboardInset(null);
+                window.visualViewport.addEventListener('resize', onVisual);
+                window.visualViewport.addEventListener('scroll', onVisual);
+                onVisual();
+            }
+
             return false;
         }
 
@@ -73,6 +132,12 @@ const TelegramWebAppBridge = {
             applyTheme(webApp);
             webApp.onEvent?.('themeChanged', () => applyTheme(webApp));
             webApp.onEvent?.('viewportChanged', () => applyTheme(webApp));
+
+            if (window.visualViewport) {
+                const onVisual = () => applyKeyboardInset(webApp);
+                window.visualViewport.addEventListener('resize', onVisual);
+                window.visualViewport.addEventListener('scroll', onVisual);
+            }
         } catch {
             return this.isTelegramWebApp();
         }
@@ -167,6 +232,15 @@ const TelegramWebAppBridge = {
             }
 
             button.hide();
+        },
+        offClick(onClick) {
+            const button = telegramApi()?.BackButton;
+
+            if (!button || typeof onClick !== 'function') {
+                return;
+            }
+
+            button.offClick?.(onClick);
         },
     },
 

@@ -22,11 +22,11 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | Telegram DM | Bot webhook `/telegram/webhook` | Fast chat, pairing via `access_code`, optional voice in/out |
 | Telegram Groups | Same bot | Source / analysis; not the CEO’s personal UI |
 | Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice |
-| Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED |
+| Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED (needs token + pairing) |
 | Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/telegram-groups`, …) | Technical management |
 | Legacy paths | `GET /jarvis`, `GET /chat` | Redirect to `/lavr` |
 
-There is a Telegram WebApp **foundation** (Phase 3A): `/telegram/webapp` validates Mini App `initData` and opens the same Workspace. Real Telegram-client E2E is **NOT VALIDATED**. Details: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md).
+There is a Telegram WebApp **foundation** (Phase 3A) plus **UX completion** (Phase 3B): `/telegram/webapp` validates Mini App `initData` and opens the same Workspace (Today, Chat, nav, Notifications, Reports). Real Telegram-client E2E is **NOT VALIDATED**. Details: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md), [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md).
 
 Today’s docs that call Web Workspace “PRIMARY” describe **current** shipping UI. Target primary **rich** UI is Telegram WebApp using that same Workspace. Target primary **fast** channel is Telegram Chat. See ADR-267, ADR-268, ADR-269.
 
@@ -56,13 +56,15 @@ Bot / group limitations: [DATA_SOURCES.md](DATA_SOURCES.md#telegram).
 
 ---
 
-## 2. Telegram WebApp — primary rich UI (Phase 3A foundation CURRENT; full product TARGET)
+## 2. Telegram WebApp — primary rich UI (Phase 3B UX CURRENT; Mini App E2E NOT VALIDATED)
 
 Intended analogue of a mobile app inside Telegram.
 
 **Phase 3A CURRENT:** Mini App entry `/telegram/webapp`, server-side HMAC validation of `initData`, Owner-only session, shared Workspace (`/lavr/*`) with mobile bottom nav and Today. People / Meetings / Commitments are honest placeholders (no new tables).
 
-**Still TARGET:** operational People/Projects/Meetings/Commitments UI from later phases; Menu Button and real-client E2E until BotFather + token/pairing are confirmed.
+**Phase 3B CURRENT:** Today/Chat/nav/theme/keyboard/safe-area UX; Notifications and Reports from More; allowlisted deep links; Open in LAVR on reminder and scheduled-report Telegram messages only. Menu Button artisan command is ready and **not run** until the existing bot token is in MySQL.
+
+**Still TARGET / NOT VALIDATED:** operational People/Projects/Meetings/Commitments UI from later phases; Menu Button and real-client E2E until the existing bot token + Owner pairing are present.
 
 Preferred architecture (unchanged): do **not** create a separate frontend. Reuse the responsive LAVR Workspace (`resources/js/personal-workspace/…`) so it opens:
 
@@ -87,7 +89,7 @@ Target sections (product UX, not a current route map):
 | Notifications | Inbox |
 | Settings | Assistant, voice, integrations, policies |
 
-Phase 3A–3B in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the WebApp foundation and UX completion, not the full domain UI.
+Phase 3A–3B in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the WebApp foundation and UX completion, not the full domain UI. Live Mini App on a phone waits on existing-bot token + pairing: [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md).
 
 ---
 

@@ -1,11 +1,23 @@
 import LavrAppShell from '@/telegram/LavrAppShell';
 import { Head, Link } from '@inertiajs/react';
 
+function activityLabel(iso) {
+    if (!iso) {
+        return '';
+    }
+
+    try {
+        return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+    } catch {
+        return '';
+    }
+}
+
 export default function WorkspaceProjects({ projects = [], hint }) {
     return (
         <LavrAppShell>
             <Head title="Projects" />
-            <div className="jarvis-workspace min-h-[100dvh] px-4 pb-6 pt-8 text-slate-100 sm:px-8">
+            <div className="jarvis-workspace px-4 pb-8 pt-8 text-slate-100 sm:px-8">
                 <h1 className="text-2xl font-semibold text-white">Projects</h1>
                 <p className="mt-2 max-w-lg text-sm leading-6 text-slate-400">{hint}</p>
 
@@ -17,10 +29,13 @@ export default function WorkspaceProjects({ projects = [], hint }) {
                             <li key={project.id}>
                                 <Link
                                     href={route('jarvis.workspace.projects.show', project.id)}
-                                    className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                                    className="block min-h-16 rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
                                 >
                                     <p className="text-sm font-medium text-white">{project.name}</p>
-                                    <p className="mt-1 text-xs text-slate-400">{project.status}</p>
+                                    <p className="mt-1 text-xs text-slate-400">
+                                        {project.status}
+                                        {project.updated_at ? ` · ${activityLabel(project.updated_at)}` : ''}
+                                    </p>
                                 </Link>
                             </li>
                         ))}

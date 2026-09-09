@@ -26,8 +26,8 @@ class JarvisWorkspacePageController extends Controller
     {
         return Inertia::render('Jarvis/ComingFoundation', [
             'title' => 'Meetings',
-            'phase' => '5',
-            'body' => 'Встречи и разбор транскриптов появятся в Phase 5. Zoom transcript пока не является Meeting-объектом.',
+            'phase' => '5A',
+            'body' => 'Встречи и ручная загрузка транскриптов появятся в Phase 5A. Автоматический Zoom — Phase 5B. Сейчас это не Meeting-объект.',
         ]);
     }
 

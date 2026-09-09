@@ -443,6 +443,19 @@
     overflow: auto;
 }
 
+.lavr-shell--fill .lavr-shell__body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.lavr-shell--fill .lavr-shell__body > * {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
 .lavr-bottom-nav {
     z-index: 40;
     flex-shrink: 0;
@@ -451,6 +464,70 @@
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(8, 13, 24, 0.94);
     backdrop-filter: blur(12px);
+}
+
+.lavr-shell--keyboard .lavr-bottom-nav {
+    display: none;
+}
+
+.lavr-chat-composer {
+    padding-bottom: max(0.25rem, var(--lavr-keyboard-inset, 0px));
+}
+
+.jarvis-markdown {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.jarvis-markdown pre {
+    max-width: 100%;
+}
+
+html.lavr-tg-light .lavr-shell,
+html.lavr-tg-light .jarvis-workspace {
+    background: var(--tg-theme-bg-color, #f8fafc);
+    color: var(--tg-theme-text-color, #0f172a);
+}
+
+html.lavr-tg-light .text-white,
+html.lavr-tg-light .text-slate-100,
+html.lavr-tg-light .text-slate-200 {
+    color: var(--tg-theme-text-color, #0f172a) !important;
+}
+
+html.lavr-tg-light .text-slate-300,
+html.lavr-tg-light .text-slate-400 {
+    color: var(--tg-theme-hint-color, #475569) !important;
+}
+
+html.lavr-tg-light .text-slate-500 {
+    color: var(--tg-theme-hint-color, #64748b) !important;
+}
+
+html.lavr-tg-light .border-white\/10,
+html.lavr-tg-light .border-white\/15 {
+    border-color: rgb(15 23 42 / 0.12);
+}
+
+html.lavr-tg-light .bg-white\/5,
+html.lavr-tg-light .bg-black\/20,
+html.lavr-tg-light .bg-black\/30 {
+    background-color: var(--tg-theme-secondary-bg-color, rgb(15 23 42 / 0.06));
+}
+
+html.lavr-tg-light .lavr-bottom-nav {
+    background: var(--tg-theme-secondary-bg-color, #eef2ff);
+    border-top-color: rgb(15 23 42 / 0.12);
+}
+
+html.lavr-tg-light textarea,
+html.lavr-tg-light input:not([type='file']) {
+    color: var(--tg-theme-text-color, #0f172a);
+    background-color: var(--tg-theme-secondary-bg-color, #ffffff);
+}
+
+html.lavr-tg-light .lavr-bottom-nav .text-sky-200 {
+    color: var(--tg-theme-link-color, #0369a1) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

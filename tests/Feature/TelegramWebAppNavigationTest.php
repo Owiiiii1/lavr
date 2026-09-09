@@ -14,6 +14,8 @@ class TelegramWebAppNavigationTest extends TestCase
         $this->get('/lavr/people')->assertRedirect(route('login'));
         $this->get('/lavr/more')->assertRedirect(route('login'));
         $this->get('/lavr/projects')->assertRedirect(route('login'));
+        $this->get('/lavr/notifications')->assertRedirect(route('login'));
+        $this->get('/lavr/reports')->assertRedirect(route('login'));
         $this->get('/lavr/meetings')->assertRedirect(route('login'));
         $this->get('/lavr/commitments')->assertRedirect(route('login'));
     }
@@ -26,6 +28,8 @@ class TelegramWebAppNavigationTest extends TestCase
         $this->actingAs($owner)->get('/lavr/people')->assertOk()->assertSee('Jarvis\\/People', false);
         $this->actingAs($owner)->get('/lavr/more')->assertOk()->assertSee('Jarvis\\/More', false);
         $this->actingAs($owner)->get('/lavr/projects')->assertOk()->assertSee('Jarvis\\/Projects', false);
+        $this->actingAs($owner)->get('/lavr/notifications')->assertOk()->assertSee('Jarvis\\/Notifications', false);
+        $this->actingAs($owner)->get('/lavr/reports')->assertOk()->assertSee('Jarvis\\/Reports', false);
         $this->actingAs($owner)->get('/lavr/meetings')->assertOk()->assertSee('Jarvis\\/ComingFoundation', false);
         $this->actingAs($owner)->get('/lavr/commitments')->assertOk()->assertSee('Jarvis\\/ComingFoundation', false);
         $this->actingAs($owner)->get('/lavr')->assertRedirect();

@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 
 const COPY = {
     booting: 'Открываем LAVR…',
-    sdk: 'Не удалось открыть Telegram WebApp.',
-    invalid: 'Авторизация Telegram недействительна.',
+    authenticating: 'Проверяем вход…',
+    sdk: 'Откройте LAVR из Telegram.',
+    invalid: 'Не удалось подтвердить вход. Откройте LAVR снова из Telegram.',
     unavailable: 'LAVR сейчас недоступен. Попробуйте позже.',
 };
 
@@ -25,6 +26,8 @@ export default function WebAppBoot({ startParam = null }) {
 
                 return;
             }
+
+            setMessage(COPY.authenticating);
 
             const params = new URLSearchParams(window.location.search);
 
@@ -55,7 +58,7 @@ export default function WebAppBoot({ startParam = null }) {
             <Head title="LAVR" />
             <div className="max-w-sm space-y-3">
                 <p className="text-lg font-semibold text-white">LAVR</p>
-                <p className="text-sm text-slate-300">{message}</p>
+                <p className="text-sm leading-6 text-slate-300">{message}</p>
             </div>
         </div>
     );

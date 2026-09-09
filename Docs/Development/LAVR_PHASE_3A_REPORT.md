@@ -241,3 +241,5 @@ Frontend: `TelegramWebAppBridge`, `LavrAppShell`, `LavrBottomNav`, `Telegram/Web
 ## Post-Phase-3A planning note
 
 Zoom integration formally added to Phase 5B roadmap. Documentation only; no Zoom code in Phase 3A. See [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md), [MEETING_INTELLIGENCE.md](../MEETING_INTELLIGENCE.md), [DATA_SOURCES.md](../DATA_SOURCES.md).
+
+Phase 3B UX work is recorded separately and does not replace this foundation report: [LAVR_PHASE_3B_REPORT.md](LAVR_PHASE_3B_REPORT.md).

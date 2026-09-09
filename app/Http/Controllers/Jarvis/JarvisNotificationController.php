@@ -7,6 +7,8 @@ use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Users\UserCapability;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class JarvisNotificationController extends Controller
 {
@@ -14,12 +16,18 @@ class JarvisNotificationController extends Controller
         private readonly JarvisNotificationService $inbox,
     ) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): JsonResponse|Response
     {
         $user = $request->user();
         $this->assertInbox($user);
 
-        return response()->json($this->inbox->panelFor($user, $request->boolean('unread')));
+        if ($this->wantsJsonPanel($request)) {
+            return response()->json($this->inbox->panelFor($user, $request->boolean('unread')));
+        }
+
+        return Inertia::render('Jarvis/Notifications', [
+            'inbox' => $this->inbox->panelFor($user, false),
+        ]);
     }
 
     public function markRead(Request $request, int $notification): JsonResponse
@@ -63,5 +71,10 @@ class JarvisNotificationController extends Controller
         if ($user === null || ! $user->isActive() || ! $user->canUseCapability(UserCapability::NOTIFICATIONS)) {
             abort(403);
         }
+    }
+
+    private function wantsJsonPanel(Request $request): bool
+    {
+        return $request->expectsJson() && $request->header('X-Inertia') === null;
     }
 }

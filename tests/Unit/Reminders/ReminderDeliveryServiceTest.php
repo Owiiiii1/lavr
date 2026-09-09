@@ -31,7 +31,7 @@ class ReminderDeliveryServiceTest extends TestCase
 
         $telegram = new class implements SendsReminderTelegram
         {
-            public function send(string $chatId, string $text): void
+            public function send(string $chatId, string $text, ?string $webAppStartParam = null): void
             {
                 throw new RuntimeException('telegram down');
             }
@@ -67,7 +67,7 @@ class ReminderDeliveryServiceTest extends TestCase
 
         $telegram = new class implements SendsReminderTelegram
         {
-            public function send(string $chatId, string $text): void {}
+            public function send(string $chatId, string $text, ?string $webAppStartParam = null): void {}
         };
 
         $push = new class implements SendsWebPush

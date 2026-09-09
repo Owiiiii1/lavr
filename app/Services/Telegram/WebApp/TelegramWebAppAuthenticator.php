@@ -23,7 +23,7 @@ final class TelegramWebAppAuthenticator
      */
     public function authenticate(Request $request, string $initData, ?string $startParam, ?string $next): array
     {
-        $token = trim((string) $this->bots->setting()->bot_token);
+        $token = trim((string) ($this->bots->existingSetting()?->bot_token ?? ''));
 
         if ($token === '') {
             throw TelegramWebAppAuthException::unavailable();

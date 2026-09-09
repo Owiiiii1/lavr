@@ -164,7 +164,7 @@ final class ScheduledReportDispatchService
         }
 
         try {
-            $this->telegram->send($chatId, $text);
+            $this->telegram->send($chatId, $text, 'reports');
         } catch (Throwable) {
         }
     }

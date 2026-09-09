@@ -359,6 +359,9 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
         ->name('settings.voice.elevenlabs-key');
     Route::post('/settings/voice/elevenlabs-key/clear', [VoiceSettingsController::class, 'clearElevenLabsKey'])
         ->name('settings.voice.elevenlabs-key.clear');
+    Route::post('/settings/telegram/token', [TelegramSettingsController::class, 'saveToken'])
+        ->middleware('throttle:10,1')
+        ->name('settings.telegram.save-token');
     Route::post('/settings/telegram/check', [TelegramSettingsController::class, 'check'])
         ->name('settings.telegram.check');
     Route::post('/settings/telegram/set-webhook', [TelegramSettingsController::class, 'setWebhook'])

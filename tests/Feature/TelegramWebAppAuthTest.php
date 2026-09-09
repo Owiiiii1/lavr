@@ -113,9 +113,37 @@ class TelegramWebAppAuthTest extends TestCase
                 'start_param' => 'people',
                 'next' => 'https://evil.example/phish',
             ])->assertRedirect('/lavr/people');
+
+            $this->post('/telegram/webapp/session', [
+                'init_data' => $this->signInitData('123456:TEST-TOKEN', $telegramId),
+                'start_param' => 'notifications',
+            ])->assertRedirect('/lavr/notifications');
+
+            $this->post('/telegram/webapp/session', [
+                'init_data' => $this->signInitData('123456:TEST-TOKEN', $telegramId),
+                'start_param' => 'reports',
+            ])->assertRedirect('/lavr/reports');
         } finally {
             $restore();
         }
+    }
+
+    public function test_missing_bot_token_is_unavailable_without_creating_a_user(): void
+    {
+        $usersBefore = User::query()->count();
+
+        $this->mock(TelegramBotManager::class, function ($mock): void {
+            $mock->shouldReceive('existingSetting')->andReturn(null);
+        });
+
+        $response = $this->post('/telegram/webapp/session', [
+            'init_data' => $this->signInitData('123456:TEST-TOKEN', '910088'),
+        ]);
+
+        $response->assertOk();
+        $this->assertStringContainsString('"reason":"unavailable"', html_entity_decode($response->getContent()));
+        $this->assertGuest();
+        $this->assertSame($usersBefore, User::query()->count());
     }
 
     public function test_session_endpoint_requires_init_data(): void
@@ -184,6 +212,7 @@ class TelegramWebAppAuthTest extends TestCase
         $setting->bot_username = 'lavr_test_bot';
 
         $this->mock(TelegramBotManager::class, function ($mock) use ($setting): void {
+            $mock->shouldReceive('existingSetting')->andReturn($setting);
             $mock->shouldReceive('setting')->andReturn($setting);
         });
     }

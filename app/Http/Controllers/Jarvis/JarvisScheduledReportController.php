@@ -8,6 +8,8 @@ use App\Services\Reports\ScheduledReportService;
 use App\Services\Users\UserCapability;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class JarvisScheduledReportController extends Controller
 {
@@ -15,16 +17,24 @@ class JarvisScheduledReportController extends Controller
         private readonly ScheduledReportService $reports,
     ) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): JsonResponse|Response
     {
         $user = $request->user();
         $this->assertReports($user);
 
         try {
-            return response()->json($this->reports->panelFor($user));
+            $panel = $this->reports->panelFor($user);
         } catch (ScheduledReportException $exception) {
             return $this->error($exception);
         }
+
+        if ($this->wantsJsonPanel($request)) {
+            return response()->json($panel);
+        }
+
+        return Inertia::render('Jarvis/Reports', [
+            'reports' => $panel,
+        ]);
     }
 
     public function pause(Request $request, int $report): JsonResponse
@@ -85,5 +95,10 @@ class JarvisScheduledReportController extends Controller
         if ($user === null || ! $user->isActive() || ! $user->canUseCapability(UserCapability::SCHEDULED_REPORTS)) {
             abort(403);
         }
+    }
+
+    private function wantsJsonPanel(Request $request): bool
+    {
+        return $request->expectsJson() && $request->header('X-Inertia') === null;
     }
 }

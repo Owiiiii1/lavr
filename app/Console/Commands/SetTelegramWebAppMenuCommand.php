@@ -15,8 +15,8 @@ class SetTelegramWebAppMenuCommand extends Command
 
     public function handle(TelegramBotManager $bots, TelegramWebAppUrl $urls): int
     {
-        $setting = $bots->setting();
-        $token = trim((string) $setting->bot_token);
+        $setting = $bots->existingSetting();
+        $token = trim((string) ($setting?->bot_token ?? ''));
 
         if ($token === '') {
             $this->error('Telegram bot token is not configured.');
