@@ -175,7 +175,10 @@ use App\Services\Watchers\Contracts\GmailWatcherClient;
 use App\Services\Watchers\WatcherSourceRegistry;
 use App\Services\WebResearch\Contracts\WebSearchProvider;
 use App\Services\WebResearch\WebSearchManager;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -434,5 +437,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(TelegramGroup::class, TelegramGroupPolicy::class);
+
+        RateLimiter::for('telegram-webapp', function (Request $request) {
+            $perMinute = max(5, (int) config('telegram.webapp.rate_limit_per_minute', 20));
+
+            return Limit::perMinute($perMinute)->by($request->ip());
+        });
     }
 }

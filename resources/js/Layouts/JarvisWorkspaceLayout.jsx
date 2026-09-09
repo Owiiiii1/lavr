@@ -2,7 +2,7 @@ import { Head } from '@inertiajs/react';
 
 export default function JarvisWorkspaceLayout({ title, header, sidebar, context, children, sidebarOpen, contextCollapsed, contextDrawer }) {
     return (
-        <div className="jarvis-workspace h-screen text-slate-100">
+        <div className="jarvis-workspace h-[100dvh] max-h-full min-h-0 text-slate-100">
             <Head title={title} />
             <div className="flex h-full min-h-0 flex-col">
                 {header}

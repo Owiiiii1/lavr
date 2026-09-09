@@ -422,6 +422,37 @@
     }
 }
 
+.lavr-shell {
+    display: flex;
+    flex-direction: column;
+    height: var(--lavr-viewport-height, 100dvh);
+    min-height: 100dvh;
+    overflow: hidden;
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+.lavr-shell--telegram {
+    background: var(--tg-theme-bg-color, transparent);
+    color: var(--tg-theme-text-color, inherit);
+    padding-top: calc(env(safe-area-inset-top, 0px) + var(--lavr-safe-top, 0px));
+}
+
+.lavr-shell__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+}
+
+.lavr-bottom-nav {
+    z-index: 40;
+    flex-shrink: 0;
+    height: calc(3.75rem + env(safe-area-inset-bottom, 0px) + var(--lavr-safe-bottom, 0px));
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--lavr-safe-bottom, 0px));
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(8, 13, 24, 0.94);
+    backdrop-filter: blur(12px);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .jarvis-orb__glow,
     .jarvis-orb__ring {

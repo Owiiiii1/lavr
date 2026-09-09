@@ -17,6 +17,7 @@ Vertical slices. Prefer shipping a thin path through UI + data + one CEO questio
 | Origin JARVIS M0–E.3 | Conversation, Memory, Knowledge index, Tasks, Reminders, Watchers, Scheduled Reports, Workspace `/lavr`, Telegram, Voice, Google/GitHub tools |
 | LAVR Phase 1 | Single-client product, `/lavr`, no register/user-admin, production PHP 8.5 FPM + MySQL `lavr` + nginx/SSL, one Owner |
 | LAVR Phase 2 | This documentation set — operational architecture, CURRENT vs TARGET |
+| LAVR Phase 3A | Telegram WebApp foundation: initData auth, shared Workspace shell, Today, bottom nav, placeholders |
 
 Validation of origin flows: [CURRENT_STATE.md](CURRENT_STATE.md), [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
 
@@ -52,6 +53,25 @@ Onboarding business map ([ONBOARDING.md](ONBOARDING.md)) spans 3–8; do not blo
 **Not in this phase.** New People/Meetings tables; a second React app.
 
 **Exit.** CEO can open full Workspace from Telegram; standalone Web unchanged in behavior.
+
+### Phase 3A — IMPLEMENTED (2026-09-09)
+
+Code is in this repository. Report: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md).
+
+| Item | Status |
+| --- | --- |
+| Same Workspace for browser + Mini App (no second frontend) | IMPLEMENTED |
+| `GET /telegram/webapp` + `POST /telegram/webapp/session` HMAC initData auth | IMPLEMENTED |
+| Only linked Owner session; unknown Telegram user blocked | IMPLEMENTED |
+| Mobile shell + bottom nav + Today + People/Meetings/Commitments placeholders | IMPLEMENTED |
+| Current Projects list (work containers, not Phase 4 business context) | IMPLEMENTED |
+| Deep-link allowlist (`startapp` / `next`) | IMPLEMENTED |
+| Browser login `/` | Unchanged |
+| Real Telegram client Mini App E2E | NOT VALIDATED |
+| BotFather Menu Button `Open LAVR` | NOT VALIDATED (manual) |
+| `php artisan telegram:set-webapp-menu` | Prepared; **not run** (does not change webhook) |
+
+Remaining for later Phase 3 work: live Mini App after production Telegram token + Owner pairing are present in MySQL `lavr`; Menu Button; optional “Open in LAVR” buttons on selected Chat messages.
 
 ---
 

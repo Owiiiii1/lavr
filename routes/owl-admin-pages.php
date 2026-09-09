@@ -14,9 +14,12 @@ use App\Http\Controllers\Jarvis\JarvisScheduledReportController;
 use App\Http\Controllers\Jarvis\JarvisStorageController;
 use App\Http\Controllers\Jarvis\JarvisSynthesisController;
 use App\Http\Controllers\Jarvis\JarvisTaskController;
+use App\Http\Controllers\Jarvis\JarvisTodayController;
 use App\Http\Controllers\Jarvis\JarvisVoiceController;
 use App\Http\Controllers\Jarvis\JarvisWatcherController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceController;
+use App\Http\Controllers\Jarvis\JarvisWorkspacePageController;
+use App\Http\Controllers\Jarvis\JarvisWorkspaceProjectsController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceStatusController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -29,6 +32,7 @@ use App\Http\Controllers\Settings\SettingsController;
 use App\Http\Controllers\Settings\TelegramSettingsController;
 use App\Http\Controllers\Settings\VoiceSettingsController;
 use App\Http\Controllers\Settings\WebResearchSettingsController;
+use App\Http\Controllers\Telegram\TelegramWebAppController;
 use App\Http\Controllers\TelegramGroupController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\UserAiSettingsController;
@@ -51,6 +55,14 @@ Route::post('/telegram/webhook', TelegramWebhookController::class)
     ])
     ->name('telegram.webhook');
 
+Route::middleware('web')->group(function (): void {
+    Route::get('/telegram/webapp', [TelegramWebAppController::class, 'show'])
+        ->name('telegram.webapp.show');
+    Route::post('/telegram/webapp/session', [TelegramWebAppController::class, 'store'])
+        ->middleware('throttle:telegram-webapp')
+        ->name('telegram.webapp.session');
+});
+
 Route::middleware(['web', 'auth', 'user.active'])->group(function () {
     Route::get('/cabinet', function () {
         return redirect()->route('jarvis.index');
@@ -72,6 +84,13 @@ Route::middleware(['web', 'auth', 'user.active'])->group(function () {
 $registerPersonalWorkspace = static function (string $prefix, string $as, array $middleware, bool $ownerStorage): void {
     Route::middleware($middleware)->prefix($prefix)->name($as.'.')->group(function () use ($ownerStorage): void {
         Route::get('/', [JarvisWorkspaceController::class, 'index'])->name('index');
+        Route::get('/today', [JarvisTodayController::class, 'show'])->name('today.show');
+        Route::get('/people', [JarvisWorkspacePageController::class, 'people'])->name('people.index');
+        Route::get('/more', [JarvisWorkspacePageController::class, 'more'])->name('more.show');
+        Route::get('/meetings', [JarvisWorkspacePageController::class, 'meetings'])->name('meetings.index');
+        Route::get('/commitments', [JarvisWorkspacePageController::class, 'commitments'])->name('commitments.index');
+        Route::get('/projects', [JarvisWorkspaceProjectsController::class, 'index'])->name('workspace.projects.index');
+        Route::get('/projects/{project}', [JarvisWorkspaceProjectsController::class, 'show'])->name('workspace.projects.show');
         Route::get('/workspace/status', [JarvisWorkspaceStatusController::class, 'show'])
             ->middleware('throttle:30,1')
             ->name('workspace.status');

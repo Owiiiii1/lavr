@@ -22,10 +22,11 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | Telegram DM | Bot webhook `/telegram/webhook` | Fast chat, pairing via `access_code`, optional voice in/out |
 | Telegram Groups | Same bot | Source / analysis; not the CEO’s personal UI |
 | Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice |
+| Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED |
 | Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/telegram-groups`, …) | Technical management |
 | Legacy paths | `GET /jarvis`, `GET /chat` | Redirect to `/lavr` |
 
-There is **no** Telegram WebApp in code.
+There is a Telegram WebApp **foundation** (Phase 3A): `/telegram/webapp` validates Mini App `initData` and opens the same Workspace. Real Telegram-client E2E is **NOT VALIDATED**. Details: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md).
 
 Today’s docs that call Web Workspace “PRIMARY” describe **current** shipping UI. Target primary **rich** UI is Telegram WebApp using that same Workspace. Target primary **fast** channel is Telegram Chat. See ADR-267, ADR-268, ADR-269.
 
@@ -55,13 +56,15 @@ Bot / group limitations: [DATA_SOURCES.md](DATA_SOURCES.md#telegram).
 
 ---
 
-## 2. Telegram WebApp — primary rich UI (TARGET)
+## 2. Telegram WebApp — primary rich UI (Phase 3A foundation CURRENT; full product TARGET)
 
 Intended analogue of a mobile app inside Telegram.
 
-**Not implemented.** No `WebApp` / `initData` integration in this repository.
+**Phase 3A CURRENT:** Mini App entry `/telegram/webapp`, server-side HMAC validation of `initData`, Owner-only session, shared Workspace (`/lavr/*`) with mobile bottom nav and Today. People / Meetings / Commitments are honest placeholders (no new tables).
 
-Preferred architecture: do **not** create a separate frontend. Reuse the responsive LAVR Workspace (`resources/js/personal-workspace/…`) so it opens:
+**Still TARGET:** operational People/Projects/Meetings/Commitments UI from later phases; Menu Button and real-client E2E until BotFather + token/pairing are confirmed.
+
+Preferred architecture (unchanged): do **not** create a separate frontend. Reuse the responsive LAVR Workspace (`resources/js/personal-workspace/…`) so it opens:
 
 - standalone browser (`https://lavr.youngfashionshow.com/lavr`);
 - Telegram WebApp.

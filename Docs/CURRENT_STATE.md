@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-09 (Phase 2 documentation; runtime as after Phase 1 infrastructure + Owner)  
+**Date:** 2026-09-09 (Phase 3A Telegram WebApp foundation; runtime as after Phase 1 infrastructure + Owner)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -35,7 +35,7 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Tenancy | Single Owner, no register | Same |
 | Role | Personal assistant + knowledge/tasks/watchers/reports | AI Chief of Staff / operational control layer ([PRODUCT.md](PRODUCT.md)) |
 | Primary fast UI | Telegram DM | Telegram Chat (same) |
-| Primary rich UI | Web Workspace `/lavr` | Telegram WebApp = same Workspace ([INTERFACES.md](INTERFACES.md)) |
+| Primary rich UI | Web Workspace `/lavr` + Mini App entry `/telegram/webapp` (same UI) | Telegram WebApp = same Workspace ([INTERFACES.md](INTERFACES.md)) |
 | People | Knowledge entity `person` + synthesis | `people` + roles + `employee_profiles` |
 | Organizations | Knowledge entity `organization` | `organizations` + relationships |
 | Projects | Work container + pivots | Business context (mailboxes, meetings, commitments, …) |
@@ -45,7 +45,7 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Automation | Watchers + scheduled reports + briefs + proactive | Deterministic engine + events + validation ([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md)) |
 | Executive Brief | Scheduled reports + opt-in briefs | Attention-reduced daily/weekly brief |
 | Onboarding | Owner profile `completed` (legacy skip) | Business-map onboarding |
-| Telegram WebApp | **Absent** | Phase 3 |
+| Telegram WebApp | **Foundation IMPLEMENTED / NOT VALIDATED** on a real Telegram client | Same Workspace; HMAC session; Menu Button still manual |
 
 ---
 
@@ -129,7 +129,7 @@ See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names
 | Storage | `/lavr/storage` | IMPLEMENTED |
 | Projects | `/projects` | IMPLEMENTED (work container) |
 | Telegram Groups | `/telegram-groups` | IMPLEMENTED / NOT VALIDATED as campaign |
-| Telegram WebApp | — | **TARGET (Phase 3)** |
+| Telegram WebApp | `/telegram/webapp` → session → `/lavr/today` | IMPLEMENTED / NOT VALIDATED (real Telegram client) |
 | Desktop | — | CANCELLED |
 | Mobile / Client API | — | DEFERRED |
 | Register / user admin | — | Removed (Phase 1) |
@@ -180,7 +180,7 @@ One user: `admin@admin.com`, role `owner`, assistant_name **LAVR**. Password is 
 
 ## 8. What is not here (CURRENT)
 
-- Telegram Mini App / WebApp
+- Full Telegram Mini App E2E on a real client (needs bot token + Owner pairing in MySQL `lavr`)
 - `people` / `meetings` / `commitments` / `decisions` / org relationship tables
 - Zoom → Meeting pipeline
 - Deterministic Automation Engine as specified (watchers/reports exist but are not the full TARGET)

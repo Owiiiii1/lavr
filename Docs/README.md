@@ -60,7 +60,7 @@ Use these for **how the code works today**. They may still say “Jarvis”. Pre
 | AI providers | [AI_PROVIDER_ARCHITECTURE.md](AI_PROVIDER_ARCHITECTURE.md) |
 | Architecture modules | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Validation | [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md), [DEFERRED_VALIDATION.md](DEFERRED_VALIDATION.md) |
-| Phase 1 / 2 reports | [Development/LAVR_PHASE_1_REPORT.md](Development/LAVR_PHASE_1_REPORT.md), [Development/LAVR_PHASE_2_REPORT.md](Development/LAVR_PHASE_2_REPORT.md) |
+| Phase 1 / 2 / 3A reports | [Development/LAVR_PHASE_1_REPORT.md](Development/LAVR_PHASE_1_REPORT.md), [Development/LAVR_PHASE_2_REPORT.md](Development/LAVR_PHASE_2_REPORT.md), [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md) |
 
 ---
 

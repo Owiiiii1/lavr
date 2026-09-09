@@ -8,6 +8,7 @@ use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\KeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardMarkup;
+use SergiX44\Nutgram\Telegram\Types\WebApp\WebAppInfo;
 
 final class TelegramChatKeyboard
 {
@@ -68,6 +69,17 @@ final class TelegramChatKeyboard
         }
 
         return $markup;
+    }
+
+    public function openLavr(string $httpsEntry, string $text = 'Open in LAVR'): InlineKeyboardMarkup
+    {
+        return InlineKeyboardMarkup::make()
+            ->addRow(
+                InlineKeyboardButton::make(
+                    text: $text,
+                    web_app: WebAppInfo::make($httpsEntry),
+                ),
+            );
     }
 
     public function confirmation(string $publicId): InlineKeyboardMarkup

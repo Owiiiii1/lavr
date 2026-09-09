@@ -15,9 +15,8 @@ Source of truth for what exists: production code + Owner-confirmed validation.
  Web Personal         Telegram         Integrations
  Workspace            adapter           / tools
  (CURRENT rich UI)    (DM + Groups)
-  /lavr
- WebApp               TARGET Mini App
- (TARGET = same UI)
+  /lavr + Mini App
+  entry /telegram/webapp
      |
      +-- Text
      +-- Voice (modality)
@@ -31,7 +30,6 @@ Source of truth for what exists: production code + Owner-confirmed validation.
      +-- Knowledge Layer (index; not People/Meetings/Commitments tables)
      |
  TARGET (not current)
-     +-- Telegram WebApp (same Workspace)
      +-- Operational Core (People, Meetings, Commitments, Decisions, Events)
      +-- Automation Engine hardening / Executive Brief
      +-- Mobile companion (deferred)

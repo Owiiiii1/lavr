@@ -1,5 +1,6 @@
 import SafeMarkdown from '@/Components/Jarvis/SafeMarkdown';
 import JarvisWorkspaceLayout from '@/Layouts/JarvisWorkspaceLayout';
+import LavrAppShell from '@/telegram/LavrAppShell';
 import { workspaceRoute } from '@/personal-workspace/named';
 import {
     isActionableConfirmation,
@@ -1513,6 +1514,7 @@ export default function PersonalWorkspace() {
         ?.pending_confirmation ?? null;
 
     return (
+        <LavrAppShell>
         <div onClick={closeOverlaysFromBackdrop}>
             <JarvisWorkspaceLayout
                 title={conversation?.title ?? workspaceTitle}
@@ -1845,6 +1847,7 @@ export default function PersonalWorkspace() {
                 </div>
             ) : null}
         </div>
+        </LavrAppShell>
     );
 }
 
