@@ -47,6 +47,7 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Executive Brief | Scheduled reports + opt-in briefs | Attention-reduced daily/weekly brief |
 | Onboarding | Owner profile `completed` (legacy skip) | Business-map onboarding |
 | Telegram WebApp | **UX IMPLEMENTED / Mini App E2E NOT VALIDATED** on a real Telegram client | Same Workspace; HMAC session; Menu Button still needs token + Owner pairing |
+| Localization | **TARGET / NOT IMPLEMENTED** for Owner UI. Admin kit has ad-hoc `en`/`ru` copy (default `en`). Workspace has no `uk` catalog, no Owner UI-language switch, no preferred assistant language | Ukrainian-first (`uk` default); supported `uk` / `en` / `ru`; one catalog; WebApp = Web; UI locale ≠ assistant language ([PRODUCT.md](PRODUCT.md#languages)) |
 
 ---
 
@@ -177,6 +178,8 @@ One user: `admin@admin.com`, role `owner`, assistant_name **LAVR**. Password is 
 
 `onboarding_status=completed` via `AssistantProfileService::defaultsFor` — **legacy skip**, not TARGET CEO onboarding. [ONBOARDING.md](ONBOARDING.md).
 
+Preferred interface language and preferred assistant language are **TARGET**. There is no Owner `uk` default catalog today. [PRODUCT.md](PRODUCT.md#languages).
+
 ---
 
 ## 8. What is not here (CURRENT)
@@ -188,6 +191,7 @@ One user: `admin@admin.com`, role `owner`, assistant_name **LAVR**. Password is 
 - Executive Brief section model
 - Leadership Review
 - Multi-mailbox Google (one active account MVP)
+- Owner UI localization and preferred assistant language (**TARGET**, not shipped). Do not treat Admin `locale` `en`/`ru` fragments as the product locale system.
 - Desktop, Mobile, public registration, Neo4j, wake word, SSE for scheduler events
 
 Live campaigns still open: [DEFERRED_VALIDATION.md](DEFERRED_VALIDATION.md).
@@ -198,4 +202,4 @@ Live campaigns still open: [DEFERRED_VALIDATION.md](DEFERRED_VALIDATION.md).
 
 Do not implement from this section. Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phases 3A–12.
 
-Architecture sketch: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Decisions: ADR-266+ in [DECISIONS.md](DECISIONS.md).
+Architecture sketch: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Decisions: ADR-266+ in [DECISIONS.md](DECISIONS.md). Localization: Phase **3C** in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) — **TARGET**, not shipped.

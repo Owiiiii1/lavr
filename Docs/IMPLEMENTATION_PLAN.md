@@ -34,6 +34,7 @@ Existing `projects`, watchers, and scheduled reports are **reused and hardened**
 | --- | --- | --- |
 | **3A** | Telegram WebApp foundation (same Workspace, TG + browser) | [INTERFACES.md](INTERFACES.md) |
 | **3B** | WebApp UX completion | [INTERFACES.md](INTERFACES.md), [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md) |
+| **3C** | Ukrainian-first localization (UI + assistant language) | [PRODUCT.md](PRODUCT.md#languages), [INTERFACES.md](INTERFACES.md), [ONBOARDING.md](ONBOARDING.md) |
 | **4** | People / Organizations / Projects as business contexts | [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md), [PROJECTS.md](PROJECTS.md) |
 | **5A** | Meetings + manual transcript import | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) |
 | **5B** | Zoom integration (automatic transcript import) | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md), [DATA_SOURCES.md](DATA_SOURCES.md) |
@@ -48,6 +49,8 @@ Existing `projects`, watchers, and scheduled reports are **reused and hardened**
 Phase 7 can start **in parallel** with 5–6 for report/watcher validation (already burning in production). Full event bus waits for operational entities.
 
 Onboarding business map ([ONBOARDING.md](ONBOARDING.md)) spans 3–8; do not block Phase 3B on it.
+
+Localization (**3C**) is a small cross-cutting slice **before / at the start of Phase 4**. Do not postpone it to Phase 12 polish: client-facing UI should be Ukrainian-first.
 
 ---
 
@@ -94,6 +97,31 @@ Code is in this repository. Report: [Development/LAVR_PHASE_3B_REPORT.md](Develo
 **Stop condition:** production `telegram_bot_settings` is still empty and Owner Telegram identity is missing. Exact Owner steps are in the Phase 3B report. Do not create a second bot. Do not change webhook.
 
 **Not in this phase.** People/Meetings/Commitments tables (Phase 4–6); Zoom; Executive Brief.
+
+---
+
+## Phase 3C — Ukrainian-first localization
+
+**Goal.** One locale system for Telegram WebApp and standalone Web. Client-facing UI is Ukrainian-first before Phase 4 domain UI grows.
+
+**CURRENT:** not implemented for the Owner Workspace. Admin kit `en`/`ru` fragments are not this product.
+
+Implementation rules:
+
+- default locale `uk`;
+- supported locales: `uk`, `en`, `ru`;
+- one canonical translation catalog; no second frontend;
+- Telegram WebApp and standalone Web share the same locale;
+- UI language and preferred assistant language are **separate** settings (both default `uk`);
+- temporary reply-in-request-language does not silently change the stored preferred language;
+- source artifacts stay in the original language ([DATA_SOURCES.md](DATA_SOURCES.md));
+- names and original quotes are not auto-localized;
+- translation fallback is Ukrainian;
+- single-owner only — no multi-user locale architecture.
+
+**Not in this phase.** People/Meetings/Commitments tables; Zoom; a duplicated Mini App frontend.
+
+**Exit.** Owner can switch UI language; assistant preferred language is independent; missing strings fall back to Ukrainian; Web and WebApp stay one app.
 
 ---
 
@@ -182,6 +210,8 @@ LAVR still does not become CRM/ERP.
 ## Phase 12 — Production polish
 
 **Goal.** Harden what already ships: validation, UX, reliability, Owner-confirmed campaigns. Not a new domain model.
+
+Ukrainian-first localization is **Phase 3C**, not this polish phase.
 
 ---
 

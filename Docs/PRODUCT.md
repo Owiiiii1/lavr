@@ -74,6 +74,26 @@ If a source system already stores a task, client, or deal, LAVR should integrate
 
 One CEO. Operators/developers who maintain this instance. Admin is a technical tool, not the CEO’s daily UI.
 
+## Languages
+
+LAVR is **Ukrainian-first**. It remains a **single-owner** instance. Do not build a multi-user locale architecture.
+
+| Code | Language | Role |
+| --- | --- | --- |
+| `uk` | Ukrainian | Default / primary |
+| `en` | English | Supported |
+| `ru` | Russian | Supported |
+
+- Ukrainian is the default interface language for the Owner.
+- The Owner must be able to choose the UI language manually (`uk` / `en` / `ru`).
+- Preferred **assistant** language is a separate setting. UI locale and assistant response language need not be the same.
+- LAVR may temporarily reply in the language of the current request when the Owner writes in another supported language. The stored preferred assistant language must not change silently.
+- Source data stays in the original language. Translation is a presentation / AI function, not a write to the source of truth.
+- Names of people, organizations, projects, files, and original quotes are not auto-localized.
+- If a translation is unavailable, fallback language is Ukrainian.
+
+Runtime status: [CURRENT_STATE.md](CURRENT_STATE.md). Interface behavior: [INTERFACES.md](INTERFACES.md). Sources: [DATA_SOURCES.md](DATA_SOURCES.md).
+
 ## Origin
 
 LAVR was created from JARVIS (`Owiiiii1/JARVIS`) as a separate product and repository (`Owiiiii1/lavr`). JARVIS multi-user surfaces were removed in Phase 1. Origin history remains in [LAVR_MIGRATION.md](LAVR_MIGRATION.md) and historical docs listed in [README.md](README.md).

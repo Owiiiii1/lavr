@@ -4,6 +4,22 @@ Canonical source map. Bindings: [PROJECTS.md](PROJECTS.md). Telegram groups impl
 
 LAVR reads sources. It does not replace Gmail, Calendar, Telegram, or Zoom as systems of record for those products.
 
+## Language of source content
+
+Source content is stored in the **original language**. Translation is a presentation / AI function, not a transformation of the source of truth.
+
+Do **not** translate on save:
+
+- emails;
+- Telegram messages;
+- transcripts;
+- documents;
+- meeting artifacts (including original Zoom / uploaded transcripts).
+
+Names of people, organizations, projects, files, and original quotes stay as received. Do not auto-localize them.
+
+On-demand translation for the Owner (UI or assistant) must not overwrite the stored artifact. If a translation is unavailable, fallback language is Ukrainian. [PRODUCT.md](PRODUCT.md#languages).
+
 ---
 
 ## CURRENT

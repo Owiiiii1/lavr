@@ -28,6 +28,8 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 
 There is a Telegram WebApp **foundation** (Phase 3A) plus **UX completion** (Phase 3B): `/telegram/webapp` validates Mini App `initData` and opens the same Workspace (Today, Chat, nav, Notifications, Reports). Real Telegram-client E2E is **NOT VALIDATED**. Details: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md), [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md).
 
+Owner UI language switch and preferred assistant language are **TARGET**. WebApp and standalone Web must share one catalog when that ships. Do not treat Admin `en`/`ru` fragments as the product locale. [PRODUCT.md](PRODUCT.md#languages).
+
 Today’s docs that call Web Workspace “PRIMARY” describe **current** shipping UI. Target primary **rich** UI is Telegram WebApp using that same Workspace. Target primary **fast** channel is Telegram Chat. See ADR-267, ADR-268, ADR-269.
 
 ---
@@ -87,7 +89,7 @@ Target sections (product UX, not a current route map):
 | Reports | Scheduled reports + Executive Brief |
 | Knowledge | Documents / index — [KNOWLEDGE_LAYER.md](KNOWLEDGE_LAYER.md) |
 | Notifications | Inbox |
-| Settings | Assistant, voice, integrations, policies |
+| Settings | Assistant, voice, integrations, policies; **UI language** and **preferred assistant language** (separate; default `uk`) |
 
 Phase 3A–3B in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the WebApp foundation and UX completion, not the full domain UI. Live Mini App on a phone waits on existing-bot token + pairing: [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md).
 
@@ -98,6 +100,8 @@ Phase 3A–3B in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the WebApp 
 **CURRENT and TARGET:** `https://lavr.youngfashionshow.com`
 
 Same core as Telegram. Same frontend as Telegram WebApp (target). Login, `/lavr` workspace, voice modalities (Рация / Диалог Beta).
+
+Telegram WebApp and standalone Web **share one locale system** and one translation catalog. Do not duplicate the frontend or ship a second set of UI strings. Changing UI language in Settings applies to both shells.
 
 ---
 
@@ -122,5 +126,7 @@ Admin ≠ conversation channel. [PRODUCT.md](PRODUCT.md).
 
 - One conversation catalog for Telegram DM and Web (already true).
 - WebApp and standalone Web are the same app in two shells (target).
+- One UI locale for Telegram WebApp and standalone Web (`uk` default; `en` and `ru` supported). The Owner switches it manually. There is no per-user locale product beyond this single Owner.
+- Preferred assistant language is independent of UI locale ([PRODUCT.md](PRODUCT.md#languages), [ONBOARDING.md](ONBOARDING.md)).
 - Notifications may land in Telegram Chat even when the CEO is in WebApp.
 - Mutating external actions still require confirmation policy. [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md).

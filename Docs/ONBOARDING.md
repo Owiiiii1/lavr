@@ -14,6 +14,8 @@ Default assistant name: **LAVR**. Personality / about_user / interaction_style m
 
 There is no structured capture of projects, employees, mailboxes, or alert policies.
 
+There is **no** Owner setting for preferred interface language or preferred assistant language. UI copy is not a Ukrainian-first catalog. Localization is **TARGET** ([CURRENT_STATE.md](CURRENT_STATE.md)).
+
 ---
 
 ## TARGET
@@ -23,6 +25,8 @@ CEO onboarding builds the **initial business map** and assistant policies.
 Collect at least:
 
 - owner name and preferred address;
+- **preferred interface language** (`uk` / `en` / `ru`; default **Ukrainian** `uk`);
+- **preferred assistant language** (`uk` / `en` / `ru`; default **Ukrainian** `uk`) — separate from UI locale; they need not match;
 - assistant name, character, communication style;
 - main projects;
 - key people and their roles;
@@ -39,4 +43,4 @@ Output: operational records (People, Organizations, Projects, source bindings, p
 
 Until Phase 4–8 exist, do not fake this with Memory-only notes as if they were operational facts.
 
-UI: Web / Telegram WebApp / guided Telegram Chat are all acceptable; Admin may finish messy identity links.
+UI: Web / Telegram WebApp / guided Telegram Chat are all acceptable; Admin may finish messy identity links. WebApp and Web share the same locale ([INTERFACES.md](INTERFACES.md)). Language rules: [PRODUCT.md](PRODUCT.md#languages).
