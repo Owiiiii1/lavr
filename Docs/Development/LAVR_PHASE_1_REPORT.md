@@ -304,3 +304,52 @@ git push origin main
 
 Не пушить в `Owiiiii1/JARVIS`.
 
+---
+
+## I. Rebase onto fresh Jarvis upstream (2026-09-09)
+
+Rebase: `main` onto `origin/main` (`7db12d6`).
+
+Upstream commits included:
+
+| SHA | Message |
+| --- | --- |
+| `40940f5` | `feat: deliver scheduled mail digests as spoken summaries` |
+| `7db12d6` | `fix: size brief phrasing budget for reasoning models` |
+
+Phase 1 replayed as `fd772d1` (`feat: convert LAVR to a single-client instance`) plus the three follow-up docs commits.
+
+### Conflicts
+
+**`Docs/CURRENT_STATE.md`**
+
+- Kept LAVR identity: dedicated single-client instance, `/var/www/lavr`, `https://lavr.youngfashionshow.com`, `Owiiiii1/lavr`, no public multi-user product.
+- Kept upstream Scheduled Reports facts: spoken mail digest, calendar DI fix, reasoning-model `phrasing_max_tokens` (1600), Owner live 08:30/09:00 notes.
+- Product surfaces updated to canonical `/lavr`; `/jarvis` and `/chat` documented as GET redirects.
+
+**`app/Services/Productivity/ProductivityBriefAiSynthesizer.php`**
+
+- Kept upstream `systemPrompt($mode)`, `mail_groups_digest` spoken-digest prompt, completeness guard, and `config('productivity.briefs.phrasing_max_tokens', 1600)`.
+- Replaced user-facing “Jarvis” in those prompts with **LAVR** only.
+
+**`tests/Feature/Reports/ScheduledReportsTest.php`**
+
+- Auto-merged, no conflict markers. Left as upstream + Phase 1 route/brand test adjustments already in the Phase 1 commit.
+
+### Tests after rebase
+
+Paid AI / live Telegram / live Gmail were not invoked. `php artisan config:clear` first (production `config:cache` made `phrasing_max_tokens` look like `0` in tests).
+
+| Command | Result |
+| --- | --- |
+| `php artisan test --compact` LavrSingleUserSurface + BriefPhrasingBudget + ProductivityBriefPhrasing + ScheduledReportComposer + IdentityAuthorization | PASS 31 tests |
+| `php artisan test --compact tests/Feature/Reports/ScheduledReportsTest.php` excluding `test_reminder_and_gmail_event_wording_stay_on_their_tools` | PASS 10 tests |
+| `test_reminder_and_gmail_event_wording_stay_on_their_tools` | FAIL `assertTrue` on `CreateReminderTool` success — first assertion; `run_at_local` is `2026-09-09T09:00:00+02:00` (likely past relative to now). Not a rebase rollback of digest/reasoning logic. |
+| `npm run build` | PASS |
+
+### HEAD after rebase
+
+- Onto: `7db12d6`
+- Feature replay: `fd772d1`
+- `main` tip including this report: filled after `git push` (see Git log on `Owiiiii1/lavr`)
+
