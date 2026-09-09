@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'summary',
     'status',
     'project_id',
+    'canonical_type',
+    'canonical_id',
     'confidence',
     'metadata',
 ])]

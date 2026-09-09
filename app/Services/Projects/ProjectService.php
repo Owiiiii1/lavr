@@ -34,7 +34,7 @@ final class ProjectService
 
         $query = Project::query()
             ->where('user_id', $user->id)
-            ->withCount(['conversations', 'topics', 'memories', 'telegramGroups'])
+            ->withCount(['conversations', 'topics', 'memories', 'telegramGroups', 'people', 'organizations'])
             ->orderBy('name');
 
         if (! $includeArchived) {
@@ -81,6 +81,42 @@ final class ProjectService
         $this->bumpSynthesis((int) $user->id);
 
         return $project->refresh();
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    public function updateContext(User $user, Project $project, array $payload): Project
+    {
+        $this->assertOwns($user, $project);
+
+        $status = isset($payload['status']) ? ProjectStatus::tryFrom((string) $payload['status']) : $project->status;
+        $ownerId = array_key_exists('owner_person_id', $payload)
+            ? (isset($payload['owner_person_id']) && (int) $payload['owner_person_id'] > 0 ? (int) $payload['owner_person_id'] : null)
+            : $project->owner_person_id;
+
+        $project->forceFill([
+            'category' => array_key_exists('category', $payload) ? $this->nullableTrim($payload['category'] ?? null) : $project->category,
+            'start_date' => array_key_exists('start_date', $payload) ? ($payload['start_date'] ?: null) : $project->start_date,
+            'end_date' => array_key_exists('end_date', $payload) ? ($payload['end_date'] ?: null) : $project->end_date,
+            'owner_person_id' => $ownerId,
+            'status' => $status ?? $project->status,
+        ])->save();
+
+        $this->bumpSynthesis((int) $user->id);
+
+        return $project->refresh();
+    }
+
+    private function nullableTrim(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+
+        return $trimmed === '' ? null : $trimmed;
     }
 
     public function archive(User $user, Project $project): Project

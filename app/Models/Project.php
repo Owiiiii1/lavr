@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'name',
     'normalized_name',
     'description',
+    'category',
+    'start_date',
+    'end_date',
+    'owner_person_id',
     'status',
     'metadata',
 ])]
@@ -27,6 +31,8 @@ class Project extends Model
         return [
             'status' => ProjectStatus::class,
             'metadata' => 'array',
+            'start_date' => 'date',
+            'end_date' => 'date',
         ];
     }
 
@@ -62,5 +68,29 @@ class Project extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function ownerPerson(): BelongsTo
+    {
+        return $this->belongsTo(Person::class, 'owner_person_id');
+    }
+
+    public function people(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'project_people')
+            ->withPivot(['role', 'notes'])
+            ->withTimestamps();
+    }
+
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class, 'project_organizations')
+            ->withPivot(['role', 'notes'])
+            ->withTimestamps();
+    }
+
+    public function sourceBindings(): HasMany
+    {
+        return $this->hasMany(ProjectSourceBinding::class);
     }
 }

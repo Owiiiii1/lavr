@@ -28,19 +28,23 @@ Implemented operational-ish objects (Eloquent models):
 | Conversation / Message | Chat |
 | Task | Formal work items |
 | Reminder | Timed personal nudges |
-| Project | Owner **work container** (pivots to chats, topics, memories, groups, tasks) — not yet a full business context |
+| Person | Canonical `people` + `person_roles` + `person_identities` |
+| EmployeeProfile | Extension of a Person with role `employee` |
+| Organization | Canonical `organizations` |
+| DirectoryRelationship | Typed P↔O / P↔P / O↔O links (`directory_relationships`) |
+| Project | Owner **business context** (people, organizations, chats, topics, memories, groups, `project_source_bindings`) — Meetings/Commitments still TARGET |
 | Watcher | Condition monitor |
 | ScheduledReport | Clock-time composite digest |
-| KnowledgeEntity | Includes type `person` / `organization` / `project` — **index**, not `people` / `organizations` tables |
+| KnowledgeEntity | Includes type `person` / `organization` / `project` — **index**; optional `canonical_type` / `canonical_id` |
 | KnowledgeEvent | Timeline including `commitment_made` etc. |
 | TelegramGroup | Group source |
 | IntegrationAccount | OAuth connections |
 | JarvisNotification | In-app inbox |
 | Memory | Personal memory engine |
 
-**Not in code:** `people`, `employee_profiles`, `organizations`, relationship tables, `meetings`, `commitments`, `decisions`, operational `events` table, Telegram WebApp.
+**Not in code:** `meetings`, `commitments`, `decisions`, operational `events` table.
 
-`list_commitments` / `get_person_status` / waiting-for are **derived** by [CROSS_SOURCE_SYNTHESIS.md](CROSS_SOURCE_SYNTHESIS.md) from Knowledge + Tasks + Watchers. They are not first-class commitment/person rows.
+`list_commitments` remains **derived**. `get_person_status` reads canonical People first, then Knowledge.
 
 ---
 

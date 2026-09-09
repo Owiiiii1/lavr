@@ -8,23 +8,26 @@ A **Project** is a business context the CEO manages — not a Topic, not a chat,
 
 ## CURRENT
 
-`projects` is an **Owner work container**.
+`projects` is an Owner **business context** (evolved in Phase 4 from the work-container scaffold).
 
-Fields: `user_id`, `name`, `normalized_name`, `description`, `status`, `metadata`.
+Fields: `user_id`, `name`, `normalized_name`, `description`, `category`, `start_date`, `end_date`, `owner_person_id`, `status` (`active` / `paused` / `completed` / `archived`), `metadata`.
 
 Pivots (relations only; raw data is not copied into the project):
 
 - conversations, topics, memories
 - telegram groups (`project_groups`)
+- people (`project_people`)
+- organizations (`project_organizations`)
+- source bindings (`project_source_bindings`) — schema ready; multi-mailbox is still Phase 10
 - tasks (`tasks.project_id`)
 
-Knowledge may index a project (`knowledge_entities.project_id`). The Project row stays canonical for name/status.
+Knowledge may index a project (`knowledge_entities.project_id`) and optionally `canonical_type`/`canonical_id`. The Project row stays canonical for name/status.
 
-Tools: `get_project_context` (attached material + bounded group knowledge), E.3 `get_project_status` (derived synthesis).
+Tools: `get_project_context` (attached material + bounded group knowledge), `find_project` / `get_project` (structured people/orgs), E.3 `get_project_status` (derived synthesis).
 
-Projects are **not** automatically classified from messages. Attach is explicit (Admin / tools).
+Projects are **not** automatically classified from messages. Attach is explicit (Admin / tools). AI does not silently create projects.
 
-This is useful scaffolding. It is **not** yet the business-context model below (no People/Meetings/Commitments/mailbox binding).
+Meetings, Commitments, and Decisions are **not** first-class yet.
 
 Implementation notes from origin JARVIS: [DATABASE.md](DATABASE.md). Do not treat “Owner-only capability vs ordinary users” as a LAVR product rule — LAVR is single-client.
 
@@ -67,7 +70,7 @@ Each mailbox binds to:
 
 LAVR must know which business context a mailbox belongs to.
 
-**CURRENT constraint:** ADR-070 — one active Google account per owner (MVP). Multi-mailbox is TARGET (Phase 4 / 10). Documented in [DATA_SOURCES.md](DATA_SOURCES.md).
+**CURRENT constraint:** ADR-070 — one active Google account per owner (MVP). Multi-mailbox is TARGET (Phase 10). `project_source_bindings` exists as a forward-compatible schema. Documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 
 ### Telegram groups
 

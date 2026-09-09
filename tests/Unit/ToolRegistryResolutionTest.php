@@ -4,6 +4,8 @@ namespace Tests\Unit;
 
 use App\Services\Tools\CreateReminderTool;
 use App\Services\Tools\CreateTaskTool;
+use App\Services\Tools\Directory\FindPersonTool;
+use App\Services\Tools\Directory\GetProjectTool;
 use App\Services\Tools\GetAssistantProfileTool;
 use App\Services\Tools\ListRemindersTool;
 use App\Services\Tools\ListTasksTool;
@@ -21,5 +23,7 @@ class ToolRegistryResolutionTest extends TestCase
         $this->assertInstanceOf(GetAssistantProfileTool::class, $registry->resolve(GetAssistantProfileTool::NAME));
         $this->assertInstanceOf(CreateTaskTool::class, $registry->resolve(CreateTaskTool::NAME));
         $this->assertInstanceOf(ListTasksTool::class, $registry->resolve(ListTasksTool::NAME));
+        $this->assertInstanceOf(FindPersonTool::class, $registry->resolve(FindPersonTool::NAME));
+        $this->assertInstanceOf(GetProjectTool::class, $registry->resolve(GetProjectTool::NAME));
     }
 }

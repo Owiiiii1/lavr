@@ -12,6 +12,8 @@ import {
     Sparkles,
     Settings,
     UserCircle2,
+    Users,
+    Building2,
     Menu,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -32,6 +34,8 @@ import {
 const primaryNavItems = [
     { route: 'dashboard', icon: Home },
     { route: 'projects.index', icon: FolderKanban, activePattern: 'projects.*' },
+    { route: 'people.index', icon: Users, activePattern: 'people.*' },
+    { route: 'organizations.index', icon: Building2, activePattern: 'organizations.*' },
     { route: 'telegram-groups.index', icon: MessagesSquare, activePattern: 'telegram-groups.*' },
     { route: 'calendar.index', icon: CalendarDays },
 ];
@@ -45,6 +49,8 @@ const languageLabels = {
 function navLabel(routeName, t) {
     if (routeName === 'dashboard') return t.home;
     if (routeName === 'projects.index') return t.projects;
+    if (routeName === 'people.index') return t.people;
+    if (routeName === 'organizations.index') return t.organizations;
     if (routeName === 'telegram-groups.index') return t.telegramGroups;
     if (routeName === 'calendar.index') return t.calendar;
     return routeName;
@@ -91,6 +97,8 @@ export default function AdminLayout({ title, children }) {
         en: {
             home: 'Home',
             projects: 'Projects',
+            people: 'People',
+            organizations: 'Organizations',
             telegramGroups: 'Telegram Groups',
             calendar: 'Calendar',
             settings: 'Settings',
@@ -105,6 +113,8 @@ export default function AdminLayout({ title, children }) {
         ru: {
             home: 'Главная',
             projects: 'Projects',
+            people: 'People',
+            organizations: 'Organizations',
             telegramGroups: 'Telegram Groups',
             calendar: 'Календарь',
             settings: 'Настройки',
@@ -119,6 +129,8 @@ export default function AdminLayout({ title, children }) {
         uk: {
             home: 'Головна',
             projects: 'Projects',
+            people: 'People',
+            organizations: 'Organizations',
             telegramGroups: 'Telegram Groups',
             calendar: 'Календар',
             settings: 'Налаштування',

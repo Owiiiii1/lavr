@@ -40,6 +40,8 @@ final class UserCapability
 
     public const PROJECTS = 'projects';
 
+    public const PEOPLE = 'people';
+
     public const GMAIL = 'gmail';
 
     public const GOOGLE_CALENDAR = 'google_calendar';

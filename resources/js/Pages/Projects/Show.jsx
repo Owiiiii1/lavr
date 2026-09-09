@@ -10,17 +10,25 @@ export default function ProjectShow() {
         availableTopics = [],
         availableMemories = [],
         availableGroups = [],
+        availablePeople = [],
+        availableOrganizations = [],
         descriptionMax = 5000,
     } = usePage().props;
     const [editing, setEditing] = useState(false);
     const editForm = useForm({
         name: project.name,
         description: project.description ?? '',
+        category: project.category ?? '',
+        start_date: project.start_date ?? '',
+        end_date: project.end_date ?? '',
+        status: project.status,
     });
     const conversationForm = useForm({ conversation_id: '' });
     const topicForm = useForm({ topic_id: '' });
     const memoryForm = useForm({ memory_id: '' });
     const groupForm = useForm({ telegram_group_id: '' });
+    const personForm = useForm({ person_id: '', role: '' });
+    const organizationForm = useForm({ organization_id: '', role: '' });
 
     const text = {
         en: {
@@ -157,6 +165,47 @@ export default function ProjectShow() {
                                     className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                                 />
                             </label>
+                            <label className="block text-sm font-medium">
+                                Category
+                                <input
+                                    value={editForm.data.category}
+                                    onChange={(event) => editForm.setData('category', event.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                />
+                            </label>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <label className="block text-sm font-medium">
+                                    Start
+                                    <input
+                                        type="date"
+                                        value={editForm.data.start_date}
+                                        onChange={(event) => editForm.setData('start_date', event.target.value)}
+                                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                    />
+                                </label>
+                                <label className="block text-sm font-medium">
+                                    End
+                                    <input
+                                        type="date"
+                                        value={editForm.data.end_date}
+                                        onChange={(event) => editForm.setData('end_date', event.target.value)}
+                                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                    />
+                                </label>
+                            </div>
+                            <label className="block text-sm font-medium">
+                                Status
+                                <select
+                                    value={editForm.data.status}
+                                    onChange={(event) => editForm.setData('status', event.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                >
+                                    <option value="active">active</option>
+                                    <option value="paused">paused</option>
+                                    <option value="completed">completed</option>
+                                    <option value="archived">archived</option>
+                                </select>
+                            </label>
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
@@ -176,6 +225,7 @@ export default function ProjectShow() {
                     ) : (
                         <>
                             <p className="text-sm capitalize text-slate-500">{project.status}</p>
+                            {project.category ? <p className="mt-1 text-xs text-slate-500">{project.category}</p> : null}
                             <p className="mt-2 whitespace-pre-wrap text-sm text-slate-800">
                                 {project.description || '—'}
                             </p>
@@ -265,6 +315,44 @@ export default function ProjectShow() {
                     }))}
                     action={route('projects.groups.store', project.id)}
                     addLabel={t.addGroup}
+                />
+
+                <RelationSection
+                    title="People"
+                    empty={t.empty}
+                    items={project.people ?? []}
+                    renderItem={(item) => (
+                        <>
+                            <span className="font-medium">{item.display_name}</span>
+                            {item.role ? <span className="ml-2 text-xs text-slate-500">{item.role}</span> : null}
+                        </>
+                    )}
+                    detach={(item) => route('projects.people.destroy', [project.id, item.id])}
+                    detachLabel={t.detach}
+                    form={personForm}
+                    field="person_id"
+                    options={availablePeople.map((item) => ({ value: item.id, label: item.display_name }))}
+                    action={route('projects.people.store', project.id)}
+                    addLabel="Attach person"
+                />
+
+                <RelationSection
+                    title="Organizations"
+                    empty={t.empty}
+                    items={project.organizations ?? []}
+                    renderItem={(item) => (
+                        <>
+                            <span className="font-medium">{item.name}</span>
+                            {item.role ? <span className="ml-2 text-xs text-slate-500">{item.role}</span> : null}
+                        </>
+                    )}
+                    detach={(item) => route('projects.organizations.destroy', [project.id, item.id])}
+                    detachLabel={t.detach}
+                    form={organizationForm}
+                    field="organization_id"
+                    options={availableOrganizations.map((item) => ({ value: item.id, label: item.name }))}
+                    action={route('projects.organizations.store', project.id)}
+                    addLabel="Attach organization"
                 />
             </div>
         </AdminLayout>

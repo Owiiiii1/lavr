@@ -18,9 +18,14 @@ use App\Http\Controllers\Jarvis\JarvisTodayController;
 use App\Http\Controllers\Jarvis\JarvisVoiceController;
 use App\Http\Controllers\Jarvis\JarvisWatcherController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceController;
+use App\Http\Controllers\Jarvis\JarvisWorkspaceOrganizationsController;
 use App\Http\Controllers\Jarvis\JarvisWorkspacePageController;
+use App\Http\Controllers\Jarvis\JarvisWorkspacePeopleController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceProjectsController;
+use App\Http\Controllers\Jarvis\JarvisWorkspaceSearchController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceStatusController;
+use App\Http\Controllers\OrganizationsController;
+use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Settings\AiSettingsController;
@@ -85,7 +90,11 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
     Route::middleware($middleware)->prefix($prefix)->name($as.'.')->group(function () use ($ownerStorage): void {
         Route::get('/', [JarvisWorkspaceController::class, 'index'])->name('index');
         Route::get('/today', [JarvisTodayController::class, 'show'])->name('today.show');
-        Route::get('/people', [JarvisWorkspacePageController::class, 'people'])->name('people.index');
+        Route::get('/people', [JarvisWorkspacePeopleController::class, 'index'])->name('people.index');
+        Route::get('/people/{person}', [JarvisWorkspacePeopleController::class, 'show'])->name('people.show');
+        Route::get('/organizations', [JarvisWorkspaceOrganizationsController::class, 'index'])->name('organizations.index');
+        Route::get('/organizations/{organization}', [JarvisWorkspaceOrganizationsController::class, 'show'])->name('organizations.show');
+        Route::get('/search', [JarvisWorkspaceSearchController::class, 'show'])->name('search.show');
         Route::get('/more', [JarvisWorkspacePageController::class, 'more'])->name('more.show');
         Route::get('/meetings', [JarvisWorkspacePageController::class, 'meetings'])->name('meetings.index');
         Route::get('/commitments', [JarvisWorkspacePageController::class, 'commitments'])->name('commitments.index');
@@ -324,6 +333,34 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::delete('/projects/{project}/memories/{memory}', [ProjectController::class, 'detachMemory'])->name('projects.memories.destroy');
     Route::post('/projects/{project}/groups', [ProjectController::class, 'attachGroup'])->name('projects.groups.store');
     Route::delete('/projects/{project}/groups/{telegramGroup}', [ProjectController::class, 'detachGroup'])->name('projects.groups.destroy');
+    Route::post('/projects/{project}/people', [ProjectController::class, 'attachPerson'])->name('projects.people.store');
+    Route::delete('/projects/{project}/people/{person}', [ProjectController::class, 'detachPerson'])->name('projects.people.destroy');
+    Route::post('/projects/{project}/organizations', [ProjectController::class, 'attachOrganization'])->name('projects.organizations.store');
+    Route::delete('/projects/{project}/organizations/{organization}', [ProjectController::class, 'detachOrganization'])->name('projects.organizations.destroy');
+
+    Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
+    Route::post('/people', [PeopleController::class, 'store'])->name('people.store');
+    Route::get('/people/{person}', [PeopleController::class, 'show'])->name('people.show');
+    Route::patch('/people/{person}', [PeopleController::class, 'update'])->name('people.update');
+    Route::post('/people/{person}/archive', [PeopleController::class, 'archive'])->name('people.archive');
+    Route::post('/people/{person}/restore', [PeopleController::class, 'restore'])->name('people.restore');
+    Route::patch('/people/{person}/employee', [PeopleController::class, 'updateEmployee'])->name('people.employee.update');
+    Route::post('/people/{person}/identities', [PeopleController::class, 'storeIdentity'])->name('people.identities.store');
+    Route::post('/people/{person}/projects', [PeopleController::class, 'attachProject'])->name('people.projects.store');
+    Route::delete('/people/{person}/projects/{project}', [PeopleController::class, 'detachProject'])->name('people.projects.destroy');
+    Route::post('/people/{person}/relationships', [PeopleController::class, 'storeRelationship'])->name('people.relationships.store');
+    Route::post('/people/{person}/knowledge', [PeopleController::class, 'linkKnowledge'])->name('people.knowledge.store');
+    Route::post('/people/{person}/merge', [PeopleController::class, 'merge'])->name('people.merge');
+
+    Route::get('/organizations', [OrganizationsController::class, 'index'])->name('organizations.index');
+    Route::post('/organizations', [OrganizationsController::class, 'store'])->name('organizations.store');
+    Route::get('/organizations/{organization}', [OrganizationsController::class, 'show'])->name('organizations.show');
+    Route::patch('/organizations/{organization}', [OrganizationsController::class, 'update'])->name('organizations.update');
+    Route::post('/organizations/{organization}/archive', [OrganizationsController::class, 'archive'])->name('organizations.archive');
+    Route::post('/organizations/{organization}/restore', [OrganizationsController::class, 'restore'])->name('organizations.restore');
+    Route::post('/organizations/{organization}/projects', [OrganizationsController::class, 'attachProject'])->name('organizations.projects.store');
+    Route::delete('/organizations/{organization}/projects/{project}', [OrganizationsController::class, 'detachProject'])->name('organizations.projects.destroy');
+    Route::post('/organizations/{organization}/knowledge', [OrganizationsController::class, 'linkKnowledge'])->name('organizations.knowledge.store');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
 

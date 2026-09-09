@@ -8,6 +8,8 @@ use App\Enums\UserStatus;
 use App\Models\ChannelIdentity;
 use App\Models\Conversation;
 use App\Models\ConversationSummary;
+use App\Models\DirectoryRelationship;
+use App\Models\EmployeeProfile;
 use App\Models\IntegrationAccount;
 use App\Models\JarvisNotification;
 use App\Models\KnowledgeAnalysisRun;
@@ -23,6 +25,8 @@ use App\Models\MemorySource;
 use App\Models\Message;
 use App\Models\MessageAttachment;
 use App\Models\MessageTopicRelation;
+use App\Models\Organization;
+use App\Models\Person;
 use App\Models\Project;
 use App\Models\Reminder;
 use App\Models\ScheduledReport;
@@ -135,6 +139,20 @@ trait CleansTemporaryJarvisRecords
             KnowledgeEvent::query()->where('user_id', $user->id)->delete();
             KnowledgeAnalysisRun::query()->where('user_id', $user->id)->delete();
             KnowledgeEntity::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('directory_relationships')) {
+            DirectoryRelationship::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('employee_profiles') && Schema::hasTable('people')) {
+            EmployeeProfile::query()
+                ->whereIn('person_id', Person::query()->where('user_id', $user->id)->select('id'))
+                ->update(['manager_person_id' => null]);
+        }
+        if (Schema::hasTable('people')) {
+            Person::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('organizations')) {
+            Organization::query()->where('user_id', $user->id)->delete();
         }
         Project::query()->where('user_id', $user->id)->delete();
         $memoryIds = Memory::query()->where('user_id', $user->id)->pluck('id');

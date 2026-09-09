@@ -11,7 +11,7 @@ export default function WorkspaceProjects({ projects = [] }) {
         }
 
         try {
-            return new Intl.DateTimeFormat(bcp47, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+            return new Intl.DateTimeFormat(bcp47, { dateStyle: 'medium' }).format(new Date(iso));
         } catch {
             return '';
         }
@@ -38,6 +38,11 @@ export default function WorkspaceProjects({ projects = [] }) {
                                     <p className="mt-1 text-xs text-slate-400">
                                         {project.status}
                                         {project.updated_at ? ` · ${activityLabel(project.updated_at)}` : ''}
+                                    </p>
+                                    <p className="mt-2 text-xs text-slate-500">
+                                        {t('projects.peopleCount', { count: project.people_count ?? 0 })}
+                                        {' · '}
+                                        {t('projects.orgCount', { count: project.organizations_count ?? 0 })}
                                     </p>
                                 </Link>
                             </li>

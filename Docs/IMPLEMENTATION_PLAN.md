@@ -128,6 +128,8 @@ Shipped rules:
 
 ## Phase 4 — People / Organizations / Projects
 
+**Status: IMPLEMENTED** (2026-09-09). Report: [Development/LAVR_PHASE_4_REPORT.md](Development/LAVR_PHASE_4_REPORT.md).
+
 **Goal.** Unified `people` + roles + `employee_profiles` + `organizations` + relationships. Evolve `projects` into business contexts (mailbox/group bindings as far as Google MVP allows).
 
 **Not in this phase.** Full multi-account Google (may stub bindings on the single connected account). Meeting intelligence.

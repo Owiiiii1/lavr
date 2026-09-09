@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Organization;
+use App\Models\Person;
 use App\Models\Project;
 use App\Models\TelegramGroup;
+use App\Policies\OrganizationPolicy;
+use App\Policies\PersonPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TelegramGroupPolicy;
 use App\Services\Ai\Contracts\AiChatGateway;
@@ -56,6 +60,13 @@ use App\Services\Tools\ConfirmToolActionTool;
 use App\Services\Tools\CreateReminderTool;
 use App\Services\Tools\CreateSubtaskTool;
 use App\Services\Tools\CreateTaskTool;
+use App\Services\Tools\Directory\FindOrganizationTool;
+use App\Services\Tools\Directory\FindPersonTool;
+use App\Services\Tools\Directory\FindProjectTool;
+use App\Services\Tools\Directory\GetOrganizationTool;
+use App\Services\Tools\Directory\GetPersonTool;
+use App\Services\Tools\Directory\GetProjectTool;
+use App\Services\Tools\Directory\ListPeopleTool;
 use App\Services\Tools\GetAssistantProfileTool;
 use App\Services\Tools\GetProjectContextTool;
 use App\Services\Tools\GetTaskTool;
@@ -350,6 +361,13 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(LinkEntitiesTool::class),
                 $app->make(AddKnowledgeNoteTool::class),
                 $app->make(GetProjectContextTool::class),
+                $app->make(FindPersonTool::class),
+                $app->make(GetPersonTool::class),
+                $app->make(ListPeopleTool::class),
+                $app->make(FindOrganizationTool::class),
+                $app->make(GetOrganizationTool::class),
+                $app->make(FindProjectTool::class),
+                $app->make(GetProjectTool::class),
                 $app->make(GetProjectStatusTool::class),
                 $app->make(GetSynthesisTool::class),
                 $app->make(GetPersonStatusTool::class),
@@ -437,6 +455,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(TelegramGroup::class, TelegramGroupPolicy::class);
+        Gate::policy(Person::class, PersonPolicy::class);
+        Gate::policy(Organization::class, OrganizationPolicy::class);
 
         RateLimiter::for('telegram-webapp', function (Request $request) {
             $perMinute = max(5, (int) config('telegram.webapp.rate_limit_per_minute', 20));

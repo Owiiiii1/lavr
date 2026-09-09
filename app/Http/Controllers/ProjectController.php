@@ -6,9 +6,13 @@ use App\Enums\ConversationKind;
 use App\Enums\MemoryStatus;
 use App\Models\Conversation;
 use App\Models\Memory;
+use App\Models\Organization;
+use App\Models\Person;
 use App\Models\Project;
 use App\Models\TelegramGroup;
 use App\Models\Topic;
+use App\Services\Directory\DirectoryService;
+use App\Services\Directory\Exceptions\DirectoryException;
 use App\Services\Projects\Exceptions\ProjectException;
 use App\Services\Projects\ProjectService;
 use Illuminate\Http\RedirectResponse;
@@ -20,6 +24,7 @@ class ProjectController extends Controller
 {
     public function __construct(
         private readonly ProjectService $projects,
+        private readonly DirectoryService $directory,
     ) {}
 
     public function index(Request $request): Response
@@ -38,6 +43,9 @@ class ProjectController extends Controller
                 'topics_count' => (int) $project->topics_count,
                 'memories_count' => (int) $project->memories_count,
                 'groups_count' => (int) $project->telegram_groups_count,
+                'people_count' => (int) $project->people_count,
+                'organizations_count' => (int) $project->organizations_count,
+                'category' => $project->category,
                 'updated_at' => optional($project->updated_at)?->toIso8601String(),
             ])->all(),
         ]);
@@ -75,6 +83,9 @@ class ProjectController extends Controller
             'topics:id,user_id,name,status',
             'memories:id,user_id,content,kind,confidence,status',
             'telegramGroups:id,title,chat_type,status',
+            'people:id,display_name,status',
+            'organizations:id,name,status',
+            'ownerPerson:id,display_name',
         ]);
 
         $attachedConversationIds = $project->conversations->pluck('id');
@@ -88,6 +99,10 @@ class ProjectController extends Controller
                 'name' => $project->name,
                 'description' => $project->description,
                 'status' => $project->status->value,
+                'category' => $project->category,
+                'start_date' => optional($project->start_date)?->toDateString(),
+                'end_date' => optional($project->end_date)?->toDateString(),
+                'owner_person_id' => $project->owner_person_id,
                 'updated_at' => optional($project->updated_at)?->toIso8601String(),
                 'conversations' => $project->conversations->map(static fn (Conversation $conversation): array => [
                     'id' => $conversation->id,
@@ -111,6 +126,16 @@ class ProjectController extends Controller
                     'title' => $group->title ?: 'Untitled group',
                     'chat_type' => $group->chat_type,
                     'status' => $group->status->value,
+                ])->all(),
+                'people' => $project->people->map(static fn (Person $person): array => [
+                    'id' => $person->id,
+                    'display_name' => $person->display_name,
+                    'role' => $person->pivot->role ?? null,
+                ])->all(),
+                'organizations' => $project->organizations->map(static fn (Organization $organization): array => [
+                    'id' => $organization->id,
+                    'name' => $organization->name,
+                    'role' => $organization->pivot->role ?? null,
                 ])->all(),
             ],
             'availableConversations' => Conversation::query()
@@ -166,6 +191,28 @@ class ProjectController extends Controller
                     'status' => $group->status->value,
                 ])
                 ->all(),
+            'availablePeople' => Person::query()
+                ->where('user_id', $user->id)
+                ->whereNotIn('id', $project->people->pluck('id'))
+                ->orderBy('display_name')
+                ->limit(50)
+                ->get(['id', 'display_name'])
+                ->map(static fn (Person $person): array => [
+                    'id' => $person->id,
+                    'display_name' => $person->display_name,
+                ])
+                ->all(),
+            'availableOrganizations' => Organization::query()
+                ->where('user_id', $user->id)
+                ->whereNotIn('id', $project->organizations->pluck('id'))
+                ->orderBy('name')
+                ->limit(50)
+                ->get(['id', 'name'])
+                ->map(static fn (Organization $organization): array => [
+                    'id' => $organization->id,
+                    'name' => $organization->name,
+                ])
+                ->all(),
             'descriptionMax' => (int) config('projects.description_max'),
         ]);
     }
@@ -177,6 +224,11 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:'.(int) config('projects.description_max')],
+            'category' => ['nullable', 'string', 'max:80'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date'],
+            'status' => ['nullable', 'string', 'max:32'],
+            'owner_person_id' => ['nullable', 'integer'],
         ]);
 
         try {
@@ -186,6 +238,7 @@ class ProjectController extends Controller
                 $validated['name'],
                 $validated['description'] ?? null,
             );
+            $this->projects->updateContext($request->user(), $project, $validated);
         } catch (ProjectException $exception) {
             return back()->withErrors(['name' => $this->messageFor($exception)]);
         }
@@ -301,6 +354,58 @@ class ProjectController extends Controller
         return back();
     }
 
+    public function attachPerson(Request $request, Project $project): RedirectResponse
+    {
+        $this->authorizeOwned($request, $project, 'attach');
+        $validated = $request->validate([
+            'person_id' => ['required', 'integer'],
+            'role' => ['nullable', 'string', 'max:80'],
+        ]);
+        $person = Person::query()->findOrFail($validated['person_id']);
+
+        try {
+            $this->directory->attachPersonToProject($request->user(), $project, $person, $validated['role'] ?? null);
+        } catch (DirectoryException $exception) {
+            return back()->withErrors(['person_id' => $this->directoryMessage($exception)]);
+        }
+
+        return back();
+    }
+
+    public function detachPerson(Request $request, Project $project, Person $person): RedirectResponse
+    {
+        $this->authorizeOwned($request, $project, 'attach');
+        $this->directory->detachPersonFromProject($request->user(), $project, $person);
+
+        return back();
+    }
+
+    public function attachOrganization(Request $request, Project $project): RedirectResponse
+    {
+        $this->authorizeOwned($request, $project, 'attach');
+        $validated = $request->validate([
+            'organization_id' => ['required', 'integer'],
+            'role' => ['nullable', 'string', 'max:80'],
+        ]);
+        $organization = Organization::query()->findOrFail($validated['organization_id']);
+
+        try {
+            $this->directory->attachOrganizationToProject($request->user(), $project, $organization, $validated['role'] ?? null);
+        } catch (DirectoryException $exception) {
+            return back()->withErrors(['organization_id' => $this->directoryMessage($exception)]);
+        }
+
+        return back();
+    }
+
+    public function detachOrganization(Request $request, Project $project, Organization $organization): RedirectResponse
+    {
+        $this->authorizeOwned($request, $project, 'attach');
+        $this->directory->detachOrganizationFromProject($request->user(), $project, $organization);
+
+        return back();
+    }
+
     private function authorizeOwned(Request $request, Project $project, string $ability): void
     {
         if ((int) $project->user_id !== (int) $request->user()->id) {
@@ -318,6 +423,16 @@ class ProjectController extends Controller
             'foreign_conversation' => 'That conversation cannot be attached.',
             'foreign_topic' => 'That topic cannot be attached.',
             'foreign_memory' => 'That memory cannot be attached.',
+            default => 'Unable to update the project.',
+        };
+    }
+
+    private function directoryMessage(DirectoryException $exception): string
+    {
+        return match ($exception->error) {
+            'person_not_found' => 'That person cannot be attached.',
+            'organization_not_found' => 'That organization cannot be attached.',
+            'project_not_found' => 'That project cannot be updated.',
             default => 'Unable to update the project.',
         };
     }

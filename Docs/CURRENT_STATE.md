@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-09 (Phase 3C Ukrainian-first localization; runtime as after Phase 1 infrastructure + Owner)  
+**Date:** 2026-09-09 (Phase 4 People / Organizations / business-context Projects; runtime as after Phase 1–3C)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -36,9 +36,9 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Role | Personal assistant + knowledge/tasks/watchers/reports | AI Chief of Staff / operational control layer ([PRODUCT.md](PRODUCT.md)) |
 | Primary fast UI | Telegram DM | Telegram Chat (same) |
 | Primary rich UI | Web Workspace `/lavr` + Mini App entry `/telegram/webapp` (same UI) | Telegram WebApp = same Workspace ([INTERFACES.md](INTERFACES.md)) |
-| People | Knowledge entity `person` + synthesis | `people` + roles + `employee_profiles` |
-| Organizations | Knowledge entity `organization` | `organizations` + relationships |
-| Projects | Work container + pivots | Business context (mailboxes, meetings, commitments, …) |
+| People | Canonical `people` + roles + identities + `employee_profiles`. Knowledge `person` remains index | Same; Meetings/Commitments still TARGET |
+| Organizations | Canonical `organizations` + `directory_relationships` | Same |
+| Projects | Evolved work container: people, organizations, source bindings schema; not yet meetings/mailboxes/commitments | Full business context (mailboxes, meetings, commitments, …) |
 | Meetings | Calendar live + knowledge events | `meetings` + transcript pipeline (Phase 5A manual; **Phase 5B Zoom automatic**) |
 | Zoom Integration | **Absent** | **TARGET Phase 5B / NOT IMPLEMENTED** |
 | Commitments | Derived (`CommitmentResolver`, knowledge events) | First-class `commitments` + evidence |
@@ -108,9 +108,9 @@ Vite production build on deploy (`public/build` gitignored).
 
 Engine: **MySQL**, database `lavr`. CRM tables dropped historically (M0). App migrations Ran.
 
-**Present:** users, conversations, messages, memories, knowledge_*, tasks, reminders, watchers, scheduled_reports, projects, telegram_groups, integration_accounts, notifications, voice, storage, etc.
+**Present:** users, conversations, messages, memories, knowledge_*, tasks, reminders, watchers, scheduled_reports, projects, people, person_roles, person_identities, employee_profiles, organizations, directory_relationships, project_people, project_organizations, project_source_bindings, telegram_groups, integration_accounts, notifications, voice, storage, etc.
 
-**Absent:** `people`, `employee_profiles`, `organizations` (as operational tables), `meetings`, `commitments`, `decisions`, operational `events` bus.
+**Absent:** `meetings`, `commitments`, `decisions`, operational `events` bus.
 
 See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names — code wins).
 
@@ -129,7 +129,9 @@ See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names
 | Admin | `/dashboard`, `/settings/*` | IMPLEMENTED (technical) |
 | Voice | workspace + sessions | Рация MANUAL PASS; Диалог Beta NOT VALIDATED |
 | Storage | `/lavr/storage` | IMPLEMENTED |
-| Projects | `/projects` | IMPLEMENTED (work container) |
+| Projects | `/projects` admin + `/lavr/projects` | IMPLEMENTED (business context: people/orgs; meetings/commitments still TARGET) |
+| People | `/people` admin + `/lavr/people` | IMPLEMENTED |
+| Organizations | `/organizations` admin + `/lavr/organizations` | IMPLEMENTED |
 | Telegram Groups | `/telegram-groups` | IMPLEMENTED / NOT VALIDATED as campaign |
 | Telegram WebApp | `/telegram/webapp` → session → `/lavr/today` | UX IMPLEMENTED / NOT VALIDATED (real Telegram client) |
 | Desktop | — | CANCELLED |

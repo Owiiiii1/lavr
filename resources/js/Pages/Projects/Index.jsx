@@ -91,6 +91,8 @@ export default function ProjectsIndex() {
                                 <th className="px-4 py-3 text-left font-semibold">{t.conversations}</th>
                                 <th className="px-4 py-3 text-left font-semibold">{t.topics}</th>
                                 <th className="px-4 py-3 text-left font-semibold">{t.memories}</th>
+                                <th className="px-4 py-3 text-left font-semibold">People</th>
+                                <th className="px-4 py-3 text-left font-semibold">Orgs</th>
                                 <th className="px-4 py-3 text-left font-semibold">{t.updated}</th>
                                 <th className="px-4 py-3 text-left font-semibold" />
                             </tr>
@@ -98,7 +100,7 @@ export default function ProjectsIndex() {
                         <tbody className="divide-y divide-slate-100 text-slate-700">
                             {projects.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="px-4 py-6 text-center text-slate-400">
+                                    <td colSpan={9} className="px-4 py-6 text-center text-slate-400">
                                         {t.empty}
                                     </td>
                                 </tr>
@@ -121,6 +123,8 @@ export default function ProjectsIndex() {
                                         <td className="px-4 py-3">{project.conversations_count}</td>
                                         <td className="px-4 py-3">{project.topics_count}</td>
                                         <td className="px-4 py-3">{project.memories_count}</td>
+                                        <td className="px-4 py-3">{project.people_count ?? 0}</td>
+                                        <td className="px-4 py-3">{project.organizations_count ?? 0}</td>
                                         <td className="px-4 py-3 text-slate-500">
                                             {project.updated_at ? new Date(project.updated_at).toLocaleString() : '—'}
                                         </td>

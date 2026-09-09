@@ -49,7 +49,7 @@ class ProjectsTest extends TestCase
         $this->assertTrue(Schema::hasTable('project_topics'));
         $this->assertTrue(Schema::hasTable('project_memories'));
         $this->assertTrue(Schema::hasTable('project_groups'));
-        $this->assertTrue(Schema::hasColumns('projects', ['user_id', 'name', 'normalized_name', 'description', 'status', 'metadata']));
+        $this->assertTrue(Schema::hasColumns('projects', ['user_id', 'name', 'normalized_name', 'description', 'status', 'metadata', 'category', 'start_date', 'end_date', 'owner_person_id']));
     }
 
     public function test_owner_can_create_and_normal_user_cannot_access(): void
