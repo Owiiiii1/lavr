@@ -1,3 +1,5 @@
+> **Documentation status:** HISTORICAL. Four-phase JARVIS archive. Canonical plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+
 # Этапы разработки (historical archive)
 
 **Status.** HISTORICAL / SUPERSEDED as a planning model (M26D).

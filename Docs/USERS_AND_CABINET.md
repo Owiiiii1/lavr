@@ -1,6 +1,6 @@
 # Users, workspaces, and Telegram pairing
 
-> **LAVR Phase 1.** This document describes the **JARVIS origin** multi-user model (Owner vs ordinary users, `/jarvis` vs `/chat`, Admin Users, impersonation). That product surface is **removed**. Current LAVR: one client, workspace `/lavr`, no third-party accounts. See [LAVR_MIGRATION.md](LAVR_MIGRATION.md). Kept as historical origin.
+> **Documentation status:** HISTORICAL / DEPRECATED as product rules. JARVIS multi-user model. LAVR is one CEO. Canonical: [PRODUCT.md](PRODUCT.md) · [INTERFACES.md](INTERFACES.md) · [ONBOARDING.md](ONBOARDING.md).
 
 «Cabinet» is **legacy wording**. Canonical for LAVR:
 

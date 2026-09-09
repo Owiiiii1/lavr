@@ -1,3 +1,5 @@
+> **KEEP — live validation backlog.** Does not describe TARGET architecture.
+
 # Deferred Validation Backlog
 
 Owner postponed live validation campaigns. These items are **IMPLEMENTED / NOT VALIDATED** (or prepared, not executed) unless a row below says otherwise. They are **not** a claim that Core Daily Workflow covered them. They do **not** block further development.

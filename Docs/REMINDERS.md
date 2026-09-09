@@ -1,8 +1,8 @@
 # Reminders
 
-Собственная подсистема Jarvis. **Не** Google Calendar. **Не** Tasks.
+> **CURRENT.** Timed personal nudges. Not Watchers, not Scheduled Reports, not Commitments. Routing: [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md). LAVR is single-user.
 
-Owner и Users создают reminders в **своём** space. Cross-user reminder обычному user недоступен.
+Собственная подсистема. **Не** Google Calendar. **Не** Tasks.
 
 **Status.** Phase B.1 — Reminders 2.0: Owner **MANUAL PASS for confirmed live core flow** (Web Push, Reminder Center, basic user flow). Not exhaustive DST/recurrence/multi-device MANUAL PASS.
 

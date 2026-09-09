@@ -4,6 +4,8 @@
 
 Статус: **Accepted** — действующие принципы проекта. Изменение требует новой записи, не молчаливой правки старой.
 
+**LAVR product ADRs start at ADR-266.** ADR-001–265 include JARVIS origin (multi-user, Web-as-primary, Desktop, etc.). Where they conflict with ADR-266+, **LAVR ADRs win** for this repository. Product: [PRODUCT.md](PRODUCT.md).
+
 ---
 
 ## ADR-001 — Jarvis Core независим от communication channels
@@ -2282,7 +2284,9 @@
 
 ---
 
-## ADR-236 — Web Personal Workspace is the primary interactive client
+## ADR-236 — Web Personal Workspace is the primary interactive client (JARVIS / LAVR Phase 1 CURRENT)
+
+**Superseded for TARGET rich UI by ADR-268.** CURRENT shipped UI remains `/lavr`. See [INTERFACES.md](INTERFACES.md).
 
 **Контекст.** Multiple clients were sketched (Cabinet, Desktop, Mobile, Telegram).
 
@@ -2581,6 +2585,156 @@
 **Решение.** Add a read-only `CrossSourceSynthesisService` that builds a bounded FactPack, dedupes by fingerprint, derives waiting-for and explicit commitments from Watchers/Tasks/Knowledge, ranks deterministically, and optionally asks Analysis AI for a narrative. Authoritative domains win on conflict; unresolved conflicts are surfaced. Cache is a short TTL plus per-user version bump — no `waiting_items` migration. Tools-first; tiny `synthesis_context` only when C.1 has an active project, dropped first on overflow. Daily Brief / Weekly Review / B.2 proactive consume synthesis under existing caps. No Gmail/Calendar/GitHub polling inside synthesis. No auto watcher/task/mail.
 
 **Следствие.** E.3 IMPLEMENTED / NOT VALIDATED. Phase E is not complete. Do not invent E.4 by numbering. [CROSS_SOURCE_SYNTHESIS.md](CROSS_SOURCE_SYNTHESIS.md).
+
+---
+
+## ADR-266 — LAVR is single-client, single-CEO
+
+**Контекст.** JARVIS was a multi-user personal assistant platform. This repository is a dedicated instance.
+
+**Решение.** LAVR is one production instance for one CEO. Not SaaS, not multi-tenant, no third-party registration. Laravel `users` remains for auth; product has one working client.
+
+**Следствие.** [PRODUCT.md](PRODUCT.md). Origin multi-user ADRs (e.g. 020, 209–219) are historical.
+
+---
+
+## ADR-267 — Telegram Chat is the primary fast interaction channel
+
+**Контекст.** CEO work happens on the phone. Short questions, voice, alerts, and approve/reject must not require opening Admin or a desktop browser.
+
+**Решение.** Telegram private chat is the primary **fast** channel: conversation, voice, notifications, short briefs, quick actions. It is not the only UI.
+
+**Следствие.** Supersedes “Telegram is secondary” as a **product** ranking (ADR-236 CURRENT UI ranking). Adapter rules (no AI in Nutgram) still hold (ADR-001/002). [INTERFACES.md](INTERFACES.md).
+
+---
+
+## ADR-268 — Telegram WebApp is the primary rich UI
+
+**Контекст.** Chat cannot show People, Projects, Meetings, Commitments, and Today as a full operating picture. A separate frontend would fork the product.
+
+**Решение.** TARGET primary **rich** UI is Telegram WebApp. Use the **same** responsive LAVR Workspace as standalone Web. Do not build a second SPA. Phase 3.
+
+**Следствие.** Supersedes ADR-236 for TARGET rich UI. CURRENT shipped rich UI remains `/lavr` until WebApp ships.
+
+---
+
+## ADR-269 — Standalone web remains available
+
+**Контекст.** Production already serves `https://lavr.youngfashionshow.com`.
+
+**Решение.** Standalone Web Workspace stays. Same core and, TARGET, same frontend as WebApp. Admin remains a separate technical surface.
+
+**Следствие.** [INTERFACES.md](INTERFACES.md).
+
+---
+
+## ADR-270 — AI is not the source of truth
+
+**Контекст.** Models hallucinate, truncate, and mix intents. JARVIS automations sometimes asked the user to re-run a query or dumped technical text.
+
+**Решение.** AI understands, classifies, analyzes, synthesizes, and talks. It does not own operational truth.
+
+**Следствие.** [PRODUCT.md](PRODUCT.md).
+
+---
+
+## ADR-271 — Operational facts live in a structured database
+
+**Контекст.** Memory and Knowledge search cannot reliably answer “what did Kolya promise?” or “what is happening on Chicago?”.
+
+**Решение.** People, organizations, projects, meetings, commitments, tasks, decisions, events, watchers, and scheduled reports are (TARGET) structured records. Knowledge/Memory are supporting. Semantic search is not the primary lookup for operational facts.
+
+**Следствие.** [DOMAIN_MODEL.md](DOMAIN_MODEL.md). CURRENT: Knowledge entities + synthesis stand in until Phases 4–6.
+
+---
+
+## ADR-272 — Unified Person model with roles
+
+**Контекст.** Splitting employees/clients/partners into separate root tables fragments identity.
+
+**Решение.** One `people` entity. Multiple roles per person. No rigid single `type` as the data model.
+
+**Следствие.** [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md). Phase 4.
+
+---
+
+## ADR-273 — Employees extend Person
+
+**Контекст.** Staff need position, manager, ownership — clients do not.
+
+**Решение.** `employee_profiles` extend `people`. An employee is still a Person.
+
+**Следствие.** [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md).
+
+---
+
+## ADR-274 — Projects are first-class business contexts
+
+**Контекст.** The CEO runs multiple shows and mailboxes. Word search for “Chicago” is not a project briefing.
+
+**Решение.** Evolve `projects` into business contexts that bind people, orgs, meetings, mailboxes, groups, commitments, tasks, decisions, reports. Keep one project system (extend existing table).
+
+**Следствие.** [PROJECTS.md](PROJECTS.md). ADR-041 (Project ≠ Topic) still holds.
+
+---
+
+## ADR-275 — Meetings are structured objects
+
+**Контекст.** Transcripts dumped into Knowledge lose participants, decisions, and commitments as operational facts.
+
+**Решение.** `meetings` store transcript as source of truth for words plus structured extraction. Zoom transcript is not “just a document”.
+
+**Следствие.** [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md). Phase 5.
+
+---
+
+## ADR-276 — Commitments are first-class objects
+
+**Контекст.** Synthesis `list_commitments` is derived from knowledge events/tasks. That is not tracking with evidence.
+
+**Решение.** Commitment = a person’s promise. Distinct from Task. Auto-extract; statuses include likely_done vs confirmed; evidence closes.
+
+**Следствие.** [COMMITMENTS.md](COMMITMENTS.md). Phase 6. ADR-243 (Tasks ≠ Reminders) unchanged.
+
+---
+
+## ADR-277 — Automation execution is deterministic
+
+**Контекст.** Scheduled reports became reminders or subject lists; watchers were mis-created.
+
+**Решение.** After a structured automation object is persisted, the engine evaluates scheduler/watcher/event/condition/match/notify without re-interpreting natural language each cycle.
+
+**Следствие.** [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md). Phase 7. ADR-264 still describes CURRENT watchers.
+
+---
+
+## ADR-278 — Conversational AI parses intent but does not own scheduling
+
+**Контекст.** The model must not invent a new plan every morning for an already saved report.
+
+**Решение.** Conversation turn → structured action JSON → persist. Delivery and checks belong to the Automation Engine.
+
+**Следствие.** [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md).
+
+---
+
+## ADR-279 — Proactive tracking is allowed
+
+**Контекст.** A Chief of Staff that only answers when asked fails Accountability.
+
+**Решение.** Detect → Track → Notify → Suggest are in-product. Chaos is not: caps, validation, attention-reduction. Execute (including third-party messages) is a separate, stricter gate (ADR-280).
+
+**Следствие.** [COMMITMENTS.md](COMMITMENTS.md), [EXECUTIVE_BRIEF.md](EXECUTIVE_BRIEF.md). CURRENT proactive heuristics remain bounded (ADR-244/260).
+
+---
+
+## ADR-280 — External actions toward third parties require policy or permission
+
+**Контекст.** Auto-emailing staff after a missed deadline can harm relationships and trust.
+
+**Решение.** Default: ask the CEO (“Напомнить Коле?”). Automatic writes to third parties only with explicit automation policy. Existing ToolConfirmationPolicy for Gmail/Calendar/GitHub writes remains.
+
+**Следствие.** [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md), ADR-065/075/082.
 
 ---
 

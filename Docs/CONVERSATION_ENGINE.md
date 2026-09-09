@@ -1,6 +1,8 @@
 # Conversation Engine
 
-Жизненный цикл личного сообщения в **User Space или Owner Space**. Один engine. Разные AI configurations и capabilities. Cross-space retrieval запрещён.
+> **CURRENT turn pipeline.** LAVR is one client (no User Space vs Owner Space as a product). TARGET: Conversation AI parses intent; Automation Engine executes ([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md)).
+
+Жизненный цикл личного сообщения. Один engine.
 
 Входящие из Telegram-групп **не** проходят этот reply path: persist + passive monitoring. См. ветку ниже и [TELEGRAM_GROUPS.md](TELEGRAM_GROUPS.md).
 

@@ -1,56 +1,78 @@
-# Projects
+# Projects / business contexts
 
-Рабочий контейнер **Owner Space**. Не Topic. Обычным Users на MVP **не** нужен и не доступен (`projects` capability = owner).
+Canonical project model. People: [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md). Sources: [DATA_SOURCES.md](DATA_SOURCES.md).
 
-Project связывает уже существующие сущности **relations**, не копируя raw внутрь.
-
-Пример: проект `JARVIS` может связать conversations, topics, memories, Telegram groups. Позже — GitHub / files / integration resources.
-
-M13 runtime: conversations, topics, memories. M11 добавил `project_groups` (relation only). M14: `get_project_context` may return **bounded ACTIVE group-derived knowledge** (summaries / decisions / tasks / event-facts) for attached groups. Raw group history is never copied and never dumped into the tool result. Group knowledge is not written into personal `memories`.
-
-Phase E.1 adds a Knowledge Layer **index** for a Project (`knowledge_entities.project_id`). People, systems, files, conversations, tasks, and recent events may attach to that index. The Project row remains canonical. Knowledge does not duplicate project status/name as competing truth. [KNOWLEDGE_LAYER.md](KNOWLEDGE_LAYER.md).
-
-Phase E.3 `get_project_status` is cross-source synthesis (blockers, waiting-for, open work, people, recent changes, freshness). `get_project_context` remains the raw/derived project tool. Project domain still wins on name/status. No magic health percentage — labels are explicit facts (Blocked, Waiting external, Deadline risk, Active, No recent activity). Archived projects are not flagged stale. [CROSS_SOURCE_SYNTHESIS.md](CROSS_SOURCE_SYNTHESIS.md).
+A **Project** is a business context the CEO manages — not a Topic, not a chat, not a CRM account dump.
 
 ---
 
-## Relations
+## CURRENT
 
-```
-Project ↔ conversations   (project_conversations)
-Project ↔ topics          (project_topics)
-Project ↔ memories        (project_memories)
-Project ↔ telegram_groups  implemented (M11, relation only)
-Project ↔ group knowledge  M14 via `get_project_context` (bounded derived rows; not a separate pivot; not personal memory)
-```
+`projects` is an **Owner work container**.
 
-Один conversation / topic / memory может быть связан с несколькими projects.
+Fields: `user_id`, `name`, `normalized_name`, `description`, `status`, `metadata`.
 
-Не дублировать messages в project. Memory остаётся `scope=personal` + `user_id`. Pivot — не owner факта.
+Pivots (relations only; raw data is not copied into the project):
 
----
+- conversations, topics, memories
+- telegram groups (`project_groups`)
+- tasks (`tasks.project_id`)
 
-## Чем Project не является
+Knowledge may index a project (`knowledge_entities.project_id`). The Project row stays canonical for name/status.
 
-| Не | Почему |
-| --- | --- |
-| Topic | Topic — классификация смысла; Project — контейнер работы |
-| Conversation | Чат живёт отдельно и может быть привязан |
-| Group | Группа — канал; project — агрегация |
-| Personal memory dump | Memories остаются со своим owner/scope |
+Tools: `get_project_context` (attached material + bounded group knowledge), E.3 `get_project_status` (derived synthesis).
 
-Создание Project **не** создаёт Topic с тем же именем и **не** создаёт chat. Attach только explicit в Admin. Автоклассификация сообщений в Project в M13 отсутствует.
+Projects are **not** automatically classified from messages. Attach is explicit (Admin / tools).
+
+This is useful scaffolding. It is **not** yet the business-context model below (no People/Meetings/Commitments/mailbox binding).
+
+Implementation notes from origin JARVIS: [DATABASE.md](DATABASE.md). Do not treat “Owner-only capability vs ordinary users” as a LAVR product rule — LAVR is single-client.
 
 ---
 
-## Owner personal chat
+## TARGET
 
-Owner Conversation AI **не** получает все projects в обычный prompt.
+Project = first-class **business context**.
 
-Project context — tool `get_project_context` (capability `projects`). Summary-first: description, attached topics, attached memories, current conversation summaries, compact attached group titles, and bounded ACTIVE group knowledge (`config/projects.php`: `max_group_summaries`, `max_group_knowledge`). Raw других чатов — существующий `search_conversation_history`.
+Examples: Young Fashion Show, Chicago, Miami, Europe, Partnerships, other shows / directions.
 
-Group-specific questions use `search_group_knowledge` (capability `group_analysis`). Optional `project` argument limits that search to attached groups via `project_groups`. The two tools do not replace each other: project context is whole-project derived context; group search is group knowledge and bounded raw.
+The CEO has many mailboxes and many shows. A question:
 
-Archived projects не резолвятся как active.
+> «Что происходит по Chicago?»
 
-Связано: [MEMORY_ARCHITECTURE.md](MEMORY_ARCHITECTURE.md), [TELEGRAM_GROUPS.md](TELEGRAM_GROUPS.md), [DATABASE.md](DATABASE.md).
+must be assembled **by Project**, not by a lucky semantic hit on the word “Chicago”.
+
+### What a project binds
+
+- People
+- Organizations
+- Meetings
+- Emails / mailboxes
+- Telegram groups
+- Documents
+- Commitments
+- Tasks
+- Decisions
+- Risks
+- Reports
+
+### Multiple mailboxes
+
+Do not treat Gmail as “a list of Google accounts”.
+
+Each mailbox binds to:
+
+- Project (and/or Organization);
+- Purpose / context.
+
+LAVR must know which business context a mailbox belongs to.
+
+**CURRENT constraint:** ADR-070 — one active Google account per owner (MVP). Multi-mailbox is TARGET (Phase 4 / 10). Documented in [DATA_SOURCES.md](DATA_SOURCES.md).
+
+### Telegram groups
+
+A group is a Source. Bind group → project, people, purpose, importance, monitoring policy. [TELEGRAM_GROUPS.md](TELEGRAM_GROUPS.md) (current adapter). [DATA_SOURCES.md](DATA_SOURCES.md).
+
+### Reuse vs replace
+
+Phase 4 should **evolve** the existing `projects` table and pivots where they fit, not invent a parallel “business context” product with a second name. Missing links (people, meetings, mailboxes, commitments) are new relations, not a second project system.

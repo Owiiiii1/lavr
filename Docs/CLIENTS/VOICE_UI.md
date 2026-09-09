@@ -1,3 +1,5 @@
+> **CURRENT Web Voice UI.**
+
 # Voice UI
 
 **Status.** Voice Runtime pipeline MANUAL PASS for **Рация**. **Диалог Beta** is IMPLEMENTED / NOT VALIDATED. Hands-free capture is not our VAD; Beta uses ElevenLabs turn detection. Legacy PTT is kept.

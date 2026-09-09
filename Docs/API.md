@@ -1,5 +1,7 @@
 # HTTP surface (Web)
 
+> **CURRENT routes.** Product surfaces: [INTERFACES.md](INTERFACES.md). Workspace prefix `/lavr`.
+
 **Status.** Actual Laravel/Inertia session routes. There is **no** public versioned Client API. That work is **DEFERRED** ([CLIENTS/CLIENT_API.md](CLIENTS/CLIENT_API.md)).
 
 Telegram uses webhook in-process. Desktop is cancelled.

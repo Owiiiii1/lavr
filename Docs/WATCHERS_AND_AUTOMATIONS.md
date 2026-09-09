@@ -1,5 +1,7 @@
 # Watchers and event-driven automations
 
+> **CURRENT implementation.** Target Automation Engine (deterministic execution, validation, event rules): [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md). Product: [PRODUCT.md](PRODUCT.md).
+
 **Status.** Phase E.2 **IMPLEMENTED / NOT VALIDATED**. Not MANUAL PASS. Phase E.3 synthesis consumes watcher occurrences as indexed evidence ([CROSS_SOURCE_SYNTHESIS.md](CROSS_SOURCE_SYNTHESIS.md)). Phase E as a whole is **not** complete.
 
 Watchers are explicit, bounded, user-scoped conditions: “when X happens, notify / remind / propose Y.” They are **not** an unrestricted autonomous agent, not B.2 proactive heuristics, not Reminders, and **not Scheduled Reports**.

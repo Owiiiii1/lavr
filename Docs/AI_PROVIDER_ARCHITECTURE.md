@@ -1,3 +1,5 @@
+> **CURRENT AI provider mapping.** LAVR is single-client; “Default User Conversation AI” is origin naming.
+
 # AI Provider Architecture
 
 Jarvis не зависит от одного HTTP API и одной модели. Business logic не импортирует vendor SDK.

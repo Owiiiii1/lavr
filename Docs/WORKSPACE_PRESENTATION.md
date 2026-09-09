@@ -1,3 +1,5 @@
+> **CURRENT Workspace copy contract.** Target rich UI is the same Workspace in WebApp: [INTERFACES.md](INTERFACES.md).
+
 # Workspace Presentation
 
 How Jarvis talks to a person inside the Personal Workspace: what a card says, what it stays

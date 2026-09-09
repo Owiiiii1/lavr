@@ -1,6 +1,6 @@
 # Assistant personalization
 
-> **LAVR Phase 1.** Product identity is **LAVR** (dedicated single-client instance from JARVIS). Default assistant name is `LAVR`. Personal onboarding (name, character, preferences) remains. Third-party user onboarding / ordinary-user provisioning is removed. See [LAVR_MIGRATION.md](LAVR_MIGRATION.md).
+> **CURRENT profile tables.** TARGET CEO business-map onboarding: [ONBOARDING.md](ONBOARDING.md). Default assistant name is `LAVR`. Owner `onboarding_status=completed` is a legacy skip, not a collected business map.
 
 **Status.** IMPLEMENTED. Owner confirmed onboarding **entry** («Знакомство») — MANUAL PARTIAL. Full onboarding completion / profile-update E2E is **not** MANUAL PASS.
 

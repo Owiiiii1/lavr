@@ -1,5 +1,7 @@
 # Knowledge Layer
 
+> **CURRENT index.** Operational People / Meetings / Commitments are **TARGET** tables, not this index. See [DOMAIN_MODEL.md](DOMAIN_MODEL.md), [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md). Knowledge remains documents + provenance index.
+
 **Status.** Phase E.1 **IMPLEMENTED / NOT VALIDATED**. Not MANUAL PASS. Watchers are Phase E.2 ([WATCHERS_AND_AUTOMATIONS.md](WATCHERS_AND_AUTOMATIONS.md)). Cross-source synthesis is Phase E.3 ([CROSS_SOURCE_SYNTHESIS.md](CROSS_SOURCE_SYNTHESIS.md)).
 
 Knowledge is a structured, source-grounded index on top of Memory, Projects, Tasks, Reminders, Storage, conversation history, and (during normal tool use) compact integration facts.

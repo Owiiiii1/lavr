@@ -1,5 +1,7 @@
 # Cross-source Synthesis & Intelligence
 
+> **CURRENT derived view.** `list_commitments` / `get_person_status` are **not** first-class `commitments` / `people` tables. Target: [COMMITMENTS.md](COMMITMENTS.md), [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md).
+
 **Status.** Phase E.3 **IMPLEMENTED / NOT VALIDATED**. Not MANUAL PASS. Phase E as a whole is **not** complete.
 
 E.1 Knowledge Layer and E.2 Watchers remain **IMPLEMENTED / NOT VALIDATED**.

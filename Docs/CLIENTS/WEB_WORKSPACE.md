@@ -1,6 +1,8 @@
 # Personal Web Workspace
 
-**Status.** PRIMARY product UI for **LAVR** (single client). Canonical route: `/lavr`. Legacy `/jarvis` and `/chat` redirect here.
+> **CURRENT rich UI.** Target primary rich UI is Telegram WebApp using **this same** Workspace. Canonical map: [INTERFACES.md](../INTERFACES.md). Do not treat “PRIMARY” here as overruling that TARGET.
+
+**Status.** CURRENT shipped rich UI for **LAVR** (single client). Canonical route: `/lavr`. Legacy `/jarvis` and `/chat` redirect here.
 
 Core user workflow **MANUAL PASS** (JARVIS origin). Voice **MANUAL PASS**. M25U.3 onboarding entry **MANUAL PARTIAL**. Reminders 2.0 **MANUAL PASS for confirmed live core flow**. Tasks / Notification Center **IMPLEMENTED / NOT VALIDATED**. Workspace Settings structured; Memory and Integrations live in Settings.
 

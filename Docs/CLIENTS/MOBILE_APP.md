@@ -1,3 +1,5 @@
+> **Documentation status:** DEFERRED / not current LAVR plan. Telegram WebApp is the intended mobile-class UI ([INTERFACES.md](../INTERFACES.md)). This file is a JARVIS-era companion sketch.
+
 # Mobile companion
 
 **Status.** DEFERRED. Optional future companion to Web/Core. **Not current priority.** Not required for Core roadmap.

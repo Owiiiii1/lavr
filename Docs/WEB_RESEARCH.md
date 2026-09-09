@@ -1,3 +1,5 @@
+> **CURRENT web-search tools.** Not an operational source of record.
+
 # Web Research
 
 **Status.** PARTIAL MANUAL PASS (M22.3 + M22.3.1, 2026-09-04). Automated tests not run.

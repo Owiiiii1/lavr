@@ -1,5 +1,7 @@
 # Integrations and Tool Layer
 
+> **CURRENT tool/OAuth layer.** Product source map (mailboxes, Zoom, project binding): [DATA_SOURCES.md](DATA_SOURCES.md).
+
 Внешние сервисы не живут внутри Telegram adapter и не вызываются из Inertia. Conversation Engine запрашивает capability; Integration Layer исполняет.
 
 ```

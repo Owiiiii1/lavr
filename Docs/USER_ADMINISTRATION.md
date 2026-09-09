@@ -1,6 +1,6 @@
 # User administration (M25U.2)
 
-> **SUPERSEDED for LAVR.** Ordinary-user create, User Card, impersonation, and `/chat` are **removed** from the product. LAVR does not register or provision third-party users. Historical JARVIS text follows. See [LAVR_MIGRATION.md](LAVR_MIGRATION.md).
+> **Documentation status:** DEPRECATED as source of truth. Ordinary-user admin is removed from LAVR. Historical JARVIS text follows. Canonical: [PRODUCT.md](PRODUCT.md) · [CURRENT_STATE.md](CURRENT_STATE.md).
 
 **Status.** Ordinary user create + login + `/chat` + ordinary requests: **HISTORICAL (JARVIS)**. On LAVR this admin surface is gone.
 

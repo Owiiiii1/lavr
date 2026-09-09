@@ -1,6 +1,7 @@
 # JARVIS — обзор системы
 
-> **LAVR Phase 1.** This file is the **JARVIS origin** product overview. The running product is **LAVR**: a dedicated single-client instance at `https://lavr.youngfashionshow.com`, workspace `/lavr`. It is not SaaS and does not register third-party users. See [LAVR_MIGRATION.md](LAVR_MIGRATION.md) and [CURRENT_STATE.md](CURRENT_STATE.md). Deeper rewrite of this overview is deferred.
+> **Documentation status:** HISTORICAL. JARVIS origin overview — **not** current LAVR architecture.
+> Canonical: [PRODUCT.md](PRODUCT.md) · [INTERFACES.md](INTERFACES.md) · [CURRENT_STATE.md](CURRENT_STATE.md).
 
 Этот документ объясняет продукт JARVIS человеку, который видит проект впервые.
 

@@ -1,8 +1,10 @@
 # Tasks, productivity, and proactive Jarvis
 
+> **CURRENT.** Target briefing: [EXECUTIVE_BRIEF.md](EXECUTIVE_BRIEF.md). Target automation: [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md). Commitments ≠ tasks: [COMMITMENTS.md](COMMITMENTS.md).
+
 **Status.** Phase B.2 **IMPLEMENTED / NOT VALIDATED**. Not MANUAL PASS until Owner live test.
 
-Related: [TASKS.md](TASKS.md), [NOTIFICATIONS.md](NOTIFICATIONS.md), [REMINDERS.md](REMINDERS.md), [ROADMAP.md](ROADMAP.md).
+Related: [TASKS.md](TASKS.md), [NOTIFICATIONS.md](NOTIFICATIONS.md), [REMINDERS.md](REMINDERS.md), [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
 ---
 

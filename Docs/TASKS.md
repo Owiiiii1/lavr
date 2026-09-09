@@ -1,6 +1,6 @@
 # Tasks
 
-Core domain for commitments. **Not** reminders. **Not** Memory.
+Formal **system tasks**. **Not** [Commitments](COMMITMENTS.md) (a person’s promise). **Not** reminders. **Not** Memory.
 
 **Status.** Phase B.2 IMPLEMENTED / NOT VALIDATED.
 

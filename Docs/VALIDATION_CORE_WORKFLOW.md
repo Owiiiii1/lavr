@@ -1,3 +1,5 @@
+> **KEEP — completed Owner campaign (JARVIS origin / LAVR core chain).** Not a product vision doc.
+
 # Validation Campaign — Core Daily Workflow
 
 **Status:** COMPLETE — **MANUAL PASS 10/10**. Owner ran a clean repeat campaign in chat

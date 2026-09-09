@@ -1,5 +1,7 @@
 # Notification Center
 
+> **CURRENT inbox.** TARGET delivery also uses Telegram Chat for alerts/briefs ([INTERFACES.md](INTERFACES.md), [EXECUTIVE_BRIEF.md](EXECUTIVE_BRIEF.md)).
+
 Persistent in-app inbox (`jarvis_notifications`). Distinct from Reminder Center and from Web Push transport.
 
 **Status.** Phase B.2 IMPLEMENTED / NOT VALIDATED.

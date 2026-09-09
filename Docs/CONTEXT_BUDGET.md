@@ -1,3 +1,5 @@
+> **CURRENT prompt budget.** Unrelated to LAVR documentation Phase 2.
+
 # Context Budget Manager
 
 **Status.** IMPLEMENTED / NOT VALIDATED (M22.3, 2026-09-04). Automated tests and live AI calls are deferred by Owner.

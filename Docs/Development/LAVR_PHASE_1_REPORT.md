@@ -1,3 +1,5 @@
+> **KEEP — Phase 1 completion report.** Later product architecture: [PRODUCT.md](../PRODUCT.md), [CURRENT_STATE.md](../CURRENT_STATE.md). Phase 2: [LAVR_PHASE_2_REPORT.md](LAVR_PHASE_2_REPORT.md). Early sections of this file (SQLite / no nginx) are **superseded** by section J (PHP 8.5 FPM, MySQL `lavr`, SSL).
+
 # LAVR Phase 1 — отчёт
 
 **Дата:** 2026-09-09  

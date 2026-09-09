@@ -1,3 +1,6 @@
+> **Documentation status:** HISTORICAL. JARVIS pitch — **not** current LAVR product spec.
+> Canonical: [PRODUCT.md](PRODUCT.md).
+
 # JARVIS — личный AI-ассистент, который держит вашу работу в голове
 
 Обычный чат с AI забывает вас каждый раз. Вы снова объясняете, кто такой Marco, что за проект YFS, о чём договорились в среду и что вы просили не трогать. Контекст живёт у вас в голове и в двадцати вкладках.

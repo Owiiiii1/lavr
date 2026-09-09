@@ -1,3 +1,5 @@
+> **Documentation status:** HISTORICAL engineering diary (JARVIS/LAVR incident work). Not architecture. Canonical: [CURRENT_STATE.md](../CURRENT_STATE.md), [AUTOMATION_ENGINE.md](../AUTOMATION_ENGINE.md).
+
 # Digest phrasing never landed: reasoning tokens ate the budget (2026-09-09)
 
 ## Starting HEAD

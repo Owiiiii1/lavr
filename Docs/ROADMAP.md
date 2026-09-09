@@ -1,3 +1,5 @@
+> **Documentation status:** DEPRECATED as source of truth for what to build next. JARVIS Phase A–E archive. Canonical plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) (LAVR Phases 3–10). Product: [PRODUCT.md](PRODUCT.md). Runtime: [CURRENT_STATE.md](CURRENT_STATE.md).
+
 # Дорожная карта
 
 Product direction as of **M26D** (2026-09-05). Executable next work: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Actual runtime: [CURRENT_STATE.md](CURRENT_STATE.md).

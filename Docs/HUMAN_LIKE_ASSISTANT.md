@@ -1,3 +1,5 @@
+> **CURRENT conversation-intelligence layer.** Not a second assistant. Product: [PRODUCT.md](PRODUCT.md).
+
 # Natural conversation (Phase C)
 
 **Status.** C.1 Conversation Intelligence is **IMPLEMENTED / NOT VALIDATED**. C.2 Beta (ElevenLabs realtime Web voice) is **IMPLEMENTED / NOT VALIDATED**. Do not treat either as MANUAL PASS until Owner live validation. Legacy «Рация» remains the default Web Voice mode.

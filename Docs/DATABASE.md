@@ -1,6 +1,8 @@
 # Database (actual schema)
 
-**Status.** Snapshot 2026-09-05. Source of truth: migrations in `database/migrations/`. Conceptual notes remain useful; this file lists **what exists**.
+> **CURRENT tables.** TARGET operational entities are not in this snapshot (`people`, `meetings`, `commitments`, …). See [DOMAIN_MODEL.md](DOMAIN_MODEL.md), [CURRENT_STATE.md](CURRENT_STATE.md).
+
+**Status.** Snapshot 2026-09-05 (plus later migrations in git). Source of truth: `database/migrations/`. This file lists **what exists**; it may omit post-snapshot tables (watchers, scheduled_reports). Code wins.
 
 Engine: MySQL. CRM leftover tables were dropped. Vector DB is not used.
 

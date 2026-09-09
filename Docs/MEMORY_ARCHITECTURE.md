@@ -1,6 +1,8 @@
 # Архитектура памяти
 
-Ключевой документ проекта. Реализация полноценного memory engine — Phase 2. Контракты и raw storage закладываются в Phase 1.
+> **CURRENT Memory Engine** (JARVIS “Phase 2” in this file means origin memory work, **not** LAVR documentation Phase 2). Operational facts TARGET: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Memory ≠ Knowledge ≠ People.
+
+Ключевой документ **личной памяти**. Реализация memory engine уже в коде. Контракты и raw storage закладывались в origin Phase 1.
 
 ---
 

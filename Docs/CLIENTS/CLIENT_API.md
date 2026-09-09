@@ -1,3 +1,5 @@
+> **Documentation status:** DEFERRED. Not a LAVR Phase 3–10 requirement. Telegram WebApp should reuse the existing web session/Workspace, not a new public Client API.
+
 # Client API
 
 **Status.** DEFERRED / NOT CURRENT PRIORITY. Not implemented as a public versioned API.

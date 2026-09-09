@@ -1,3 +1,5 @@
+> **CURRENT Telegram voice adapter.** Fast channel: [INTERFACES.md](INTERFACES.md).
+
 # Telegram Voice
 
 **Telegram Voice Replies:** MANUAL PASS (Owner confirmed a live `sendVoice` bubble).  

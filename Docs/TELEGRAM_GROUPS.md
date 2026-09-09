@@ -1,5 +1,7 @@
 # Telegram Groups
 
+> **CURRENT adapter.** Groups as Sources bound to Projects: [DATA_SOURCES.md](DATA_SOURCES.md), [PROJECTS.md](PROJECTS.md). Bot limitations apply.
+
 **Status (M15):** IMPLEMENTED for discovery, raw persist, participants, owner Admin messenger, outbound, timezone, `project_groups` attach, **manual async Group Analysis**, and **owner-only `search_group_knowledge`** in personal Telegram/Web chat. **Not implemented:** mention/auto-reply, media blob download, automatic per-message analysis, proactive group alerts as a standalone watcher.
 
 Scheduled Reports may include a `telegram_groups` source. That source summarizes **already stored** group messages for the Owner’s groups in the report window (`since_previous_report`, first run last 24h). It does not fetch live Telegram history the bot never received, and it does not expose internal group ids. Delivery of the report itself uses the personal Telegram DM adapter, not a group send.

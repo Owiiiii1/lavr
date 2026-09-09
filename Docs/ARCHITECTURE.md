@@ -1,6 +1,10 @@
 # Архитектура
 
-Source of truth is production code plus Owner-confirmed validation. Phases: [ROADMAP.md](ROADMAP.md).
+> **CURRENT vs TARGET.** This file describes **module boundaries of the running system**. Product vision and operational core: [PRODUCT.md](PRODUCT.md), [DOMAIN_MODEL.md](DOMAIN_MODEL.md), [INTERFACES.md](INTERFACES.md). Next phases: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Runtime: [CURRENT_STATE.md](CURRENT_STATE.md).
+
+Source of truth for what exists: production code + Owner-confirmed validation.
+
+**TARGET interfaces (not all shipped):** Telegram Chat (fast) · Telegram WebApp + Web (same Workspace) · Admin (technical). Diagram: [DOMAIN_MODEL.md](DOMAIN_MODEL.md#target-conceptual-schema).
 
 ```
                     LAVR Core
@@ -10,8 +14,10 @@ Source of truth is production code plus Owner-confirmed validation. Phases: [ROA
      |                   |                 |
  Web Personal         Telegram         Integrations
  Workspace            adapter           / tools
- (PRIMARY)            (DM + Groups)
+ (CURRENT rich UI)    (DM + Groups)
   /lavr
+ WebApp               TARGET Mini App
+ (TARGET = same UI)
      |
      +-- Text
      +-- Voice (modality)
@@ -21,11 +27,14 @@ Source of truth is production code plus Owner-confirmed validation. Phases: [ROA
      +-- Reminders (Core; Telegram + Web Push adapters)
      +-- Tasks (Core; separate from reminders)
      +-- Notification Center (in-app inbox; reuses Web Push transport)
-     +-- Projects (Owner)
+     +-- Projects (work container; TARGET = business context)
+     +-- Knowledge Layer (index; not People/Meetings/Commitments tables)
      |
- future (not current)
-     +-- Mobile companion
-     +-- Knowledge Graph
+ TARGET (not current)
+     +-- Telegram WebApp (same Workspace)
+     +-- Operational Core (People, Meetings, Commitments, Decisions, Events)
+     +-- Automation Engine hardening / Executive Brief
+     +-- Mobile companion (deferred)
 
 Desktop client: CANCELLED. Not a node in this architecture.
 ```
@@ -34,7 +43,9 @@ Desktop client: CANCELLED. Not a node in this architecture.
 
 ## Primary interactive application
 
-**Web Personal Workspace** is the product UI.
+**CURRENT:** Web Personal Workspace (`/lavr`) is the shipped rich UI. Telegram DM is the fast channel.
+
+**TARGET:** [INTERFACES.md](INTERFACES.md) — Telegram Chat (fast), Telegram WebApp (primary rich UI, same frontend), standalone Web remains. Admin is not the CEO daily UI.
 
 | Surface | Route | Role |
 | --- | --- | --- |
@@ -44,7 +55,7 @@ Desktop client: CANCELLED. Not a node in this architecture.
 
 Voice is a **modality** of that workspace over an existing `conversation_id`. It is not a separate client or assistant.
 
-Telegram is a **secondary messaging channel / adapter**. Same Conversation Engine, same catalog. Optional voice inbound (STT) and voice **delivery** (`sendVoice`) of canonical assistant text — not a second assistant. Default Telegram replies remain text. [TELEGRAM_VOICE.md](TELEGRAM_VOICE.md).
+Telegram Chat is the **CURRENT (and TARGET) fast channel**. Same Conversation Engine, same catalog. Optional voice inbound (STT) and voice **delivery** (`sendVoice`) of canonical assistant text — not a second assistant. Default Telegram replies remain text. [TELEGRAM_VOICE.md](TELEGRAM_VOICE.md). [INTERFACES.md](INTERFACES.md).
 
 Mobile is a **future optional companion**. Same Core. Not required for Phase A/B.
 
@@ -104,8 +115,9 @@ STT/TTS — Voice runtime, не второй мозг. Conversation AI не вы
 
 | Client | Status |
 | --- | --- |
-| Web Personal Workspace | PRIMARY, IMPLEMENTED |
-| Telegram adapter | IMPLEMENTED |
+| Web Personal Workspace | CURRENT rich UI, IMPLEMENTED |
+| Telegram Chat | CURRENT fast channel, IMPLEMENTED |
+| Telegram WebApp | TARGET (Phase 3; same Workspace) |
 | Voice UI (Orb + session) | IMPLEMENTED, MANUAL PASS (Web) |
 | Mobile | DEFERRED companion |
 | Desktop | CANCELLED |

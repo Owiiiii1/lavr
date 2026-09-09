@@ -33,6 +33,6 @@ Laravel authentication and the `users` table remain. There is one working client
 
 ## Documentation
 
-Deeper documentation rewrite is **deferred to the next documentation phase**. Historical DECISIONS / CHANGELOG entries that describe JARVIS multi-user behaviour are kept as origin history. Runtime/current-state docs now describe LAVR.
+Product/architecture rewrite: **Phase 2 complete** — [PRODUCT.md](PRODUCT.md), [Docs/README.md](README.md), [Development/LAVR_PHASE_2_REPORT.md](Development/LAVR_PHASE_2_REPORT.md). Historical DECISIONS that describe JARVIS multi-user behaviour stay as origin history (banners + ADR-266+). Runtime: [CURRENT_STATE.md](CURRENT_STATE.md).
 
 Do not copy production JARVIS data, `.env`, or client integration credentials into this instance.

@@ -1,3 +1,5 @@
+> **CURRENT voice runtime.** Interfaces: [INTERFACES.md](INTERFACES.md).
+
 # Голосовая архитектура
 
 **Status.** Legacy Web «Рация» pipeline is MANUAL PASS (Owner, 2026-09-04/05). Web **Диалог Beta** (ElevenLabs realtime) is **IMPLEMENTED / NOT VALIDATED**. Do not treat Beta as MANUAL PASS. Legacy removal is **NOT NOW** — only after Owner live A/B validation.

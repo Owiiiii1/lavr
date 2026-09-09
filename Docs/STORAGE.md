@@ -1,3 +1,5 @@
+> **CURRENT file library.** Knowledge vs operational data: [DOMAIN_MODEL.md](DOMAIN_MODEL.md).
+
 # Jarvis Storage and ephemeral chat media
 
 **Status.** PARTIAL MANUAL PASS (M22.2, 2026-09-04). Automated tests not run.

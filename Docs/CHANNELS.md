@@ -1,5 +1,7 @@
 # Каналы
 
+> **CURRENT adapters.** Product interface map (including TARGET Telegram WebApp): [INTERFACES.md](INTERFACES.md).
+
 Канал — адаптер. У него нет своей памяти, своего prompt и своего LLM. Один LAVR Core.
 
 Личный канал работает с **personal** memory **резолвленного** `user_id`. Telegram-группы — отдельная область ([TELEGRAM_GROUPS.md](TELEGRAM_GROUPS.md)).
@@ -8,7 +10,7 @@
 
 | Surface | Kind | Status |
 | --- | --- | --- |
-| Web text | Web Personal Workspace `/lavr` | PRIMARY |
+| Web text | Web Personal Workspace `/lavr` | CURRENT rich UI |
 | Web voice | Modality over the same conversation (`metadata.modality = voice`, `messages.channel = web`) | MANUAL PASS |
 | Telegram DM | Adapter — text or voice-note inbound; outbound text or `sendVoice` per user preference | IMPLEMENTED / inbound voice NOT VALIDATED |
 | Telegram Groups | Owner-only group persist / analysis | IMPLEMENTED / NOT VALIDATED as a full campaign |
