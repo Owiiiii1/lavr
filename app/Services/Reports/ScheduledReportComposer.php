@@ -144,7 +144,7 @@ final class ScheduledReportComposer
             $lines[] = 'Важное: '.$this->joinFacts(array_slice($important, 0, 4)).'.';
         }
         if ($normal !== []) {
-            $prefix = $important === [] ? 'Суть: ' : 'Ещё: ';
+            $prefix = $important === [] ? 'Пришло: ' : 'Ещё: ';
             $lines[] = $prefix.$this->joinFacts(array_slice($normal, 0, 5)).'.';
         }
         if ($noise > 0) {
@@ -186,23 +186,17 @@ final class ScheduledReportComposer
     }
 
     /**
-     * @param  array{sender?: string, subject?: string, snippet?: string}  $item
+     * Fallback wording only. Snippets stay out of it: raw email bodies arrive in
+     * the sender's language and would land in the report untranslated.
+     *
+     * @param  array{sender?: string, subject?: string}  $item
      */
     private function mailFact(array $item): string
     {
-        $sender = $this->senderLabel((string) ($item['sender'] ?? ''));
-        $subject = trim((string) ($item['subject'] ?? 'без темы'));
-        if ($subject === '') {
-            $subject = 'без темы';
-        }
+        $subject = $this->clip(trim((string) ($item['subject'] ?? '')), 70);
 
-        $fact = $sender.' — '.$subject;
-        $snippet = $this->clip(trim((string) ($item['snippet'] ?? '')), 120);
-        if ($snippet === '' || mb_stripos($snippet, $subject) !== false) {
-            return $fact;
-        }
-
-        return $fact.': '.$snippet;
+        return $this->senderLabel((string) ($item['sender'] ?? ''))
+            .' — '.($subject !== '' ? $subject : 'без темы');
     }
 
     /**
@@ -235,7 +229,7 @@ final class ScheduledReportComposer
 
     private function senderLabel(string $sender): string
     {
-        $sender = trim($sender);
+        $sender = $this->clip($sender, 60);
         if ($sender === '') {
             return 'Неизвестный отправитель';
         }
@@ -252,7 +246,7 @@ final class ScheduledReportComposer
 
     private function clip(string $text, int $max): string
     {
-        $text = trim(preg_replace('/\s+/', ' ', $text) ?? $text);
+        $text = MailTextNormalizer::normalize($text);
         if ($text === '' || mb_strlen($text) <= $max) {
             return $text;
         }

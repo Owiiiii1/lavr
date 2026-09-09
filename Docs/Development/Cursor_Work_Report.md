@@ -1,3 +1,31 @@
+# Digest phrasing never landed: reasoning tokens ate the budget (2026-09-09)
+
+## Starting HEAD
+
+Uncommitted report-quality work on `main` after `682b8e1`. No dependency changes.
+
+## Owner report
+
+Test digest arrived as a sender-subject list padded with Italian email text and zero-width characters: «тут ничего непонятно, по сути опять перечисление, плюс суть мне нужно на русском».
+
+## Root cause
+
+`ai_used=false` on every phrasing attempt. `scheduled_report.phrasing_skipped reason=empty` hid the real reason: the Owner role runs `gemini-3.7-flash`, and the phrasing call capped `max_tokens` at 500. A live probe returned `finishReason=MAX_TOKENS` with 20 visible output tokens out of 544 total — hidden thinking consumed the budget, so the completeness guard correctly dropped a stub and the deterministic list shipped instead. The same 400-token cap starved daily/tomorrow briefs.
+
+## Change
+
+- `productivity.briefs.phrasing_max_tokens` (1600) sizes every phrasing call; a live probe at 1200+ returns `STOP` with a full Russian digest.
+- Discarded phrasing logs `productivity.phrasing_rejected` with the provider finish reason, so a starved budget is no longer indistinguishable from an empty answer.
+- Digest prompt demands a Russian retelling of foreign subjects and snippets, merges letters from one sender, and forbids sender-subject lists.
+- Deterministic fallback no longer quotes snippets (untranslatable without the model) and clips subjects; `MailTextNormalizer` strips zero-width padding and collapses whitespace before compose and before the model sees it.
+- `mailBucket` noise pattern now catches `do-not-reply` variants.
+
+## Verification
+
+`php artisan test --compact` on the normalizer, composer, phrasing and scheduled-report suites: 22 passed. Two pre-existing failures in `ScheduledReportsTest` (`test_reminder_and_gmail_event_wording_stay_on_their_tools`, `test_workspace_reports_index_lists_owned_cards`) fail identically with the change stashed. Owner-approved live test send over a last-24h window returned `ai_used=true` and a spoken Russian digest; the real 09:00 slot was not re-run.
+
+---
+
 # Mail digest as spoken summary (2026-09-09)
 
 ## Starting HEAD

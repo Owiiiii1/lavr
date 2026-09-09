@@ -18,6 +18,12 @@ return [
         'weekly_weekday' => 7,
         'weekly_local_time' => '18:00',
         'max_words' => 180,
+
+        /*
+        | Reasoning models spend most of the output budget on hidden thinking
+        | tokens, so a tight limit returns a truncated brief that we discard.
+        */
+        'phrasing_max_tokens' => 1600,
     ],
 
     'tasks' => [

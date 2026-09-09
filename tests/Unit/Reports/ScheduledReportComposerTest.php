@@ -49,20 +49,38 @@ class ScheduledReportComposerTest extends TestCase
         );
     }
 
-    public function test_mail_digest_is_a_prose_summary_not_a_bullet_list(): void
+    public function test_mail_digest_fallback_keeps_the_facts_without_quoting_email_bodies(): void
     {
         $composer = new ScheduledReportComposer;
 
         $text = $composer->compose($this->user(), $this->digestReport(), $this->mailCollected())['text'];
 
         $this->assertStringContainsString('За период 4 новых письма.', $text);
-        $this->assertStringContainsString('Важное: Accademia — Родительское собрание: просят подтвердить присутствие.', $text);
-        $this->assertStringContainsString('Ещё: GitHub — Review requested: requested your review on JARVIS.', $text);
+        $this->assertStringContainsString('Важное: Accademia — Родительское собрание.', $text);
+        $this->assertStringContainsString('Ещё: GitHub — Review requested.', $text);
         $this->assertStringContainsString('Рекламных и служебных: 2, без действия.', $text);
         $this->assertStringContainsString('В группах: «WOW Cleaning» — 3, последнее: иконки готовы?', $text);
-        $this->assertStringNotContainsString('Письма: 4.', $text);
+        $this->assertStringNotContainsString('просят подтвердить присутствие', $text);
+        $this->assertStringNotContainsString('requested your review on JARVIS', $text);
         $this->assertStringNotContainsString('• ', $text);
         $this->assertStringNotContainsString('noreply@lastpass.com', $text);
+    }
+
+    public function test_mail_digest_fallback_shortens_long_subjects_and_drops_invisible_padding(): void
+    {
+        $collected = $this->mailCollected();
+        $collected['items']['gmail'] = [[
+            'sender' => "Registro\u{200C} online <liceolinguistico@marcellinequadronno.it>",
+            'subject' => "Registro online per DENYSIUK HLIB - Avviso -\u{200C} Materie del primo giorno di scuola.",
+            'bucket' => 'normal',
+            'snippet' => "Carissimi, in vista della ripresa delle lezioni \u{200C} \u{200C}",
+        ]];
+
+        $text = (new ScheduledReportComposer)->compose($this->user(), $this->digestReport(), $collected)['text'];
+
+        $this->assertStringNotContainsString("\u{200C}", $text);
+        $this->assertStringContainsString('Пришло: Registro online — Registro online per DENYSIUK HLIB - Avviso - Materie del primo giorno…', $text);
+        $this->assertStringNotContainsString('Carissimi', $text);
     }
 
     public function test_mail_digest_accepts_a_short_spoken_ai_summary(): void

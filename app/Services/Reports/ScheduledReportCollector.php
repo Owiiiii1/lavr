@@ -381,17 +381,17 @@ final class ScheduledReportCollector
                     continue;
                 }
 
-                $sender = (string) ($message['from'] ?? $message['sender'] ?? '');
-                $subject = (string) ($message['subject'] ?? $message['title'] ?? 'без темы');
-                $snippet = trim((string) ($message['snippet'] ?? ''));
-                if (mb_strlen($snippet) > 180) {
-                    $snippet = mb_substr($snippet, 0, 180);
+                $sender = MailTextNormalizer::normalize((string) ($message['from'] ?? $message['sender'] ?? ''));
+                $subject = MailTextNormalizer::normalize((string) ($message['subject'] ?? $message['title'] ?? ''));
+                if ($subject === '') {
+                    $subject = 'без темы';
                 }
+
                 $items[] = [
                     'sender' => $sender !== '' ? $sender : 'Неизвестный отправитель',
                     'subject' => $subject,
                     'bucket' => $this->mailBucket($sender, $subject),
-                    'snippet' => $snippet,
+                    'snippet' => MailTextNormalizer::snippet((string) ($message['snippet'] ?? '')),
                 ];
             }
 
@@ -441,7 +441,7 @@ final class ScheduledReportCollector
             $items[] = [
                 'group' => (string) ($group->title ?: 'Группа'),
                 'count' => $count,
-                'sample' => mb_substr(trim(preg_replace('/\s+/', ' ', $sample) ?? ''), 0, 120),
+                'sample' => MailTextNormalizer::snippet($sample, 120),
             ];
         }
 
@@ -452,7 +452,7 @@ final class ScheduledReportCollector
     {
         $haystack = mb_strtolower($sender.' '.$subject);
 
-        if (preg_match('/noreply|no-reply|newsletter|unsubscribe|promo|рассылк|уведомлен/u', $haystack) === 1) {
+        if (preg_match('/no[-_. ]?reply|do[-_. ]?not[-_. ]?reply|newsletter|unsubscribe|promo|рассылк|уведомлен/u', $haystack) === 1) {
             return 'noise';
         }
 
