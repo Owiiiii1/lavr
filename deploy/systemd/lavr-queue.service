@@ -1,0 +1,17 @@
+[Unit]
+Description=LAVR database queue worker
+After=network.target mysql.service php8.5-fpm.service
+
+[Service]
+Type=simple
+User=deploy
+Group=www-data
+Restart=always
+RestartSec=3
+WorkingDirectory=/var/www/lavr
+ExecStart=/usr/bin/php8.5 /var/www/lavr/artisan queue:work database --queue=analysis,memory,default --sleep=3 --tries=3 --timeout=180 --max-time=3600
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

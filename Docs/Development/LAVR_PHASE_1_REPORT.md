@@ -353,3 +353,91 @@ Paid AI / live Telegram / live Gmail were not invoked. `php artisan config:clear
 - Feature replay: `fd772d1`
 - `main` tip after successful `git push origin main`: `37be325a1463ac012b003a62510c3878e2b23813` (`37be325`)
 
+---
+
+## J. Infrastructure (production URL) — 2026-09-09
+
+Scoped to LAVR only. Other projects were not reconfigured.
+
+### PHP-FPM
+
+| Item | Value |
+| --- | --- |
+| Installed for LAVR | **php8.5-fpm 8.5.10** (ondrej/php PPA), socket `/run/php/php8.5-fpm.sock` |
+| Unchanged | **php8.3-fpm 8.3.6** remains `active`, socket `/run/php/php8.3-fpm.sock` |
+| Other vhosts | still `fastcgi_pass unix:/run/php/php8.3-fpm.sock` |
+| System CLI `/usr/bin/php` | restored to **php8.3** after php8.5-cli briefly set auto mode to 8.5 |
+| php-fpm.sock alternative | still points at **php8.3-fpm.sock** |
+| php-common | upgraded 2:93ubuntu2 → ondrej 2:101 (shared helper; php8.3 packages not removed) |
+| Removals | none |
+
+LAVR artisan uses `/usr/bin/php8.5`. Other cron jobs keep `php` / `/usr/bin/php` = 8.3.
+
+### MySQL (no passwords in this file)
+
+| Item | Value |
+| --- | --- |
+| Database | `lavr` (created; was absent) |
+| User | `lavr`@`localhost` and `lavr`@`127.0.0.1` |
+| Grants | `ALL PRIVILEGES ON lavr.*` only |
+| Other DBs | unchanged: `fashion_planner`, `jfs`, `yfs_ai`, `yfs_ai_sorter` |
+| App `.env` | `DB_CONNECTION=mysql`, host `127.0.0.1`, database/user `lavr`; password only in `/var/www/lavr/.env` |
+| Migrations | Ran on MySQL; SQLite file not imported |
+| Users table | empty (clean instance; login page works; no client account seeded) |
+
+### nginx / SSL
+
+| Item | Value |
+| --- | --- |
+| vhost file | `/etc/nginx/sites-available/lavr.youngfashionshow.com` |
+| symlink | `/etc/nginx/sites-enabled/lavr.youngfashionshow.com` (new only) |
+| Other sites-enabled | unchanged (app, default, fashion-planner, yfs-ai, yfs-ai-sorter) |
+| Document root | `/var/www/lavr/public` |
+| PHP socket | `unix:/run/php/php8.5-fpm.sock` |
+| `nginx -t` | PASS |
+| Reload | `systemctl reload nginx` (not restart) |
+| Cert | `certbot certonly --webroot` for **only** `lavr.youngfashionshow.com` |
+| Cert path | `/etc/letsencrypt/live/lavr.youngfashionshow.com/` |
+| Expiry | 2026-12-08 |
+| Other certs | still present: app, ai, ai-sorting, planner |
+| HTTP | `301` → `https://lavr.youngfashionshow.com/` |
+| HTTPS | `200`, Inertia, cookie `lavr-session`, body contains `LAVR` |
+| SSL CN | `CN=lavr.youngfashionshow.com` |
+
+### Queue / scheduler
+
+| Item | Value |
+| --- | --- |
+| systemd | `/etc/systemd/system/lavr-queue.service` → **active** (`php8.5 artisan queue:work`, cwd `/var/www/lavr`) |
+| Other units | `yfs-voice-runtime` still active; no jarvis/yfs units edited |
+| crontab | **appended** one LAVR line: `cd /var/www/lavr && /usr/bin/php8.5 artisan schedule:run` |
+| Other crontab lines | jfs / yfs-ai / yfs-ai-sorter unchanged |
+
+### Laravel production
+
+`composer install --no-dev --optimize-autoloader`, `npm ci`, `npm run build`, `config/route/view:cache` on PHP 8.5. `.env` ownership `deploy:www-data` mode `640`. storage/bootstrap/cache `deploy:www-data` 775. No `chown -R /var/www`.
+
+### Curl / tests
+
+| Check | Result |
+| --- | --- |
+| `curl -I http://lavr.youngfashionshow.com` | **301** Location HTTPS |
+| `curl -I https://lavr.youngfashionshow.com` | **200** LAVR |
+| `php artisan about` | LAVR, Laravel 13.30.1, PHP 8.5.10, production, debug off |
+| `migrate:status` | all Ran on MySQL |
+| `route:list --path=lavr` | 72 routes |
+| `LavrSingleUserSurfaceTest` | 4 PASS (login/register/redirects); 2 FAIL — no Owner row on empty MySQL (expected for clean instance) |
+| `npm run build` | PASS |
+| `https://app.youngfashionshow.com` | still 302 |
+| `https://ai.youngfashionshow.com` | still 302 |
+| php8.3-fpm | active |
+
+### Other projects — not modified
+
+- nginx vhost files for other domains: same mtimes
+- SSL certs for other domains: still listed by certbot
+- php8.3-fpm pool listen/user unchanged
+- MySQL users/DBs of other apps unchanged
+- `yfs-voice-runtime` still running
+- existing crontab entries kept
+
