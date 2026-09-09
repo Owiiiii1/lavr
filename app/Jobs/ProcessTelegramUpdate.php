@@ -19,7 +19,7 @@ class ProcessTelegramUpdate implements ShouldQueue
     public function __construct(
         public readonly string $payload,
     ) {
-        $this->onQueue('telegram');
+        $this->onQueue('default');
     }
 
     public function handle(TelegramWebhookProcessor $processor): void

@@ -9,31 +9,32 @@ import ProfileSettings from '@/personal-workspace/settings/ProfileSettings';
 import SettingsNavigation from '@/personal-workspace/settings/SettingsNavigation';
 import VoiceSettings from '@/personal-workspace/settings/VoiceSettings';
 import { allowedSettingsSection } from '@/personal-workspace/settings/sections';
+import { useTranslation } from '@/locales/useTranslation';
 
-function visibleSettingsSections(capabilities) {
+function visibleSettingsSections(capabilities, t) {
     const sections = [
-        { id: 'profile', label: 'Profile', description: 'Имя, пояс, знакомство' },
-        { id: 'assistant', label: 'Assistant', description: 'Личность и General Prompt' },
+        { id: 'profile', label: t('settings.profile'), description: t('settings.profileHint') },
+        { id: 'assistant', label: t('settings.assistant'), description: t('settings.assistantHint') },
     ];
 
     if (capabilities.memory) {
-        sections.push({ id: 'memory', label: 'Memory', description: 'Запомненные факты и темы' });
+        sections.push({ id: 'memory', label: t('settings.memory'), description: t('settings.memoryHint') });
     }
 
     if (capabilities.knowledge) {
-        sections.push({ id: 'knowledge', label: 'Knowledge', description: 'Сущности, связи, события' });
+        sections.push({ id: 'knowledge', label: t('settings.knowledge'), description: t('settings.knowledgeHint') });
     }
 
     if (capabilities.tasks || capabilities.reminders || capabilities.notifications) {
-        sections.push({ id: 'productivity', label: 'Productivity', description: 'Сводки, Push, подсказки' });
+        sections.push({ id: 'productivity', label: t('settings.productivity'), description: t('settings.productivityHint') });
     }
 
     if (capabilities.voice) {
-        sections.push({ id: 'voice', label: 'Voice', description: 'Голос ассистента' });
+        sections.push({ id: 'voice', label: t('settings.voice'), description: t('settings.voiceHint') });
     }
 
     if (capabilities.integrations || capabilities.telegramDm) {
-        sections.push({ id: 'integrations', label: 'Integrations', description: 'Каналы и подключения' });
+        sections.push({ id: 'integrations', label: t('settings.integrations'), description: t('settings.integrationsHint') });
     }
 
     return sections;
@@ -54,7 +55,8 @@ export default function WorkspaceSettings({
     onboardingLabel,
     onboardingStatus,
 }) {
-    const sections = useMemo(() => visibleSettingsSections(capabilities), [capabilities]);
+    const { t } = useTranslation();
+    const sections = useMemo(() => visibleSettingsSections(capabilities, t), [capabilities, t]);
     const current = allowedSettingsSection(section) && sections.some((item) => item.id === section)
         ? section
         : (sections[0]?.id || 'profile');
@@ -135,7 +137,7 @@ export default function WorkspaceSettings({
                 onClick={(event) => event.stopPropagation()}
                 role="dialog"
                 aria-modal="true"
-                aria-label="Настройки"
+                aria-label={t('settings.title')}
             >
                 <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                     <div className="flex items-center gap-2 text-white">
@@ -143,13 +145,13 @@ export default function WorkspaceSettings({
                             type="button"
                             className={`rounded-lg p-1 text-slate-400 hover:text-white md:hidden ${mobileDetail ? '' : 'invisible'}`}
                             onClick={() => setMobileDetail(false)}
-                            aria-label="Назад к списку разделов"
+                            aria-label={t('settings.backToSections')}
                         >
                             <ArrowLeft className="h-4 w-4" />
                         </button>
-                        <h2 className="text-sm font-semibold">Настройки</h2>
+                        <h2 className="text-sm font-semibold">{t('settings.title')}</h2>
                     </div>
-                    <button type="button" onClick={onClose} className="rounded-lg p-1 text-slate-400 hover:text-white" aria-label="Закрыть настройки">
+                    <button type="button" onClick={onClose} className="rounded-lg p-1 text-slate-400 hover:text-white" aria-label={t('settings.close')}>
                         <X className="h-4 w-4" />
                     </button>
                 </div>

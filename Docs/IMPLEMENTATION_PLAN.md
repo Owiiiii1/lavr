@@ -19,6 +19,7 @@ Vertical slices. Prefer shipping a thin path through UI + data + one CEO questio
 | LAVR Phase 2 | This documentation set — operational architecture, CURRENT vs TARGET |
 | LAVR Phase 3A | Telegram WebApp foundation: initData auth, shared Workspace shell, Today, bottom nav, placeholders |
 | LAVR Phase 3B | Telegram WebApp UX: Today/Chat/nav/theme/deep-link helpers; real Mini App E2E still blocked on empty bot settings |
+| LAVR Phase 3C | Ukrainian-first localization: `uk` default, `en`/`ru` supported, UI locale ≠ assistant language, WebApp = Web |
 
 Validation of origin flows: [CURRENT_STATE.md](CURRENT_STATE.md), [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
 
@@ -104,9 +105,9 @@ Code is in this repository. Report: [Development/LAVR_PHASE_3B_REPORT.md](Develo
 
 **Goal.** One locale system for Telegram WebApp and standalone Web. Client-facing UI is Ukrainian-first before Phase 4 domain UI grows.
 
-**CURRENT:** not implemented for the Owner Workspace. Admin kit `en`/`ru` fragments are not this product.
+**CURRENT:** **IMPLEMENTED** for the Owner Workspace. Report: [Development/LAVR_PHASE_3C_REPORT.md](Development/LAVR_PHASE_3C_REPORT.md). Admin kit `en`/`ru` fragments are still not this product.
 
-Implementation rules:
+Shipped rules:
 
 - default locale `uk`;
 - supported locales: `uk`, `en`, `ru`;
@@ -119,7 +120,7 @@ Implementation rules:
 - translation fallback is Ukrainian;
 - single-owner only — no multi-user locale architecture.
 
-**Not in this phase.** People/Meetings/Commitments tables; Zoom; a duplicated Mini App frontend.
+**Not in this phase.** People/Meetings/Commitments tables; Zoom; a duplicated Mini App frontend; full Admin translation.
 
 **Exit.** Owner can switch UI language; assistant preferred language is independent; missing strings fall back to Ukrainian; Web and WebApp stay one app.
 

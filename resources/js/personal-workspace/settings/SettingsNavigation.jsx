@@ -1,6 +1,10 @@
+import { useTranslation } from '@/locales/useTranslation';
+
 export default function SettingsNavigation({ sections, current, onSelect }) {
+    const { t } = useTranslation();
+
     return (
-        <nav aria-label="Разделы настроек" className="space-y-1">
+        <nav aria-label={t('settings.sectionsAria')} className="space-y-1">
             {sections.map((item) => {
                 const active = item.id === current;
 

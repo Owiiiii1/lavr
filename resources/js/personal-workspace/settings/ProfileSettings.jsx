@@ -1,6 +1,8 @@
-import { Link, router, useForm } from '@inertiajs/react';
+import LanguageSettings from '@/personal-workspace/settings/LanguageSettings';
 import SettingsCard from '@/personal-workspace/settings/SettingsCard';
 import { workspaceRoute } from '@/personal-workspace/named';
+import { useTranslation } from '@/locales/useTranslation';
+import { Link, router, useForm } from '@inertiajs/react';
 
 export default function ProfileSettings({
     surface,
@@ -13,6 +15,7 @@ export default function ProfileSettings({
     onboardingStatus,
     onClose,
 }) {
+    const { t } = useTranslation();
     const profileForm = useForm({
         name: settings.name ?? user.name ?? '',
         timezone: settings.timezone ?? user.timezone ?? '',
@@ -26,7 +29,9 @@ export default function ProfileSettings({
 
     return (
         <div className="space-y-4">
-            <SettingsCard title="Профиль" description="Имя, часовой пояс и статус знакомства с ассистентом.">
+            <LanguageSettings surface={surface} />
+
+            <SettingsCard title={t('settings.profileTitle')} description={t('settings.profileDescription')}>
                 <form
                     className="space-y-3"
                     onSubmit={(event) => {
@@ -38,13 +43,13 @@ export default function ProfileSettings({
                 >
                     <div>
                         <label className="text-xs uppercase tracking-[0.14em] text-slate-500" htmlFor="workspace-email">
-                            Email
+                            {t('settings.email')}
                         </label>
                         <p id="workspace-email" className="mt-1 text-sm text-slate-200">{user.email || '—'}</p>
                     </div>
                     <div>
                         <label className="text-xs uppercase tracking-[0.14em] text-slate-500" htmlFor="workspace-name">
-                            Имя
+                            {t('settings.name')}
                         </label>
                         <input
                             id="workspace-name"
@@ -57,7 +62,7 @@ export default function ProfileSettings({
                     </div>
                     <div>
                         <label className="text-xs uppercase tracking-[0.14em] text-slate-500" htmlFor="workspace-timezone">
-                            Часовой пояс
+                            {t('settings.timezone')}
                         </label>
                         <select
                             id="workspace-timezone"
@@ -93,7 +98,7 @@ export default function ProfileSettings({
                         </div>
                     ) : (
                         <p className="text-xs text-slate-500">
-                            Ассистент: {assistantProfile?.presentation_name || 'LAVR'}
+                            {t('settings.assistantLabel', { name: assistantProfile?.presentation_name || 'LAVR' })}
                         </p>
                     )}
                     <button
@@ -101,12 +106,12 @@ export default function ProfileSettings({
                         disabled={profileForm.processing}
                         className="rounded-lg bg-sky-500 px-3 py-2 text-sm font-medium text-white hover:bg-sky-400 disabled:opacity-60"
                     >
-                        Сохранить профиль
+                        {t('settings.saveProfile')}
                     </button>
                 </form>
             </SettingsCard>
 
-            <SettingsCard title="Пароль" description="Смена пароля для входа в веб-Workspace.">
+            <SettingsCard title={t('settings.password')} description={t('settings.passwordDescription')}>
                 <form
                     className="space-y-2"
                     onSubmit={(event) => {
@@ -132,7 +137,7 @@ export default function ProfileSettings({
                         type="password"
                         name="current_password"
                         autoComplete="current-password"
-                        placeholder="Текущий пароль"
+                        placeholder={t('settings.currentPassword')}
                         value={passwordForm.data.current_password}
                         onChange={(event) => passwordForm.setData('current_password', event.target.value)}
                         className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-slate-100 outline-none"
@@ -141,7 +146,7 @@ export default function ProfileSettings({
                         type="password"
                         name="new_password"
                         autoComplete="new-password"
-                        placeholder="Новый пароль"
+                        placeholder={t('settings.newPassword')}
                         value={passwordForm.data.password}
                         onChange={(event) => passwordForm.setData('password', event.target.value)}
                         className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-slate-100 outline-none"
@@ -150,7 +155,7 @@ export default function ProfileSettings({
                         type="password"
                         name="new_password_confirmation"
                         autoComplete="new-password"
-                        placeholder="Повторите пароль"
+                        placeholder={t('settings.confirmPassword')}
                         value={passwordForm.data.password_confirmation}
                         onChange={(event) => passwordForm.setData('password_confirmation', event.target.value)}
                         className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-slate-100 outline-none"
@@ -162,7 +167,7 @@ export default function ProfileSettings({
                         disabled={passwordForm.processing}
                         className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/5 disabled:opacity-60"
                     >
-                        Обновить пароль
+                        {t('settings.updatePassword')}
                     </button>
                 </form>
             </SettingsCard>
@@ -174,7 +179,7 @@ export default function ProfileSettings({
                             href={route('dashboard')}
                             className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/5"
                         >
-                            Admin
+                            {t('common.admin')}
                         </Link>
                     ) : null}
                     <button
@@ -182,7 +187,7 @@ export default function ProfileSettings({
                         onClick={() => router.post(route('logout'))}
                         className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/5"
                     >
-                        Выйти
+                        {t('common.logout')}
                     </button>
                 </div>
             </SettingsCard>

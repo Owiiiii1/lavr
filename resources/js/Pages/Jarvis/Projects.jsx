@@ -1,28 +1,31 @@
 import LavrAppShell from '@/telegram/LavrAppShell';
+import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link } from '@inertiajs/react';
 
-function activityLabel(iso) {
-    if (!iso) {
-        return '';
-    }
+export default function WorkspaceProjects({ projects = [] }) {
+    const { t, bcp47 } = useTranslation();
 
-    try {
-        return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
-    } catch {
-        return '';
-    }
-}
+    const activityLabel = (iso) => {
+        if (!iso) {
+            return '';
+        }
 
-export default function WorkspaceProjects({ projects = [], hint }) {
+        try {
+            return new Intl.DateTimeFormat(bcp47, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+        } catch {
+            return '';
+        }
+    };
+
     return (
         <LavrAppShell>
-            <Head title="Projects" />
+            <Head title={t('projects.title')} />
             <div className="jarvis-workspace px-4 pb-8 pt-8 text-slate-100 sm:px-8">
-                <h1 className="text-2xl font-semibold text-white">Projects</h1>
-                <p className="mt-2 max-w-lg text-sm leading-6 text-slate-400">{hint}</p>
+                <h1 className="text-2xl font-semibold text-white">{t('projects.title')}</h1>
+                <p className="mt-2 max-w-lg text-sm leading-6 text-slate-400">{t('projects.hint')}</p>
 
                 {projects.length === 0 ? (
-                    <p className="mt-8 text-sm text-slate-400">Пока нет проектов.</p>
+                    <p className="mt-8 text-sm text-slate-400">{t('projects.empty')}</p>
                 ) : (
                     <ul className="mt-6 space-y-2">
                         {projects.map((project) => (

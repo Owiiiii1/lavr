@@ -92,7 +92,7 @@ LAVR is **Ukrainian-first**. It remains a **single-owner** instance. Do not buil
 - Names of people, organizations, projects, files, and original quotes are not auto-localized.
 - If a translation is unavailable, fallback language is Ukrainian.
 
-Runtime status: [CURRENT_STATE.md](CURRENT_STATE.md). Interface behavior: [INTERFACES.md](INTERFACES.md). Sources: [DATA_SOURCES.md](DATA_SOURCES.md).
+Runtime status: **IMPLEMENTED** for Owner Workspace (Telegram WebApp + standalone Web). Details: [CURRENT_STATE.md](CURRENT_STATE.md), [Development/LAVR_PHASE_3C_REPORT.md](Development/LAVR_PHASE_3C_REPORT.md). Interface behavior: [INTERFACES.md](INTERFACES.md). Sources: [DATA_SOURCES.md](DATA_SOURCES.md).
 
 ## Origin
 

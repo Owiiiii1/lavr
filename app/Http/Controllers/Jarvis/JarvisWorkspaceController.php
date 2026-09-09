@@ -248,6 +248,22 @@ class JarvisWorkspaceController extends Controller
         return back()->with('success', 'Profile saved.');
     }
 
+    public function updateLocales(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'interface_locale' => ['required', 'string', 'max:16'],
+            'assistant_locale' => ['required', 'string', 'max:16'],
+        ]);
+
+        $this->assistantProfiles->updateLocales(
+            $request->user(),
+            $validated['interface_locale'],
+            $validated['assistant_locale'],
+        );
+
+        return back();
+    }
+
     public function updatePassword(Request $request): RedirectResponse
     {
         $validated = $request->validate([

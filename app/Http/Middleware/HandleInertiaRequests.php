@@ -3,9 +3,11 @@
 namespace App\Http\Middleware;
 
 use App\Enums\AiRoleKey;
+use App\Enums\OwnerLocale;
 use App\Models\AiProviderSetting;
 use App\Models\AiRoleSetting;
 use App\Models\TelegramBotSetting;
+use App\Services\Locale\OwnerLocaleResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Middleware;
@@ -20,6 +22,10 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(
+        private readonly OwnerLocaleResolver $locales,
+    ) {}
 
     /**
      * Determines the current asset version.
@@ -40,8 +46,16 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $interface = $this->locales->interfaceLocale($user);
+        $assistant = $this->locales->assistantLocale($user);
+
         return [
             ...parent::share($request),
+
+            'locale' => $interface->value,
+            'assistantLocale' => $assistant->value,
+            'supportedLocales' => OwnerLocale::codes(),
 
             'flash' => [
                 'analysis' => $request->session()->get('analysis'),

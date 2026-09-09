@@ -26,9 +26,9 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/telegram-groups`, …) | Technical management |
 | Legacy paths | `GET /jarvis`, `GET /chat` | Redirect to `/lavr` |
 
-There is a Telegram WebApp **foundation** (Phase 3A) plus **UX completion** (Phase 3B): `/telegram/webapp` validates Mini App `initData` and opens the same Workspace (Today, Chat, nav, Notifications, Reports). Real Telegram-client E2E is **NOT VALIDATED**. Details: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md), [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md).
+There is a Telegram WebApp **foundation** (Phase 3A) plus **UX completion** (Phase 3B) plus **Ukrainian-first localization** (Phase 3C): `/telegram/webapp` validates Mini App `initData` and opens the same Workspace (Today, Chat, nav, Notifications, Reports) with the same Owner locale as standalone Web. Real Telegram-client E2E is **NOT VALIDATED**. Details: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md), [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md), [Development/LAVR_PHASE_3C_REPORT.md](Development/LAVR_PHASE_3C_REPORT.md).
 
-Owner UI language switch and preferred assistant language are **TARGET**. WebApp and standalone Web must share one catalog when that ships. Do not treat Admin `en`/`ru` fragments as the product locale. [PRODUCT.md](PRODUCT.md#languages).
+Owner UI language switch and preferred assistant language are **IMPLEMENTED** on the Owner Settings profile. WebApp and standalone Web share one catalog (`resources/js/locales`). Do not treat Admin `en`/`ru` fragments as the product locale. [PRODUCT.md](PRODUCT.md#languages).
 
 Today’s docs that call Web Workspace “PRIMARY” describe **current** shipping UI. Target primary **rich** UI is Telegram WebApp using that same Workspace. Target primary **fast** channel is Telegram Chat. See ADR-267, ADR-268, ADR-269.
 

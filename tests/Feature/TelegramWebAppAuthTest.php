@@ -45,6 +45,47 @@ class TelegramWebAppAuthTest extends TestCase
         }
     }
 
+    public function test_form_urlencoded_split_init_data_still_establishes_session(): void
+    {
+        $owner = $this->existingOwner();
+        [$telegramId, $restore] = $this->bindOwnerTelegram($owner, '910088');
+
+        try {
+            $this->fakeBotToken('123456:TEST-TOKEN');
+            $raw = $this->signInitData('123456:TEST-TOKEN', $telegramId);
+            parse_str($raw, $fields);
+            $first = array_key_first($fields);
+            $payload = $fields;
+            $payload['init_data'] = $first.'='.$fields[$first];
+            unset($payload[$first]);
+
+            $this->post('/telegram/webapp/session', $payload)
+                ->assertRedirect('/lavr/today');
+
+            $this->assertAuthenticatedAs($owner);
+        } finally {
+            $restore();
+        }
+    }
+
+    public function test_json_init_data_establishes_session(): void
+    {
+        $owner = $this->existingOwner();
+        [$telegramId, $restore] = $this->bindOwnerTelegram($owner, '910088');
+
+        try {
+            $this->fakeBotToken('123456:TEST-TOKEN');
+
+            $this->postJson('/telegram/webapp/session', [
+                'init_data' => $this->signInitData('123456:TEST-TOKEN', $telegramId),
+            ])->assertRedirect('/lavr/today');
+
+            $this->assertAuthenticatedAs($owner);
+        } finally {
+            $restore();
+        }
+    }
+
     public function test_invalid_signature_does_not_login_or_create_user(): void
     {
         $usersBefore = User::query()->count();
@@ -235,6 +276,6 @@ class TelegramWebAppAuthTest extends TestCase
         $secret = hash_hmac('sha256', $token, 'WebAppData', true);
         $fields['hash'] = hash_hmac('sha256', $check = implode("\n", $pairs), $secret);
 
-        return http_build_query($fields);
+        return http_build_query($fields, '', '&', PHP_QUERY_RFC3986);
     }
 }

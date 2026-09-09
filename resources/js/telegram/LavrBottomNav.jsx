@@ -1,34 +1,35 @@
+import { useTranslation } from '@/locales/useTranslation';
 import { Link, usePage } from '@inertiajs/react';
 import { FolderKanban, LayoutDashboard, MessageSquare, MoreHorizontal, Users } from 'lucide-react';
 
-const ITEMS = [
-    { href: '/lavr/today', match: (path) => path === '/lavr/today', label: 'Today', icon: LayoutDashboard },
-    { href: '/lavr', match: (path) => path === '/lavr' || path.startsWith('/lavr/chats/'), label: 'Chat', icon: MessageSquare },
-    { href: '/lavr/people', match: (path) => path.startsWith('/lavr/people'), label: 'People', icon: Users },
-    { href: '/lavr/projects', match: (path) => path.startsWith('/lavr/projects'), label: 'Projects', icon: FolderKanban },
-    {
-        href: '/lavr/more',
-        match: (path) =>
-            path === '/lavr/more'
-            || path.startsWith('/lavr/meetings')
-            || path.startsWith('/lavr/commitments')
-            || path.startsWith('/lavr/notifications')
-            || path.startsWith('/lavr/reports'),
-        label: 'More',
-        icon: MoreHorizontal,
-    },
-];
-
 export default function LavrBottomNav({ force = false }) {
     const page = usePage();
+    const { t } = useTranslation();
     const path = page.url.split('?')[0];
+    const items = [
+        { href: '/lavr/today', match: (current) => current === '/lavr/today', label: t('navigation.today'), icon: LayoutDashboard },
+        { href: '/lavr', match: (current) => current === '/lavr' || current.startsWith('/lavr/chats/'), label: t('navigation.chat'), icon: MessageSquare },
+        { href: '/lavr/people', match: (current) => current.startsWith('/lavr/people'), label: t('navigation.people'), icon: Users },
+        { href: '/lavr/projects', match: (current) => current.startsWith('/lavr/projects'), label: t('navigation.projects'), icon: FolderKanban },
+        {
+            href: '/lavr/more',
+            match: (current) =>
+                current === '/lavr/more'
+                || current.startsWith('/lavr/meetings')
+                || current.startsWith('/lavr/commitments')
+                || current.startsWith('/lavr/notifications')
+                || current.startsWith('/lavr/reports'),
+            label: t('navigation.more'),
+            icon: MoreHorizontal,
+        },
+    ];
 
     return (
         <nav
             className={`lavr-bottom-nav ${force ? 'flex' : 'flex lg:hidden'}`}
-            aria-label="LAVR"
+            aria-label={t('navigation.aria')}
         >
-            {ITEMS.map((item) => {
+            {items.map((item) => {
                 const Icon = item.icon;
                 const active = item.match(path);
 

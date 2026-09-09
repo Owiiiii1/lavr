@@ -1,4 +1,5 @@
 import LavrAppShell from '@/telegram/LavrAppShell';
+import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link } from '@inertiajs/react';
 import { Component } from 'react';
 
@@ -29,7 +30,7 @@ class SectionGuard extends Component {
         if (this.state.failed) {
             return (
                 <Card title={this.props.title}>
-                    <Empty text="Этот блок сейчас недоступен." />
+                    <Empty text={this.props.fallback} />
                 </Card>
             );
         }
@@ -39,18 +40,20 @@ class SectionGuard extends Component {
 }
 
 export default function Today({ today }) {
+    const { t } = useTranslation();
     const tasks = today?.tasks || [];
     const reminders = today?.reminders || [];
     const notifications = today?.notifications || [];
     const reports = today?.reports || [];
     const events = today?.calendar || [];
+    const fallback = t('today.sectionUnavailable');
 
     return (
         <LavrAppShell>
-            <Head title="Today" />
+            <Head title={t('today.title')} />
             <div className="jarvis-workspace px-4 pb-8 pt-5 text-slate-100 sm:px-8">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{today?.brand || 'LAVR'}</p>
-                <h1 className="mt-1 text-2xl font-semibold text-white">{today?.date_label || 'Сегодня'}</h1>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{today?.brand || t('common.lavr')}</p>
+                <h1 className="mt-1 text-2xl font-semibold text-white">{today?.date_label || t('today.title')}</h1>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">{today?.summary}</p>
 
                 <div className="mt-6">
@@ -58,15 +61,15 @@ export default function Today({ today }) {
                         href={today?.ask_href || '/lavr'}
                         className="inline-flex min-h-12 min-w-[12rem] items-center justify-center rounded-2xl bg-[var(--tg-theme-button-color,#0ea5e9)] px-5 text-sm font-semibold text-[var(--tg-theme-button-text-color,#fff)]"
                     >
-                        Спросить LAVR
+                        {t('today.ask')}
                     </Link>
                 </div>
 
                 <div className="mt-8 space-y-4">
-                    <SectionGuard title="Сейчас важно">
-                        <Card title="Сейчас важно">
+                    <SectionGuard title={t('today.now')} fallback={fallback}>
+                        <Card title={t('today.now')}>
                             {notifications.length === 0 && tasks.length === 0 && reminders.length === 0 ? (
-                                <Empty text="Нет срочных пунктов." />
+                                <Empty text={t('today.noUrgent')} />
                             ) : (
                                 <ul className="space-y-2">
                                     {notifications.slice(0, 4).map((item) => (
@@ -78,17 +81,17 @@ export default function Today({ today }) {
                                 </ul>
                             )}
                             <Link href="/lavr/notifications" className="mt-3 inline-flex min-h-11 items-center text-sm text-sky-300">
-                                Все уведомления
+                                {t('today.allNotifications')}
                             </Link>
                         </Card>
                     </SectionGuard>
 
-                    <SectionGuard title="Календарь">
-                        <Card title="Календарь">
+                    <SectionGuard title={t('today.calendar')} fallback={fallback}>
+                        <Card title={t('today.calendar')}>
                             {today?.calendar_error ? (
                                 <Empty text={today.calendar_error} />
                             ) : events.length === 0 ? (
-                                <Empty text={today?.calendar_hint || 'Нет событий на сегодня.'} />
+                                <Empty text={today?.calendar_hint || t('today.noEvents')} />
                             ) : (
                                 <ul className="space-y-2">
                                     {events.map((item) => (
@@ -102,10 +105,10 @@ export default function Today({ today }) {
                         </Card>
                     </SectionGuard>
 
-                    <SectionGuard title="Задачи и напоминания">
-                        <Card title="Задачи и напоминания">
+                    <SectionGuard title={t('today.tasksReminders')} fallback={fallback}>
+                        <Card title={t('today.tasksReminders')}>
                             {tasks.length === 0 && reminders.length === 0 ? (
-                                <Empty text="Нет задач и напоминаний на сегодня." />
+                                <Empty text={t('today.noTasks')} />
                             ) : (
                                 <ul className="space-y-2">
                                     {tasks.map((item) => (
@@ -125,10 +128,10 @@ export default function Today({ today }) {
                         </Card>
                     </SectionGuard>
 
-                    <SectionGuard title="Отчеты">
-                        <Card title="Отчеты">
+                    <SectionGuard title={t('today.reports')} fallback={fallback}>
+                        <Card title={t('today.reports')}>
                             {reports.length === 0 ? (
-                                <Empty text="Нет активных отчетов." />
+                                <Empty text={t('today.noReports')} />
                             ) : (
                                 <ul className="space-y-2">
                                     {reports.map((item) => (
@@ -142,7 +145,7 @@ export default function Today({ today }) {
                                 </ul>
                             )}
                             <Link href="/lavr/reports" className="mt-3 inline-flex min-h-11 items-center text-sm text-sky-300">
-                                Все отчеты
+                                {t('today.allReports')}
                             </Link>
                         </Card>
                     </SectionGuard>

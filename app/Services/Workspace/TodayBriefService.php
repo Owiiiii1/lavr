@@ -2,14 +2,17 @@
 
 namespace App\Services\Workspace;
 
+use App\Enums\OwnerLocale;
 use App\Models\User;
 use App\Services\Integrations\Google\GoogleCalendarService;
 use App\Services\Integrations\IntegrationAccountService;
+use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Reminders\ReminderService;
 use App\Services\Reports\ScheduledReportService;
 use App\Services\Tasks\TaskService;
 use App\Services\Users\UserCapability;
+use App\Support\OwnerCopy;
 use Carbon\CarbonImmutable;
 
 final class TodayBriefService
@@ -21,6 +24,7 @@ final class TodayBriefService
         private readonly ScheduledReportService $reports,
         private readonly IntegrationAccountService $accounts,
         private readonly GoogleCalendarService $calendar,
+        private readonly OwnerLocaleResolver $locales,
     ) {}
 
     /**
@@ -32,11 +36,12 @@ final class TodayBriefService
     {
         $timezone = (string) ($user->timezone ?: 'UTC');
         $now = CarbonImmutable::now($timezone);
+        $locale = $this->locales->interfaceLocale($user);
         $taskPanel = $this->safeTaskPanel($user);
         $reminderPanel = $this->safeReminderPanel($user);
         $inbox = $this->safeInbox($user);
         $reportPanel = $this->safeReportPanel($user);
-        $calendar = $this->safeCalendar($user, $now);
+        $calendar = $this->safeCalendar($user, $now, $locale);
 
         $dueTasks = array_slice(array_merge(
             $taskPanel['overdue'] ?? [],
@@ -53,8 +58,8 @@ final class TodayBriefService
 
         return [
             'brand' => 'LAVR',
-            'date_label' => $now->locale('ru')->isoFormat('dddd, D MMMM'),
-            'summary' => $this->summary(count($dueTasks), count($reminders), (int) ($inbox['unread_count'] ?? 0), count($calendar['events'] ?? [])),
+            'date_label' => $now->locale($locale->value)->isoFormat('dddd, D MMMM'),
+            'summary' => $this->summary($locale, count($dueTasks), count($reminders), (int) ($inbox['unread_count'] ?? 0), count($calendar['events'] ?? [])),
             'tasks' => $dueTasks,
             'reminders' => $reminders,
             'notifications' => $notifications,
@@ -117,12 +122,12 @@ final class TodayBriefService
     /**
      * @return array{events: list<array<string, mixed>>, hint: ?string, error: ?string}
      */
-    private function safeCalendar(User $user, CarbonImmutable $now): array
+    private function safeCalendar(User $user, CarbonImmutable $now, OwnerLocale $locale): array
     {
         if (! $user->canUseCapability(UserCapability::GOOGLE_CALENDAR)) {
             return [
                 'events' => [],
-                'hint' => 'Календарь на сегодня можно спросить в чате.',
+                'hint' => OwnerCopy::get('today.calendar_ask_chat', $locale),
                 'error' => null,
             ];
         }
@@ -133,7 +138,7 @@ final class TodayBriefService
             if ($account === null) {
                 return [
                     'events' => [],
-                    'hint' => 'Календарь не подключен. События дня можно спросить в чате.',
+                    'hint' => OwnerCopy::get('today.calendar_not_connected', $locale),
                     'error' => null,
                 ];
             }
@@ -157,21 +162,21 @@ final class TodayBriefService
 
                 $events[] = [
                     'id' => (string) ($event['id'] ?? ''),
-                    'title' => (string) ($event['title'] ?? 'Событие'),
-                    'when_label' => $this->eventWhenLabel($event, $now),
+                    'title' => (string) ($event['title'] ?? OwnerCopy::get('today.event_fallback', $locale)),
+                    'when_label' => $this->eventWhenLabel($event, $now, $locale),
                 ];
             }
 
             return [
                 'events' => $events,
-                'hint' => $events === [] ? 'На сегодня в календаре нет событий.' : null,
+                'hint' => $events === [] ? OwnerCopy::get('today.calendar_empty', $locale) : null,
                 'error' => null,
             ];
         } catch (\Throwable) {
             return [
                 'events' => [],
                 'hint' => null,
-                'error' => 'Календарь сейчас недоступен.',
+                'error' => OwnerCopy::get('today.calendar_unavailable', $locale),
             ];
         }
     }
@@ -179,7 +184,7 @@ final class TodayBriefService
     /**
      * @param  array<string, mixed>  $event
      */
-    private function eventWhenLabel(array $event, CarbonImmutable $now): string
+    private function eventWhenLabel(array $event, CarbonImmutable $now, OwnerLocale $locale): string
     {
         $start = (string) ($event['start'] ?? '');
 
@@ -191,7 +196,7 @@ final class TodayBriefService
             $at = CarbonImmutable::parse($start)->setTimezone($now->getTimezone()->getName());
 
             if (! empty($event['all_day'])) {
-                return 'Весь день';
+                return OwnerCopy::get('today.all_day', $locale);
             }
 
             return $at->format('H:i');
@@ -200,30 +205,30 @@ final class TodayBriefService
         }
     }
 
-    private function summary(int $dueTasks, int $reminders, int $unread, int $events): string
+    private function summary(OwnerLocale $locale, int $dueTasks, int $reminders, int $unread, int $events): string
     {
         $parts = [];
 
         if ($dueTasks > 0) {
-            $parts[] = $dueTasks.' задач';
+            $parts[] = OwnerCopy::get('today.part_tasks', $locale, ['count' => $dueTasks]);
         }
 
         if ($reminders > 0) {
-            $parts[] = $reminders.' напоминаний';
+            $parts[] = OwnerCopy::get('today.part_reminders', $locale, ['count' => $reminders]);
         }
 
         if ($unread > 0) {
-            $parts[] = $unread.' уведомлений';
+            $parts[] = OwnerCopy::get('today.part_notifications', $locale, ['count' => $unread]);
         }
 
         if ($events > 0) {
-            $parts[] = $events.' в календаре';
+            $parts[] = OwnerCopy::get('today.part_events', $locale, ['count' => $events]);
         }
 
         if ($parts === []) {
-            return 'На сегодня нет срочных пунктов. Можно спросить LAVR, что главное.';
+            return OwnerCopy::get('today.summary_empty', $locale);
         }
 
-        return 'В фокусе: '.implode(', ', $parts).'.';
+        return OwnerCopy::get('today.summary_prefix', $locale, ['parts' => implode(', ', $parts)]);
     }
 }

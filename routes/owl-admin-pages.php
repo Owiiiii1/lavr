@@ -127,6 +127,8 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
             ->name('settings.prompt.update');
         Route::patch('/settings/profile', [JarvisWorkspaceController::class, 'updateProfile'])
             ->name('settings.profile.update');
+        Route::patch('/settings/locales', [JarvisWorkspaceController::class, 'updateLocales'])
+            ->name('settings.locales.update');
         Route::put('/settings/password', [JarvisWorkspaceController::class, 'updatePassword'])
             ->name('settings.password.update');
         Route::post('/onboarding', [JarvisWorkspaceController::class, 'startOnboarding'])

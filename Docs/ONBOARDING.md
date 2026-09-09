@@ -4,7 +4,7 @@ Canonical CEO onboarding. Personalization implementation: [ASSISTANT_PERSONALIZA
 
 ## CURRENT
 
-`user_assistant_profiles`: assistant name, personality, interaction style, about_user, `onboarding_status`, `onboarding_step`.
+`user_assistant_profiles`: assistant name, personality, interaction style, about_user, `interface_locale`, `assistant_locale`, `onboarding_status`, `onboarding_step`.
 
 For the **Owner** on this instance, onboarding is stored as **`completed`** by `AssistantProfileService::defaultsFor`. The Owner is **not** sent through third-party / “Знакомство” provisioning. `startOnboarding` is not the CEO business-map flow.
 
@@ -14,7 +14,7 @@ Default assistant name: **LAVR**. Personality / about_user / interaction_style m
 
 There is no structured capture of projects, employees, mailboxes, or alert policies.
 
-There is **no** Owner setting for preferred interface language or preferred assistant language. UI copy is not a Ukrainian-first catalog. Localization is **TARGET** ([CURRENT_STATE.md](CURRENT_STATE.md)).
+Owner Settings stores **interface language** and **assistant language** separately (`uk` / `en` / `ru`, code default `uk`). Changing them is not CEO business-map onboarding. Localization of the Owner Workspace is **IMPLEMENTED** ([CURRENT_STATE.md](CURRENT_STATE.md), [PRODUCT.md](PRODUCT.md#languages)).
 
 ---
 

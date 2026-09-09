@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'ask' => 'Ask LAVR',
+    'now' => 'Needs attention',
+    'no_urgent' => 'Nothing urgent.',
+    'all_notifications' => 'All notifications',
+    'calendar' => 'Calendar',
+    'no_events' => 'No events today.',
+    'tasks_reminders' => 'Tasks and reminders',
+    'no_tasks' => 'No tasks or reminders today.',
+    'reports' => 'Reports',
+    'no_reports' => 'No active reports.',
+    'all_reports' => 'All reports',
+    'section_unavailable' => 'This section is unavailable right now.',
+    'event_fallback' => 'Event',
+    'all_day' => 'All day',
+    'calendar_ask_chat' => 'Ask in chat for today’s calendar.',
+    'calendar_not_connected' => 'Calendar is not connected. Ask in chat for today’s events.',
+    'calendar_empty' => 'No calendar events today.',
+    'calendar_unavailable' => 'Calendar is unavailable right now.',
+    'summary_empty' => 'Nothing urgent today. Ask LAVR what matters most.',
+    'summary_prefix' => 'In focus: :parts.',
+    'part_tasks' => ':count tasks',
+    'part_reminders' => ':count reminders',
+    'part_notifications' => ':count notifications',
+    'part_events' => ':count on the calendar',
+];

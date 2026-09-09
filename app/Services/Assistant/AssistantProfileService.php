@@ -4,6 +4,7 @@ namespace App\Services\Assistant;
 
 use App\Enums\OnboardingStatus;
 use App\Enums\OnboardingStep;
+use App\Enums\OwnerLocale;
 use App\Models\Conversation;
 use App\Models\User;
 use App\Models\UserAssistantProfile;
@@ -77,6 +78,8 @@ final class AssistantProfileService
             'personality' => $this->nullableTrim($profile->personality),
             'interaction_style' => $this->nullableTrim($profile->interaction_style),
             'about_user' => $this->nullableTrim($profile->about_user),
+            'interface_locale' => OwnerLocale::fromMixed($profile->interface_locale)->value,
+            'assistant_locale' => OwnerLocale::fromMixed($profile->assistant_locale)->value,
             'onboarding_status' => ($profile->onboarding_status ?? OnboardingStatus::NotStarted)->value,
             'onboarding_step' => $profile->onboarding_step?->value,
             'onboarding_conversation_id' => $profile->onboarding_conversation_id !== null
@@ -96,6 +99,8 @@ final class AssistantProfileService
         $profile = $this->profileFor($user);
         $payload = $this->toArray($profile, $user);
         $name = $payload['assistant_name'] ?? ($user->isOwner() ? self::OWNER_DEFAULT_NAME : 'not chosen yet');
+
+        $assistantLocale = OwnerLocale::fromMixed($payload['assistant_locale'] ?? null);
 
         $lines = [
             'Assistant identity (structured; not General Prompt, not Memory):',
@@ -122,6 +127,13 @@ final class AssistantProfileService
         if ($payload['onboarding_status'] !== OnboardingStatus::Completed->value && ! $user->isOwner()) {
             $lines[] = 'Onboarding is optional. Help with ordinary requests even if it is not finished. Do not block chat.';
         }
+
+        $lines[] = 'Preferred assistant response language: '.$assistantLocale->englishName().' ('.$assistantLocale->value.').';
+        $lines[] = 'Reply in this language by default.';
+        $lines[] = 'If the current user message is clearly written in English or Russian, or the user explicitly asks for a language this turn (for example "summarize in English", "відповідай англійською"), reply in that language for this turn only.';
+        $lines[] = 'Do not change the stored preferred assistant language unless the user explicitly asks to change the language setting permanently. Permanent language changes happen in Settings.';
+        $lines[] = 'Do not translate source artifacts (emails, Telegram messages, transcripts, documents, original quotes) when storing or quoting them. Translate only on explicit request, as presentation.';
+        $lines[] = 'Keep names of people, organizations, projects, files, and original quotes unchanged.';
 
         return implode("\n", $lines);
     }
@@ -234,6 +246,17 @@ final class AssistantProfileService
         $profile->forceFill($updates);
         $profile->onboarding_step = $this->nextStep($profile);
         $profile->save();
+
+        return $profile->fresh() ?? $profile;
+    }
+
+    public function updateLocales(User $user, mixed $interfaceLocale, mixed $assistantLocale): UserAssistantProfile
+    {
+        $profile = $this->profileFor($user, persist: true);
+        $profile->forceFill([
+            'interface_locale' => OwnerLocale::fromMixed($interfaceLocale)->value,
+            'assistant_locale' => OwnerLocale::fromMixed($assistantLocale)->value,
+        ])->save();
 
         return $profile->fresh() ?? $profile;
     }

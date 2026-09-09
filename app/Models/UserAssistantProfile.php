@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'personality',
     'interaction_style',
     'about_user',
+    'interface_locale',
+    'assistant_locale',
     'onboarding_status',
     'onboarding_step',
     'onboarding_conversation_id',

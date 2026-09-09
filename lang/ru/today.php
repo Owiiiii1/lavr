@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'ask' => 'Спросить LAVR',
+    'now' => 'Сейчас важно',
+    'no_urgent' => 'Нет срочных пунктов.',
+    'all_notifications' => 'Все уведомления',
+    'calendar' => 'Календарь',
+    'no_events' => 'Нет событий на сегодня.',
+    'tasks_reminders' => 'Задачи и напоминания',
+    'no_tasks' => 'Нет задач и напоминаний на сегодня.',
+    'reports' => 'Отчёты',
+    'no_reports' => 'Нет активных отчётов.',
+    'all_reports' => 'Все отчёты',
+    'section_unavailable' => 'Этот блок сейчас недоступен.',
+    'event_fallback' => 'Событие',
+    'all_day' => 'Весь день',
+    'calendar_ask_chat' => 'Календарь на сегодня можно спросить в чате.',
+    'calendar_not_connected' => 'Календарь не подключен. События дня можно спросить в чате.',
+    'calendar_empty' => 'На сегодня в календаре нет событий.',
+    'calendar_unavailable' => 'Календарь сейчас недоступен.',
+    'summary_empty' => 'На сегодня нет срочных пунктов. Можно спросить LAVR, что главное.',
+    'summary_prefix' => 'В фокусе: :parts.',
+    'part_tasks' => ':count задач',
+    'part_reminders' => ':count напоминаний',
+    'part_notifications' => ':count уведомлений',
+    'part_events' => ':count в календаре',
+];

@@ -17,6 +17,7 @@ import ConversationDeleteDialog from '@/personal-workspace/ConversationDeleteDia
 import ConversationSidebarItem from '@/personal-workspace/ConversationSidebarItem';
 import WorkspaceSettings from '@/personal-workspace/settings/WorkspaceSettings';
 import { allowedSettingsSection } from '@/personal-workspace/settings/sections';
+import { useTranslation } from '@/locales/useTranslation';
 import { primeVoiceMediaFromUserGesture } from '@/voice/audio/voiceMedia';
 import { Link, router, usePage } from '@inertiajs/react';
 import {
@@ -234,6 +235,7 @@ export default function PersonalWorkspace() {
         activeReportCount: activeReportCountProp = 0,
         unreadNotificationCount: unreadNotificationCountProp = 0,
     } = usePage().props;
+    const { t } = useTranslation();
     const surface = surfaceProp === 'chat' ? 'chat' : 'jarvis';
     const capabilities = {
         voice: false,
@@ -1236,10 +1238,10 @@ export default function PersonalWorkspace() {
                         type="button"
                         onClick={() => setOverviewOpen(true)}
                         className="relative inline-flex items-center gap-2 rounded-lg p-2 text-slate-300 hover:bg-white/10 sm:px-3"
-                        aria-label="Обзор"
+                        aria-label={t('chat.overview')}
                     >
                         <LayoutDashboard className="h-4 w-4" />
-                        <span className="hidden text-xs font-medium sm:inline">Обзор</span>
+                        <span className="hidden text-xs font-medium sm:inline">{t('chat.overview')}</span>
                     </button>
                 ) : null}
                 {capabilities.tasks ? (
@@ -1247,10 +1249,10 @@ export default function PersonalWorkspace() {
                         type="button"
                         onClick={() => setTasksOpen(true)}
                         className="relative inline-flex items-center gap-2 rounded-lg p-2 text-slate-300 hover:bg-white/10 sm:px-3"
-                        aria-label="Задачи"
+                        aria-label={t('chat.tasks')}
                     >
                         <CheckSquare className="h-4 w-4" />
-                        <span className="hidden text-xs font-medium sm:inline">Задачи</span>
+                        <span className="hidden text-xs font-medium sm:inline">{t('chat.tasks')}</span>
                         {activeTaskCount > 0 ? (
                             <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-4 text-white">
                                 {activeTaskCount > 99 ? '99+' : activeTaskCount}
@@ -1263,10 +1265,10 @@ export default function PersonalWorkspace() {
                         type="button"
                         onClick={() => setWatchersOpen(true)}
                         className="relative inline-flex items-center gap-2 rounded-lg p-2 text-slate-300 hover:bg-white/10 sm:px-3"
-                        aria-label="Автоматизации"
+                        aria-label={t('chat.automations')}
                     >
                         <Eye className="h-4 w-4" />
-                        <span className="hidden text-xs font-medium sm:inline">Автоматизации</span>
+                        <span className="hidden text-xs font-medium sm:inline">{t('chat.automations')}</span>
                         {activeWatcherCount > 0 ? (
                             <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-violet-500 px-1 text-[10px] font-semibold leading-4 text-white">
                                 {activeWatcherCount > 99 ? '99+' : activeWatcherCount}
@@ -1279,10 +1281,10 @@ export default function PersonalWorkspace() {
                         type="button"
                         onClick={() => setReportsOpen(true)}
                         className="relative inline-flex items-center gap-2 rounded-lg p-2 text-slate-300 hover:bg-white/10 sm:px-3"
-                        aria-label="Отчеты"
+                        aria-label={t('chat.reports')}
                     >
                         <FileText className="h-4 w-4" />
-                        <span className="hidden text-xs font-medium sm:inline">Отчеты</span>
+                        <span className="hidden text-xs font-medium sm:inline">{t('chat.reports')}</span>
                         {activeReportCount > 0 ? (
                             <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-emerald-500 px-1 text-[10px] font-semibold leading-4 text-white">
                                 {activeReportCount > 99 ? '99+' : activeReportCount}
@@ -1295,10 +1297,10 @@ export default function PersonalWorkspace() {
                         type="button"
                         onClick={() => setRemindersOpen(true)}
                         className="relative inline-flex items-center gap-2 rounded-lg p-2 text-slate-300 hover:bg-white/10 sm:px-3"
-                        aria-label="Напоминания"
+                        aria-label={t('chat.reminders')}
                     >
                         <Bell className="h-4 w-4" />
-                        <span className="hidden text-xs font-medium sm:inline">Напоминания</span>
+                        <span className="hidden text-xs font-medium sm:inline">{t('chat.reminders')}</span>
                         {activeReminderCount > 0 ? (
                             <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-sky-500 px-1 text-[10px] font-semibold leading-4 text-white">
                                 {activeReminderCount > 99 ? '99+' : activeReminderCount}
@@ -1311,10 +1313,10 @@ export default function PersonalWorkspace() {
                         type="button"
                         onClick={() => setNotificationsOpen(true)}
                         className="relative inline-flex items-center gap-2 rounded-lg p-2 text-slate-300 hover:bg-white/10 sm:px-3"
-                        aria-label="Уведомления"
+                        aria-label={t('chat.notifications')}
                     >
                         <Inbox className="h-4 w-4" />
-                        <span className="hidden text-xs font-medium sm:inline">Уведомления</span>
+                        <span className="hidden text-xs font-medium sm:inline">{t('chat.notifications')}</span>
                         {unreadNotificationCount > 0 ? (
                             <span className="absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-rose-500 px-1 text-[10px] font-semibold leading-4 text-white">
                                 {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
@@ -1326,10 +1328,10 @@ export default function PersonalWorkspace() {
                     type="button"
                     onClick={() => openSettings()}
                     className="inline-flex items-center gap-2 rounded-lg p-2 text-slate-300 hover:bg-white/10 sm:px-3"
-                    aria-label="Настройки"
+                    aria-label={t('chat.settings')}
                 >
                     <Settings2 className="h-4 w-4" />
-                    <span className="hidden text-xs font-medium sm:inline">Настройки</span>
+                    <span className="hidden text-xs font-medium sm:inline">{t('chat.settings')}</span>
                 </button>
                 {capabilities.ownerContext ? (
                     <button
@@ -1357,7 +1359,7 @@ export default function PersonalWorkspace() {
             <div className="flex items-center justify-between px-4 py-4">
                 <div>
                     <p className="text-sm font-semibold text-white">{workspaceTitle}</p>
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Workspace</p>
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t('common.workspace')}</p>
                 </div>
                 <button
                     type="button"
@@ -1375,7 +1377,7 @@ export default function PersonalWorkspace() {
                     className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-sky-500/90 px-3 text-sm font-semibold text-white hover:bg-sky-400"
                 >
                     <MessageSquarePlus className="h-4 w-4" />
-                    New Chat
+                    {t('chat.newChat')}
                 </button>
                 {showOnboarding ? (
                     <div className="mt-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
@@ -1407,7 +1409,7 @@ export default function PersonalWorkspace() {
                         className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-3 text-sm font-semibold text-slate-200 hover:bg-white/5"
                     >
                         <HardDrive className="h-4 w-4" />
-                        Storage
+                        {t('chat.storage')}
                     </Link>
                 ) : null}
                 <label className="mt-3 flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
@@ -1417,7 +1419,7 @@ export default function PersonalWorkspace() {
                         name="chat-search"
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}
-                        placeholder="Search chats"
+                        placeholder={t('chat.searchChats')}
                         className="w-full bg-transparent text-sm text-slate-200 outline-none placeholder:text-slate-600"
                         aria-label="Search conversations"
                         autoComplete="off"
@@ -1428,7 +1430,7 @@ export default function PersonalWorkspace() {
             </div>
             <nav className="mt-3 min-h-0 flex-1 overflow-y-auto px-2 pb-3">
                 {filteredConversations.length === 0 ? (
-                    <p className="px-3 py-6 text-sm text-slate-500">No chats.</p>
+                    <p className="px-3 py-6 text-sm text-slate-500">{t('chat.noChats')}</p>
                 ) : (
                     <ul className="space-y-1">
                         {filteredConversations.map((item) => (
@@ -1461,7 +1463,7 @@ export default function PersonalWorkspace() {
     const contextPanel = (
         <div className="flex h-full min-h-0 flex-col">
             <div className="flex items-center justify-between px-4 py-4">
-                <p className="text-sm font-semibold text-white">Context</p>
+                <p className="text-sm font-semibold text-white">{t('chat.context')}</p>
                 <button
                     type="button"
                     className="rounded-lg p-2 text-slate-400 hover:bg-white/10 xl:hidden"
@@ -1476,14 +1478,14 @@ export default function PersonalWorkspace() {
                     <div className="mb-2 flex items-center justify-between">
                         <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
                             <FolderKanban className="h-3.5 w-3.5" />
-                            Projects
+                            {t('projects.title')}
                         </h2>
                         <Link href={route('projects.index')} className="text-[11px] text-sky-300 hover:text-sky-200">
                             Admin
                         </Link>
                     </div>
                     {projects.length === 0 ? (
-                        <p className="text-xs text-slate-500">No active projects.</p>
+                        <p className="text-xs text-slate-500">{t('chat.noProjects')}</p>
                     ) : (
                         <ul className="space-y-1.5">
                             {projects.map((project) => (
@@ -1571,7 +1573,7 @@ export default function PersonalWorkspace() {
 
                             {empty ? (
                                 <div className="flex h-full flex-col items-center justify-center gap-6">
-                                    <p className="text-2xl font-medium tracking-tight text-white">Чем займёмся?</p>
+                                    <p className="text-2xl font-medium tracking-tight text-white">{t('chat.emptyTitle')}</p>
                                     {showOnboarding && onboardingStatus !== 'completed' ? (
                                         <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center">
                                             <p className="text-sm text-slate-300">{onboardingLabel}</p>
@@ -1695,7 +1697,7 @@ export default function PersonalWorkspace() {
                                         ref={composerRef}
                                         value={draft}
                                         rows={1}
-                                        placeholder="Сообщение, файл или Ctrl+V для скрина"
+                                        placeholder={t('chat.placeholder')}
                                         onChange={(event) => setDraft(event.target.value)}
                                         onPaste={handleClipboardPaste}
                                         onKeyDown={(event) => {
