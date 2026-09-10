@@ -14,6 +14,7 @@ use App\Services\Ai\AiConfigurationResolver;
 use App\Services\Ai\Contracts\AiChatGateway;
 use App\Services\Ai\DTO\AiChatMessage;
 use App\Services\Ai\DTO\AiChatRequest;
+use App\Services\Commitments\CommitmentPromotionService;
 use App\Services\Meetings\Exceptions\MeetingIntelligenceException;
 use App\Services\Memory\StructuredJsonParser;
 use Illuminate\Support\Facades\Log;
@@ -28,6 +29,7 @@ final class MeetingIntelligencePipeline
         private readonly MeetingIntelligenceValidator $validator,
         private readonly MeetingIntelligenceMerger $merger,
         private readonly MeetingIntelligencePrompt $prompts,
+        private readonly CommitmentPromotionService $commitments,
     ) {}
 
     public function analyze(User $user, Meeting $meeting, ?MeetingArtifact $artifact = null): MeetingAnalysis
@@ -118,6 +120,16 @@ final class MeetingIntelligencePipeline
                 'chunk_count' => count($chunks),
                 'checksum' => $artifact->checksum_sha256,
             ]);
+
+            try {
+                $this->commitments->promoteFromMeetingAnalysis($user, $meeting, $analysis, true);
+            } catch (Throwable $exception) {
+                Log::warning('commitment promotion after meeting analysis failed', [
+                    'meeting_id' => $meeting->id,
+                    'analysis_id' => $analysis->id,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
 
             return $analysis->fresh() ?? $analysis;
         } catch (Throwable $exception) {

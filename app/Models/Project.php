@@ -94,6 +94,11 @@ class Project extends Model
         return $this->hasMany(Meeting::class);
     }
 
+    public function commitments(): HasMany
+    {
+        return $this->hasMany(Commitment::class);
+    }
+
     public function sourceBindings(): HasMany
     {
         return $this->hasMany(ProjectSourceBinding::class);

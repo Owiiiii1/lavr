@@ -153,7 +153,17 @@ export default function MeetingShow() {
 
                 <Items title="Decisions" items={result.decisions || []} render={(item) => <li key={item.text}><p>{item.text}</p><Evidence evidence={item.evidence} /></li>} />
                 <Items title="Action items" items={result.action_items || []} render={(item) => <li key={item.task}><p>{item.owner ? `${item.owner}: ` : ''}{item.task}</p><Evidence evidence={item.evidence} /></li>} />
-                <Items title="Commitments detected" items={result.commitments_detected || []} render={(item) => <li key={item.action}><p>{item.person_name || item.person_ref || '—'}: {item.action}</p><Evidence evidence={item.evidence} /></li>} />
+                <Items title="Commitments detected" items={meeting.commitment_items || result.commitments_detected || []} render={(item) => (
+                    <li key={item.index ?? item.action}>
+                        <p>{item.person_name || item.person_ref || '—'}: {item.action}</p>
+                        {item.promoted && item.commitment_id ? (
+                            <Link href={route('commitments.show', item.commitment_id)} className="text-xs text-indigo-700">Open commitment</Link>
+                        ) : (
+                            <button type="button" className="mt-1 h-8 rounded border px-2 text-xs" onClick={() => router.post(route('meetings.commitments.promote', meeting.id), { index: item.index })}>Promote</button>
+                        )}
+                        <Evidence evidence={item.evidence} />
+                    </li>
+                )} />
                 <Items title="Deadlines" items={result.deadlines || []} render={(item) => <li key={item.text}><p>{item.text} {item.deadline_at || item.deadline_raw || ''}</p><Evidence evidence={item.evidence} /></li>} />
                 <Items title="Open questions" items={result.open_questions || []} render={(item) => <li key={item.text}>{item.text}</li>} />
                 <Items title="Risks" items={result.risks || []} render={(item) => <li key={item.text}>{item.text}</li>} />

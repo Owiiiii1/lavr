@@ -6,6 +6,9 @@ use App\Enums\ConversationKind;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\ChannelIdentity;
+use App\Models\Commitment;
+use App\Models\CommitmentEvidence;
+use App\Models\CommitmentStatusHistory;
 use App\Models\Conversation;
 use App\Models\ConversationSummary;
 use App\Models\DirectoryRelationship;
@@ -174,6 +177,13 @@ trait CleansTemporaryJarvisRecords
             MeetingParticipant::query()->whereIn('meeting_id', $meetingIds)->delete();
             Meeting::query()->where('user_id', $user->id)->delete();
             Storage::disk((string) config('meetings.disk', 'local'))->deleteDirectory('meetings/'.$user->id);
+        }
+        if (Schema::hasTable('commitment_evidence') && Schema::hasTable('commitments')) {
+            $commitmentIds = Commitment::query()->where('user_id', $user->id)->pluck('id');
+            CommitmentEvidence::query()->whereIn('commitment_id', $commitmentIds)->delete();
+            CommitmentStatusHistory::query()->whereIn('commitment_id', $commitmentIds)->delete();
+            Commitment::query()->where('user_id', $user->id)->update(['merged_into_id' => null]);
+            Commitment::query()->where('user_id', $user->id)->delete();
         }
         if (Schema::hasTable('employee_profiles') && Schema::hasTable('people')) {
             EmployeeProfile::query()

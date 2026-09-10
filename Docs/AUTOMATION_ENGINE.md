@@ -60,7 +60,7 @@ ADR-277, ADR-278.
 | **Watcher** | **Condition** in the future: «жди письмо…» | `watchers` | Same, hardened |
 | **Scheduled Report** | Periodic **composed digest** at clock time | `scheduled_reports` | Same + Executive Brief type |
 | **Event rule** | On operational event → automation | Partial (watcher poll + knowledge events + proactive heuristics) | First-class [EVENT_MODEL.md](EVENT_MODEL.md) |
-| **Follow-up** | Commitment / waiting tracking | Proactive suggestions | Policy-gated, commitment-linked |
+| **Follow-up** | Commitment / waiting tracking | In-app commitment notifications + `commitments:refresh-statuses`; Knowledge fallback remains | Policy-gated, commitment-linked (Phase 7/11) |
 
 Routing already exists in tools (`CreateReminderTool`, `CreateWatcherTool`, `ScheduledReportIntent`) and must stay strict. Leftover: Gmail digest watchers can still be shaped when report intent does not match (`WatcherDigestRequest`). **Target:** periodic mail digest is only a Scheduled Report.
 
@@ -76,6 +76,7 @@ Routing already exists in tools (`CreateReminderTool`, `CreateWatcherTool`, `Sch
 | `jarvis:reports:dispatch` | 5 min | Scheduled reports |
 | `jarvis:briefs:dispatch` | 1 min | Opt-in productivity briefs |
 | `jarvis:proactive:dispatch` | 5 min | Heuristic suggestions |
+| `commitments:refresh-statuses` | 15 min | Deterministic `due_soon` / `overdue`; notifies once per status transition |
 
 Scheduled report compose: collect → deterministic RU sections → optional AI phrase → skip AI if empty / phrasing incomplete / not substantial → deliver. Live bugs (truncated AI, subject lists, calendar DI) were patched; see [CURRENT_STATE.md](CURRENT_STATE.md). This is **not** yet the full COLLECT → VALIDATE → RENDER → DELIVER contract below.
 

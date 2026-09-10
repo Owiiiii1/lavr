@@ -44,6 +44,10 @@ Schedule::command('jarvis:reliability:recover-stale')
     ->everyFifteenMinutes()
     ->withoutOverlapping(20);
 
+Schedule::command('commitments:refresh-statuses')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping(10);
+
 Schedule::command('queue:work database --queue=analysis,memory,default --stop-when-empty --max-time=50 --tries=3 --timeout=180')
     ->everyMinute()
     ->withoutOverlapping(1);

@@ -9,6 +9,8 @@ use App\Models\MeetingParticipant;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Project;
+use App\Services\Commitments\CommitmentService;
+use App\Services\Commitments\Exceptions\CommitmentException;
 use App\Services\Meetings\Exceptions\MeetingException;
 use App\Services\Meetings\MeetingConfig;
 use App\Services\Meetings\MeetingService;
@@ -23,6 +25,7 @@ class JarvisWorkspaceMeetingsController extends Controller
 {
     public function __construct(
         private readonly MeetingService $meetings,
+        private readonly CommitmentService $commitments,
     ) {}
 
     public function index(Request $request): Response
@@ -87,7 +90,10 @@ class JarvisWorkspaceMeetingsController extends Controller
         $this->authorize('view', $meeting);
 
         return Inertia::render('Jarvis/MeetingShow', [
-            'meeting' => $this->meetings->serialize($meeting),
+            'meeting' => [
+                ...$this->meetings->serialize($meeting),
+                'commitment_items' => $this->commitments->meetingItems($request->user(), $meeting),
+            ],
             'projects' => Project::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
             'organizations' => Organization::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
             'people' => Person::query()->where('user_id', $request->user()->id)->orderBy('display_name')->get(['id', 'display_name']),
@@ -210,5 +216,23 @@ class JarvisWorkspaceMeetingsController extends Controller
         $this->authorize('view', $meeting);
 
         return $this->meetings->downloadArtifact($request->user(), $meeting, $artifact);
+    }
+
+    public function promoteCommitment(Request $request, Meeting $meeting): RedirectResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('update', $meeting);
+        $validated = $request->validate(['index' => ['required', 'integer', 'min:0']]);
+
+        try {
+            $this->commitments->promoteMeetingItem($request->user(), $meeting, (int) $validated['index']);
+        } catch (CommitmentException $exception) {
+            return back()->withErrors(['commitment' => $exception->error]);
+        }
+
+        return back();
     }
 }

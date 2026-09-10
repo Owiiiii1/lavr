@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Jarvis;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\Projects\ProjectService;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class JarvisWorkspaceProjectsController extends Controller
     public function __construct(
         private readonly ProjectService $projects,
         private readonly DirectoryService $directory,
+        private readonly CommitmentService $commitments,
     ) {}
 
     public function index(Request $request): Response
@@ -61,6 +63,10 @@ class JarvisWorkspaceProjectsController extends Controller
                     'display_name' => $project->ownerPerson->display_name,
                 ] : null,
             ],
+            'commitments' => $this->commitments->forProject($request->user(), $project)
+                ->map(fn ($commitment): array => $this->commitments->serializeSummary($commitment))
+                ->values()
+                ->all(),
             'admin_href' => route('projects.show', $project),
         ]);
     }

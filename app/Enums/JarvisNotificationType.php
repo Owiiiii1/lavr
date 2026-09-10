@@ -12,4 +12,8 @@ enum JarvisNotificationType: string
     case WatcherTriggered = 'watcher_triggered';
     case ScheduledReportReady = 'scheduled_report_ready';
     case MeetingAnalyzed = 'meeting_analyzed';
+    case CommitmentOpened = 'commitment_opened';
+    case CommitmentDueSoon = 'commitment_due_soon';
+    case CommitmentOverdue = 'commitment_overdue';
+    case CommitmentLikelyDone = 'commitment_likely_done';
 }

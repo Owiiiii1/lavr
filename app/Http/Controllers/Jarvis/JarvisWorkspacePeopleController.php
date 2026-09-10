@@ -6,6 +6,7 @@ use App\Enums\PersonRoleCode;
 use App\Http\Controllers\Controller;
 use App\Models\Person;
 use App\Models\Project;
+use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,6 +16,7 @@ class JarvisWorkspacePeopleController extends Controller
 {
     public function __construct(
         private readonly DirectoryService $directory,
+        private readonly CommitmentService $commitments,
     ) {}
 
     public function index(Request $request): Response
@@ -54,6 +56,10 @@ class JarvisWorkspacePeopleController extends Controller
 
         return Inertia::render('Jarvis/PersonShow', [
             'person' => $this->directory->serializePerson($person),
+            'commitments' => $this->commitments->forPerson($request->user(), $person)
+                ->map(fn ($commitment): array => $this->commitments->serializeSummary($commitment))
+                ->values()
+                ->all(),
         ]);
     }
 }

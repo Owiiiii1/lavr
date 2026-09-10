@@ -40,7 +40,7 @@ Additive `knowledge_entities.canonical_type` + `canonical_id`. Legacy Knowledge 
 
 ### AI reads
 
-Tools: `find_person`, `get_person`, `list_people`, `find_organization`, `get_organization`, `find_project`, `get_project`. `get_person_status` prefers canonical Person, then Knowledge.
+Tools: `find_person`, `get_person`, `list_people`, `find_organization`, `get_organization`, `find_project`, `get_project`. `get_person_status` prefers canonical Person, then first-class commitments, projects, recent meetings, then Knowledge.
 
 AI does **not** silently create People/Organizations/Projects from chat.
 
@@ -49,10 +49,10 @@ AI does **not** silently create People/Organizations/Projects from chat.
 - Admin: `/people`, `/organizations` (custom admin kit)
 - Workspace: `/lavr/people`, `/lavr/people/{person}`, `/lavr/organizations`, `/lavr/organizations/{organization}`, `/lavr/search`
 
-Meetings / Commitments on person cards are labeled as later phases.
+Person cards show first-class commitments (active, overdue, recently confirmed). Unresolved meeting names are not auto-created People.
 
 ---
 
 ## TARGET (later)
 
-Meetings and Commitments as first-class rows (Phases 5–6). Richer merge UI. Automatic entity suggestions from mail/meetings.
+Richer Person merge UI. Automatic entity suggestions from mail/meetings. Email/Telegram identity linking for commitment promotion.

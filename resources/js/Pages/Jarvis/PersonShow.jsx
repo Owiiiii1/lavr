@@ -2,7 +2,7 @@ import LavrAppShell from '@/telegram/LavrAppShell';
 import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link } from '@inertiajs/react';
 
-export default function PersonShow({ person }) {
+export default function PersonShow({ person, commitments = [] }) {
     const { t } = useTranslation();
 
     return (
@@ -85,7 +85,19 @@ export default function PersonShow({ person }) {
                     <p className="text-slate-500">{t('people.phasePlaceholder', { phase: '5A' })}</p>
                 </Section>
                 <Section title={t('people.commitments')}>
-                    <p className="text-slate-500">{t('people.phasePlaceholder', { phase: '6' })}</p>
+                    {(commitments || []).length === 0 ? (
+                        <p className="text-slate-500">{t('commitments.empty')}</p>
+                    ) : (
+                        <ul className="space-y-2">
+                            {commitments.map((item) => (
+                                <li key={item.id}>
+                                    <Link href={`/lavr/commitments/${item.id}`} className="text-sky-300">
+                                        {item.title} · {item.status}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </Section>
                 <Section title={t('people.activity')}>
                     <p className="text-slate-500">{t('people.comingLater')}</p>

@@ -31,7 +31,7 @@ class TelegramWebAppNavigationTest extends TestCase
         $this->actingAs($owner)->get('/lavr/notifications')->assertOk()->assertSee('Jarvis\\/Notifications', false);
         $this->actingAs($owner)->get('/lavr/reports')->assertOk()->assertSee('Jarvis\\/Reports', false);
         $this->actingAs($owner)->get('/lavr/meetings')->assertOk()->assertSee('Jarvis\\/Meetings', false);
-        $this->actingAs($owner)->get('/lavr/commitments')->assertOk()->assertSee('Jarvis\\/ComingFoundation', false);
+        $this->actingAs($owner)->get('/lavr/commitments')->assertOk()->assertSee('Jarvis\\/Commitments', false);
         $this->actingAs($owner)->get('/lavr')->assertRedirect();
         $this->get('/register')->assertNotFound();
     }

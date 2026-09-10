@@ -15,7 +15,8 @@ First-class Meetings exist (Phase 5A, 2026-09-09).
 | Meeting Intelligence queue (`analysis`) + versioned JSON | **IMPLEMENTED** |
 | Workspace `/lavr/meetings` + Admin `/meetings` | **IMPLEMENTED** |
 | AI read tools `list_meetings` `find_meeting` `get_meeting` `get_meeting_analysis` | **IMPLEMENTED** |
-| First-class `commitments` / `decisions` rows | **NOT** — analysis JSON only |
+| First-class `commitments` from `commitments_detected` | **IMPLEMENTED** (Phase 6; high confidence → `detected`; medium/low stay suggestions) |
+| First-class `decisions` rows | **NOT** — analysis JSON only |
 | Zoom OAuth / webhook / cloud transcript ingest | **IMPLEMENTED / LIVE E2E NOT VALIDATED** |
 | Google Calendar | Live external source (no local event mirror) — ADR-072. Optional `source_external_id` on Meeting; no auto ingest |
 | Knowledge events | Index only — not a Meeting |
@@ -199,7 +200,7 @@ Do **not** auto-create a Person for every name string. Unresolved participants a
 
 ### Commitments
 
-After Phase 6, Zoom is a primary automatic commitment source. Example: transcript line → Person resolution → Commitment + deadline + project + source Meeting → Automation Engine. The CEO must not have to say «поставь Колю на контроль». [COMMITMENTS.md](COMMITMENTS.md).
+Phase 6 **IMPLEMENTED.** High-confidence `commitments_detected` become first-class `detected` rows (source type `meeting`). Medium/low stay suggestions until Owner promote. Re-analysis is idempotent by fingerprint. Zoom-sourced meetings use the same path as manual meetings. Operational commitments are not deleted when a later analysis omits them. [COMMITMENTS.md](COMMITMENTS.md).
 
 ### Leadership Review
 

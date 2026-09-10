@@ -4,11 +4,14 @@ namespace App\Services\Tools\Synthesis;
 
 use App\Enums\SynthesisType;
 use App\Enums\ToolOperationClass;
+use App\Models\Person;
 use App\Services\Ai\DTO\ToolCall;
 use App\Services\Ai\DTO\ToolDefinition;
 use App\Services\Ai\DTO\ToolResult;
+use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\Directory\Exceptions\DirectoryException;
+use App\Services\Meetings\MeetingService;
 use App\Services\Synthesis\CrossSourceSynthesisService;
 use App\Services\Synthesis\DTO\SynthesisScope;
 use App\Services\Synthesis\Exceptions\SynthesisException;
@@ -24,6 +27,8 @@ final class GetPersonStatusTool implements JarvisTool
     public function __construct(
         private readonly CrossSourceSynthesisService $synthesis,
         private readonly DirectoryService $directory,
+        private readonly CommitmentService $commitments,
+        private readonly MeetingService $meetings,
     ) {}
 
     public function name(): string
@@ -35,7 +40,7 @@ final class GetPersonStatusTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Person status from canonical People first (roles, employee profile, projects, organizations), then Knowledge synthesis as fallback. Foreign ids fail.',
+            description: 'Person status: canonical People, then active first-class commitments, projects, recent meetings, then Knowledge fallback. Foreign ids fail.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [
@@ -86,8 +91,30 @@ final class GetPersonStatusTool implements JarvisTool
 
             if (is_array($structured)) {
                 $knowledge = null;
+                $personIdResolved = (int) ($structured['id'] ?? 0);
+                $activeCommitments = [];
+                $recentMeetings = [];
 
-                if ($context->user->canUseCapability(UserCapability::KNOWLEDGE) && ($entityId > 0 || $name !== '')) {
+                if ($personIdResolved > 0 && $context->user->canUseCapability(UserCapability::COMMITMENTS)) {
+                    $person = Person::query()->where('user_id', $context->user->id)->whereKey($personIdResolved)->first();
+                    if ($person !== null) {
+                        $activeCommitments = $this->commitments->forPerson($context->user, $person)
+                            ->map(fn ($commitment): array => $this->commitments->serializeSummary($commitment))
+                            ->values()
+                            ->all();
+                    }
+                }
+
+                if ($personIdResolved > 0 && $context->user->canUseCapability(UserCapability::MEETINGS)) {
+                    $recentMeetings = $this->meetings->list($context->user)
+                        ->filter(fn ($meeting): bool => $meeting->participants->contains(fn ($participant): bool => (int) $participant->person_id === $personIdResolved))
+                        ->take(5)
+                        ->map(fn ($meeting): array => $this->meetings->serializeSummary($meeting))
+                        ->values()
+                        ->all();
+                }
+
+                if ($context->user->canUseCapability(UserCapability::KNOWLEDGE) && ($entityId > 0 || $name !== '') && $activeCommitments === []) {
                     try {
                         $knowledge = $this->synthesis->synthesize(new SynthesisScope(
                             user: $context->user,
@@ -103,6 +130,8 @@ final class GetPersonStatusTool implements JarvisTool
                 return ToolResult::success($call->id, $this->name(), [
                     'success' => true,
                     ...$structured,
+                    'commitments' => $activeCommitments,
+                    'recent_meetings' => $recentMeetings,
                     'knowledge' => $knowledge,
                 ]);
             }

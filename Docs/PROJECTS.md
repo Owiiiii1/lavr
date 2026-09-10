@@ -27,7 +27,7 @@ Tools: `get_project_context` (attached material + bounded group knowledge), `fin
 
 Projects are **not** automatically classified from messages. Attach is explicit (Admin / tools). AI does not silently create projects.
 
-Meetings, Commitments, and Decisions are **not** first-class yet.
+Meetings bind via `meetings.project_id`. Commitments bind via `commitments.project_id` (inherited from the meeting when already set). Decisions are **not** first-class yet.
 
 Implementation notes from origin JARVIS: [DATABASE.md](DATABASE.md). Do not treat “Owner-only capability vs ordinary users” as a LAVR product rule — LAVR is single-client.
 

@@ -86,6 +86,31 @@ export default function Today({ today }) {
                         </Card>
                     </SectionGuard>
 
+                    <SectionGuard title={t('today.commitments')} fallback={fallback}>
+                        <Card title={t('today.commitments')}>
+                            {(today?.commitments || []).length === 0 ? (
+                                <Empty text={t('today.noCommitments')} />
+                            ) : (
+                                <ul className="space-y-2">
+                                    {(today.commitments || []).map((item) => (
+                                        <li key={`c-${item.id}`}>
+                                            <Link href={item.href || `/lavr/commitments/${item.id}`} className="block rounded-xl bg-black/20 px-3 py-2">
+                                                <p className="text-sm text-white">{item.title}</p>
+                                                <p className="text-xs text-slate-400">
+                                                    {item.status}
+                                                    {item.person?.display_name ? ` · ${item.person.display_name}` : ''}
+                                                </p>
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            <Link href="/lavr/commitments" className="mt-3 inline-flex min-h-11 items-center text-sm text-sky-300">
+                                {t('today.allCommitments')}
+                            </Link>
+                        </Card>
+                    </SectionGuard>
+
                     <SectionGuard title={t('today.calendar')} fallback={fallback}>
                         <Card title={t('today.calendar')}>
                             {today?.calendar_error ? (

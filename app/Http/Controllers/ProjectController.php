@@ -11,6 +11,7 @@ use App\Models\Person;
 use App\Models\Project;
 use App\Models\TelegramGroup;
 use App\Models\Topic;
+use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\Directory\Exceptions\DirectoryException;
 use App\Services\Projects\Exceptions\ProjectException;
@@ -25,6 +26,7 @@ class ProjectController extends Controller
     public function __construct(
         private readonly ProjectService $projects,
         private readonly DirectoryService $directory,
+        private readonly CommitmentService $commitments,
     ) {}
 
     public function index(Request $request): Response
@@ -138,6 +140,10 @@ class ProjectController extends Controller
                     'role' => $organization->pivot->role ?? null,
                 ])->all(),
             ],
+            'commitments' => $this->commitments->forProject($request->user(), $project)
+                ->map(fn ($commitment): array => $this->commitments->serializeSummary($commitment))
+                ->values()
+                ->all(),
             'availableConversations' => Conversation::query()
                 ->where('user_id', $user->id)
                 ->where('kind', ConversationKind::Personal)

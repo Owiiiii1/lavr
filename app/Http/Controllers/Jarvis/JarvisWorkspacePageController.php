@@ -19,20 +19,4 @@ class JarvisWorkspacePageController extends Controller
     {
         return Inertia::render('Jarvis/More');
     }
-
-    public function meetings(): Response
-    {
-        return Inertia::render('Jarvis/ComingFoundation', [
-            'kind' => 'meetings',
-            'phase' => '5A',
-        ]);
-    }
-
-    public function commitments(): Response
-    {
-        return Inertia::render('Jarvis/ComingFoundation', [
-            'kind' => 'commitments',
-            'phase' => '6',
-        ]);
-    }
 }

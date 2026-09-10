@@ -22,7 +22,7 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | Telegram DM | Bot webhook `/telegram/webhook` | Fast chat, pairing via `access_code`, optional voice in/out |
 | Zoom | `POST /webhooks/zoom` | Cloud transcript ingest (Phase 5B; live E2E not validated) |
 | Telegram Groups | Same bot | Source / analysis; not the CEO’s personal UI |
-| Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice + People / Organizations / Projects / Meetings |
+| Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice + People / Organizations / Projects / Meetings / Commitments |
 | Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED (needs token + pairing) |
 | Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/people`, `/organizations`, `/telegram-groups`, …) | Technical management |
 | Legacy paths | `GET /jarvis`, `GET /chat` | Redirect to `/lavr` |
@@ -65,11 +65,13 @@ Intended analogue of a mobile app inside Telegram.
 
 **Phase 3A CURRENT:** Mini App entry `/telegram/webapp`, server-side HMAC validation of `initData`, Owner-only session, shared Workspace (`/lavr/*`) with mobile bottom nav and Today.
 
-**Phase 4 CURRENT:** Workspace People (`/lavr/people`), Person detail, Organizations (`/lavr/organizations`), Projects as business contexts with structured people/orgs. Meetings / Commitments remain honest placeholders.
+**Phase 4 CURRENT:** Workspace People (`/lavr/people`), Person detail, Organizations (`/lavr/organizations`), Projects as business contexts with structured people/orgs.
+
+**Phase 5–6 CURRENT:** Meetings (`/lavr/meetings`) and Commitments (`/lavr/commitments`) are first-class Workspace/Admin UI, not placeholders.
 
 **Phase 3B CURRENT:** Today/Chat/nav/theme/keyboard/safe-area UX; Notifications and Reports from More; allowlisted deep links; Open in LAVR on reminder and scheduled-report Telegram messages only. Menu Button artisan command is ready and **not run** until the existing bot token is in MySQL.
 
-**Still TARGET / NOT VALIDATED:** Meetings/Commitments operational UI from later phases; Menu Button and real-client E2E until the existing bot token + Owner pairing are present.
+**Still TARGET / NOT VALIDATED:** Menu Button and real-client E2E until the existing bot token + Owner pairing are present. Owner live commitments workflow is **IMPLEMENTED / NOT VALIDATED**.
 
 Preferred architecture (unchanged): do **not** create a separate frontend. Reuse the responsive LAVR Workspace (`resources/js/personal-workspace/…`) so it opens:
 
@@ -115,7 +117,7 @@ The CEO must not be required to use Admin for normal work.
 Admin remains necessary for:
 
 - manual data correction;
-- People, Organizations, Projects, Meetings (CURRENT); Commitments, Tasks (when those tables exist / Tasks already exist);
+- People, Organizations, Projects, Meetings, Commitments, Tasks (Tasks already exist);
 - confirming Meeting project binding and unresolved Zoom/manual participants;
 - Sources, Integrations, Watchers, Scheduled Reports;
 - system settings, diagnostics, AI prompts/configuration;

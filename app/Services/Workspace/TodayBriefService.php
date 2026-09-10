@@ -4,6 +4,7 @@ namespace App\Services\Workspace;
 
 use App\Enums\OwnerLocale;
 use App\Models\User;
+use App\Services\Commitments\CommitmentService;
 use App\Services\Integrations\Google\GoogleCalendarService;
 use App\Services\Integrations\IntegrationAccountService;
 use App\Services\Locale\OwnerLocaleResolver;
@@ -25,10 +26,11 @@ final class TodayBriefService
         private readonly IntegrationAccountService $accounts,
         private readonly GoogleCalendarService $calendar,
         private readonly OwnerLocaleResolver $locales,
+        private readonly CommitmentService $commitments,
     ) {}
 
     /**
-     * Attention-reduced Today payload from existing domains (no People/Commitments/Meetings).
+     * Attention-reduced Today payload from existing domains plus commitment deadlines.
      *
      * @return array<string, mixed>
      */
@@ -42,6 +44,7 @@ final class TodayBriefService
         $inbox = $this->safeInbox($user);
         $reportPanel = $this->safeReportPanel($user);
         $calendar = $this->safeCalendar($user, $now, $locale);
+        $commitments = $this->safeCommitments($user);
 
         $dueTasks = array_slice(array_merge(
             $taskPanel['overdue'] ?? [],
@@ -67,6 +70,7 @@ final class TodayBriefService
             'calendar' => $calendar['events'],
             'calendar_hint' => $calendar['hint'],
             'calendar_error' => $calendar['error'],
+            'commitments' => $commitments,
             'ask_href' => '/lavr',
         ];
     }
@@ -104,6 +108,25 @@ final class TodayBriefService
             return $this->notifications->panelFor($user, true);
         } catch (\Throwable) {
             return ['unread_count' => 0, 'items' => []];
+        }
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function safeCommitments(User $user): array
+    {
+        try {
+            if (! $user->canUseCapability(UserCapability::COMMITMENTS)) {
+                return [];
+            }
+
+            return array_map(
+                fn ($commitment): array => $this->commitments->serializeSummary($commitment),
+                $this->commitments->attentionForToday($user),
+            );
+        } catch (\Throwable) {
+            return [];
         }
     }
 

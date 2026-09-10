@@ -24,7 +24,6 @@ use App\Services\Projects\ProjectService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\Support\CleansTemporaryJarvisRecords;
@@ -138,8 +137,11 @@ SRT;
             $this->assertNotNull($meeting);
             $this->assertSame(MeetingAnalysisStatus::Completed, $meeting->fresh()->analysis_status);
             $this->assertNotNull($meeting->fresh()->current_analysis_id);
-            $this->assertFalse(Schema::hasTable('commitments'));
             $this->assertSame(0, DB::table('tasks')->where('user_id', $user->id)->count());
+            $promoted = DB::table('commitments')->where('user_id', $user->id)->get();
+            foreach ($promoted as $row) {
+                $this->assertSame('detected', $row->lifecycle_status);
+            }
 
             $service = app(MeetingService::class);
             $firstCount = $meeting->artifacts()->count();

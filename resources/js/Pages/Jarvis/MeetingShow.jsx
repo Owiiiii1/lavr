@@ -122,8 +122,17 @@ export default function MeetingShow() {
                 </Block>
                 <Block title={t('meetings.commitments')}>
                     <ul className="space-y-2">
-                        {(result.commitments_detected || []).map((item) => (
-                            <li key={item.action}>{(item.person_name || item.person_ref || '—') + ': ' + item.action}</li>
+                        {(meeting.commitment_items || result.commitments_detected || []).map((item) => (
+                            <li key={item.index ?? item.action} className="rounded-xl bg-black/20 px-3 py-2">
+                                <p>{(item.person_name || item.person_ref || '—') + ': ' + (item.action || '')}</p>
+                                {item.promoted && item.commitment_id ? (
+                                    <Link href={`/lavr/commitments/${item.commitment_id}`} className="text-xs text-sky-300">{t('meetings.openCommitment')}</Link>
+                                ) : (
+                                    <button type="button" className="mt-2 min-h-11 rounded-2xl border border-white/10 px-3 text-xs" onClick={() => router.post(route('jarvis.meetings.commitments.promote', meeting.id), { index: item.index })}>
+                                        {t('meetings.promote')}
+                                    </button>
+                                )}
+                            </li>
                         ))}
                     </ul>
                     <p className="mt-2 text-xs text-slate-500">{t('meetings.commitmentsHint')}</p>

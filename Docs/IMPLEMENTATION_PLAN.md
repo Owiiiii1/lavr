@@ -20,6 +20,10 @@ Vertical slices. Prefer shipping a thin path through UI + data + one CEO questio
 | LAVR Phase 3A | Telegram WebApp foundation: initData auth, shared Workspace shell, Today, bottom nav, placeholders |
 | LAVR Phase 3B | Telegram WebApp UX: Today/Chat/nav/theme/deep-link helpers; real Mini App E2E still blocked on empty bot settings |
 | LAVR Phase 3C | Ukrainian-first localization: `uk` default, `en`/`ru` supported, UI locale ≠ assistant language, WebApp = Web |
+| LAVR Phase 4 | People / Organizations / Projects as business contexts |
+| LAVR Phase 5A | Meetings + manual transcript import |
+| LAVR Phase 5B | Zoom cloud transcript ingest (live E2E NOT VALIDATED) |
+| LAVR Phase 6 | First-class commitments + evidence + Meeting promotion |
 
 Validation of origin flows: [CURRENT_STATE.md](CURRENT_STATE.md), [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
 
@@ -167,6 +171,8 @@ Target: `recording.transcript_completed` webhook → validate → deduplicate �
 **Goal.** First-class commitments, statuses, evidence, auto-extract from meetings/mail, distinct from Tasks.
 
 **Exit.** «Что Коля обещал?» reads `commitments`, not only synthesis over knowledge events.
+
+**IMPLEMENTED** 2026-09-10. Report: [Development/LAVR_PHASE_6_REPORT.md](Development/LAVR_PHASE_6_REPORT.md). Meeting promotion + manual create are CURRENT. Email/Telegram extraction pipelines and Owner live confirmation remain later / NOT VALIDATED. Do not restart this phase.
 
 ---
 

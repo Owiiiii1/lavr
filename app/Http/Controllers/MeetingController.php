@@ -8,6 +8,8 @@ use App\Models\MeetingParticipant;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Project;
+use App\Services\Commitments\CommitmentService;
+use App\Services\Commitments\Exceptions\CommitmentException;
 use App\Services\Meetings\Exceptions\MeetingException;
 use App\Services\Meetings\MeetingConfig;
 use App\Services\Meetings\MeetingService;
@@ -22,6 +24,7 @@ class MeetingController extends Controller
 {
     public function __construct(
         private readonly MeetingService $meetings,
+        private readonly CommitmentService $commitments,
     ) {}
 
     public function index(Request $request): Response
@@ -77,7 +80,10 @@ class MeetingController extends Controller
         $this->authorizeOwned($request, $meeting);
 
         return Inertia::render('Meetings/Show', [
-            'meeting' => $this->meetings->serialize($meeting),
+            'meeting' => [
+                ...$this->meetings->serialize($meeting),
+                'commitment_items' => $this->commitments->meetingItems($request->user(), $meeting),
+            ],
             'projects' => Project::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
             'organizations' => Organization::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
             'people' => Person::query()->where('user_id', $request->user()->id)->orderBy('display_name')->get(['id', 'display_name']),
@@ -196,6 +202,29 @@ class MeetingController extends Controller
         $this->authorizeOwned($request, $meeting);
 
         return $this->meetings->downloadArtifact($request->user(), $meeting, $artifact);
+    }
+
+    public function promoteCommitment(Request $request, Meeting $meeting): RedirectResponse
+    {
+        $this->authorizeOwned($request, $meeting, 'update');
+        $validated = $request->validate(['index' => ['required', 'integer', 'min:0']]);
+
+        try {
+            $commitment = $this->commitments->promoteMeetingItem($request->user(), $meeting, (int) $validated['index']);
+        } catch (CommitmentException $exception) {
+            return back()->withErrors(['commitment' => $this->messageForCommitment($exception)]);
+        }
+
+        return back()->with('promoted_commitment_id', $commitment->id);
+    }
+
+    private function messageForCommitment(CommitmentException $exception): string
+    {
+        return match ($exception->error) {
+            'invalid_item', 'missing_analysis' => 'That suggestion cannot be promoted.',
+            'not_found' => 'Not found.',
+            default => 'Unable to promote the commitment.',
+        };
     }
 
     /**

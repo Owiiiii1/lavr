@@ -13,6 +13,7 @@ use App\Services\Ai\DTO\AiChatMessage;
 use App\Services\Ai\DTO\ToolDefinition;
 use App\Services\Assistant\AssistantProfileService;
 use App\Services\ChatAttachments\ChatAttachmentVisionLoader;
+use App\Services\Commitments\CommitmentToolPrompt;
 use App\Services\Context\ContextBudgetManager;
 use App\Services\Context\ContextSlices;
 use App\Services\ConversationIntelligence\ConversationalPolicyPrompt;
@@ -306,6 +307,10 @@ final class ConversationContextBuilder
 
         if (array_intersect(MeetingToolPrompt::toolNames(), $names) !== []) {
             $lines = array_merge($lines, MeetingToolPrompt::lines());
+        }
+
+        if (array_intersect(CommitmentToolPrompt::toolNames(), $names) !== []) {
+            $lines = array_merge($lines, CommitmentToolPrompt::lines());
         }
 
         if (in_array(GetProjectContextTool::NAME, $names, true)) {

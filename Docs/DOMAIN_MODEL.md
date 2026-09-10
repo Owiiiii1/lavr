@@ -34,6 +34,7 @@ Implemented operational-ish objects (Eloquent models):
 | DirectoryRelationship | Typed P↔O / P↔P / O↔O links (`directory_relationships`) |
 | Project | Owner **business context** (people, organizations, chats, topics, memories, groups, `project_source_bindings`, optional `meetings.project_id`) |
 | Meeting | Canonical `meetings` + `meeting_participants` + `meeting_artifacts` + versioned `meeting_analyses` |
+| Commitment | First-class `commitments` + `commitment_evidence` + `commitment_status_history` |
 | Watcher | Condition monitor |
 | ScheduledReport | Clock-time composite digest |
 | KnowledgeEntity | Includes type `person` / `organization` / `project` — **index**; optional `canonical_type` / `canonical_id` |
@@ -43,9 +44,9 @@ Implemented operational-ish objects (Eloquent models):
 | JarvisNotification | In-app inbox |
 | Memory | Personal memory engine |
 
-**Not in code:** first-class `commitments`, first-class `decisions`, operational `events` table. Calendar events and Knowledge events are not Meetings.
+**Not in code:** first-class `decisions`, operational `events` table. Calendar events and Knowledge events are not Meetings.
 
-`list_commitments` remains **derived**. Meeting `commitments_detected` is analysis JSON only (Phase 5A). `get_person_status` reads canonical People first, then Knowledge. Meeting read tools: `list_meetings`, `find_meeting`, `get_meeting`, `get_meeting_analysis`.
+`list_commitments` reads first-class `commitments` first. Knowledge `CommitmentResolver` is fallback only when that table is empty for the Owner. Meeting `commitments_detected` remains analysis JSON; high-confidence items can be promoted to `detected` rows. `get_person_status`: Person → first-class commitments → projects → recent meetings → Knowledge. Meeting read tools: `list_meetings`, `find_meeting`, `get_meeting`, `get_meeting_analysis`.
 
 ---
 

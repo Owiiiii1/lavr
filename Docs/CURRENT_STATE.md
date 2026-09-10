@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-10 (Phase 5B Zoom cloud transcript ingest; runtime as after Phase 1–5A)  
+**Date:** 2026-09-10 (Phase 6 first-class commitments; runtime as after Phase 1–5B)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -36,12 +36,12 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Role | Personal assistant + knowledge/tasks/watchers/reports | AI Chief of Staff / operational control layer ([PRODUCT.md](PRODUCT.md)) |
 | Primary fast UI | Telegram DM | Telegram Chat (same) |
 | Primary rich UI | Web Workspace `/lavr` + Mini App entry `/telegram/webapp` (same UI) | Telegram WebApp = same Workspace ([INTERFACES.md](INTERFACES.md)) |
-| People | Canonical `people` + roles + identities + `employee_profiles`. Knowledge `person` remains index | Same; Commitments still TARGET |
+| People | Canonical `people` + roles + identities + `employee_profiles`. Knowledge `person` remains index | Same |
 | Organizations | Canonical `organizations` + `directory_relationships` | Same |
-| Projects | Evolved work container: people, organizations, source bindings schema; meetings bind optionally | Full business context (mailboxes, commitments, …) |
+| Projects | Evolved work container: people, organizations, source bindings; meetings and commitments bind optionally | Full business context (mailboxes, …) |
 | Meetings | First-class `meetings` + participants + artifacts + versioned analyses. Manual file/paste import. Zoom cloud transcript ingest when configured. Calendar events / Knowledge events are **not** Meetings | Same |
 | Zoom Integration | Server-to-Server OAuth + `POST /webhooks/zoom` + `ProcessZoomTranscriptJob` → existing Meeting Intelligence. **LIVE ZOOM E2E: NOT VALIDATED** | Same; no bulk historical import yet |
-| Commitments | Derived (`CommitmentResolver`, knowledge events) | First-class `commitments` + evidence |
+| Commitments | First-class `commitments` + evidence; Knowledge `CommitmentResolver` is fallback only when the table is empty | Same; email/Telegram extractors still TARGET |
 | Decisions | Group knowledge / events | First-class `decisions` |
 | Automation | Watchers + scheduled reports + briefs + proactive | Deterministic engine + events + validation ([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md)) |
 | Executive Brief | Scheduled reports + opt-in briefs | Attention-reduced daily/weekly brief |
@@ -97,7 +97,7 @@ Detail: [Development/LAVR_PHASE_1_REPORT.md](Development/LAVR_PHASE_1_REPORT.md)
 | Domain | `lavr.youngfashionshow.com` |
 | Document root | `/var/www/lavr/public` |
 | TLS | Installed (webroot certbot) for this hostname only |
-| Scheduler (app) | `jarvis:reminders:dispatch` 1m; `jarvis:tasks:dispatch` / `jarvis:watchers:dispatch` / `jarvis:reports:dispatch` / `jarvis:proactive:dispatch` 5m; `jarvis:briefs:dispatch` 1m; plus reliability/voice/purge as in `routes/console.php` |
+| Scheduler (app) | `jarvis:reminders:dispatch` 1m; `jarvis:tasks:dispatch` / `jarvis:watchers:dispatch` / `jarvis:reports:dispatch` / `jarvis:proactive:dispatch` 5m; `jarvis:briefs:dispatch` 1m; `commitments:refresh-statuses` 15m; plus reliability/voice/purge as in `routes/console.php` |
 | Telegram queue | host-specific flock worker (deploy crontab) |
 
 Vite production build on deploy (`public/build` gitignored).
@@ -108,9 +108,9 @@ Vite production build on deploy (`public/build` gitignored).
 
 Engine: **MySQL**, database `lavr`. CRM tables dropped historically (M0). App migrations Ran.
 
-**Present:** users, conversations, messages, memories, knowledge_*, tasks, reminders, watchers, scheduled_reports, projects, people, person_roles, person_identities, employee_profiles, organizations, directory_relationships, project_people, project_organizations, project_source_bindings, telegram_groups, integration_accounts, notifications, voice, storage, etc.
+**Present:** users, conversations, messages, memories, knowledge_*, tasks, reminders, watchers, scheduled_reports, projects, people, person_roles, person_identities, employee_profiles, organizations, directory_relationships, project_people, project_organizations, project_source_bindings, meetings, meeting_participants, meeting_artifacts, meeting_analyses, commitments, commitment_evidence, commitment_status_history, telegram_groups, integration_accounts, notifications, voice, storage, etc.
 
-**Absent:** `meetings`, `commitments`, `decisions`, operational `events` bus.
+**Absent:** first-class `decisions`, operational `events` bus.
 
 See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names — code wins).
 
@@ -129,7 +129,9 @@ See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names
 | Admin | `/dashboard`, `/settings/*` | IMPLEMENTED (technical) |
 | Voice | workspace + sessions | Рация MANUAL PASS; Диалог Beta NOT VALIDATED |
 | Storage | `/lavr/storage` | IMPLEMENTED |
-| Projects | `/projects` admin + `/lavr/projects` | IMPLEMENTED (business context: people/orgs; meetings/commitments still TARGET) |
+| Projects | `/projects` admin + `/lavr/projects` | IMPLEMENTED (business context: people/orgs/meetings/commitments) |
+| Meetings | `/meetings` admin + `/lavr/meetings` | IMPLEMENTED (manual + Zoom ingest; live Zoom E2E NOT VALIDATED) |
+| Commitments | `/commitments` admin + `/lavr/commitments` | IMPLEMENTED / Owner live workflow NOT VALIDATED |
 | People | `/people` admin + `/lavr/people` | IMPLEMENTED |
 | Organizations | `/organizations` admin + `/lavr/organizations` | IMPLEMENTED |
 | Telegram Groups | `/telegram-groups` | IMPLEMENTED / NOT VALIDATED as campaign |
@@ -160,7 +162,8 @@ Condensed. Layer docs hold detail.
 | Tasks / Reminders | Separate tables | Core chain MANUAL PASS; briefs/proactive NOT VALIDATED as full product |
 | Watchers | Bounded conditions | MANUAL PASS **internal task watcher**; Gmail/Calendar/GitHub watchers deferred as campaigns |
 | Scheduled Reports | IMPLEMENTED | READY FOR OWNER VALIDATION; 2026-09-09 body bugs **fixed in code** |
-| Synthesis E.3 | Derived FactPack; `list_commitments` etc. | MANUAL PASS tested overview/waiting |
+| Synthesis E.3 | Derived FactPack; `list_commitments` reads first-class first | MANUAL PASS tested overview/waiting; first-class Chat Q&A NOT VALIDATED |
+| Commitments | First-class rows + evidence + Meeting promotion | IMPLEMENTED / NOT VALIDATED (Owner live) |
 | Google Gmail/Calendar | Tools + OAuth | Read/send used live; confirmation UX not MANUAL PASS; no Drive |
 | GitHub | Tools + OAuth | NOT VALIDATED campaign |
 | Telegram DM | Pairing, text, voice reply MANUAL PASS; voice input NOT VALIDATED |
@@ -189,7 +192,9 @@ Preferred interface language and preferred assistant language are **IMPLEMENTED*
 ## 8. What is not here (CURRENT)
 
 - Full Telegram Mini App E2E on a real client (needs existing bot token + Owner pairing in MySQL `lavr`; see [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md))
-- `commitments` / `decisions` first-class tables (Meeting Intelligence stores detected commitments/decisions as analysis JSON only)
+- first-class `decisions` (Meeting Intelligence still stores decisions as analysis JSON)
+- Email / Telegram commitment extractors (Meeting promotion + manual create are CURRENT)
+- Owner live commitments workflow (code **IMPLEMENTED**, not Owner-confirmed)
 - Zoom Integration: **IMPLEMENTED / LIVE ZOOM E2E NOT VALIDATED** (S2S OAuth, webhook, transcript ingest; no live Owner Zoom credentials on this host)
 - Deterministic Automation Engine as specified (watchers/reports exist but are not the full TARGET)
 - Executive Brief section model

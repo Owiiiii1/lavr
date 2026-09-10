@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CabinetChatController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\CommitmentController;
 use App\Http\Controllers\Jarvis\JarvisAttachmentController;
 use App\Http\Controllers\Jarvis\JarvisConfirmationController;
 use App\Http\Controllers\Jarvis\JarvisKnowledgeController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Jarvis\JarvisTaskController;
 use App\Http\Controllers\Jarvis\JarvisTodayController;
 use App\Http\Controllers\Jarvis\JarvisVoiceController;
 use App\Http\Controllers\Jarvis\JarvisWatcherController;
+use App\Http\Controllers\Jarvis\JarvisWorkspaceCommitmentsController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceMeetingsController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceOrganizationsController;
@@ -117,8 +119,18 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
         Route::post('/meetings/{meeting}/participants/{participant}/link', [JarvisWorkspaceMeetingsController::class, 'linkParticipant'])->name('meetings.participants.link');
         Route::post('/meetings/{meeting}/participants/{participant}/unlink', [JarvisWorkspaceMeetingsController::class, 'unlinkParticipant'])->name('meetings.participants.unlink');
         Route::post('/meetings/{meeting}/participants/{participant}/create-person', [JarvisWorkspaceMeetingsController::class, 'createPersonFromParticipant'])->name('meetings.participants.create-person');
+        Route::post('/meetings/{meeting}/commitments/promote', [JarvisWorkspaceMeetingsController::class, 'promoteCommitment'])->name('meetings.commitments.promote');
         Route::get('/meetings/{meeting}/artifacts/{artifact}/download', [JarvisWorkspaceMeetingsController::class, 'downloadArtifact'])->name('meetings.artifacts.download');
-        Route::get('/commitments', [JarvisWorkspacePageController::class, 'commitments'])->name('commitments.index');
+        Route::get('/commitments', [JarvisWorkspaceCommitmentsController::class, 'index'])->name('commitments.index');
+        Route::post('/commitments', [JarvisWorkspaceCommitmentsController::class, 'store'])->name('commitments.store');
+        Route::get('/commitments/{commitment}', [JarvisWorkspaceCommitmentsController::class, 'show'])->name('commitments.show');
+        Route::patch('/commitments/{commitment}', [JarvisWorkspaceCommitmentsController::class, 'update'])->name('commitments.update');
+        Route::post('/commitments/{commitment}/confirm', [JarvisWorkspaceCommitmentsController::class, 'confirm'])->name('commitments.confirm');
+        Route::post('/commitments/{commitment}/dismiss', [JarvisWorkspaceCommitmentsController::class, 'dismiss'])->name('commitments.dismiss');
+        Route::post('/commitments/{commitment}/cancel', [JarvisWorkspaceCommitmentsController::class, 'cancel'])->name('commitments.cancel');
+        Route::post('/commitments/{commitment}/likely-done', [JarvisWorkspaceCommitmentsController::class, 'likelyDone'])->name('commitments.likely-done');
+        Route::post('/commitments/{commitment}/complete', [JarvisWorkspaceCommitmentsController::class, 'complete'])->name('commitments.complete');
+        Route::post('/commitments/{commitment}/evidence', [JarvisWorkspaceCommitmentsController::class, 'evidence'])->name('commitments.evidence');
         Route::get('/projects', [JarvisWorkspaceProjectsController::class, 'index'])->name('workspace.projects.index');
         Route::get('/projects/{project}', [JarvisWorkspaceProjectsController::class, 'show'])->name('workspace.projects.show');
         Route::get('/workspace/status', [JarvisWorkspaceStatusController::class, 'show'])
@@ -395,6 +407,19 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::post('/meetings/{meeting}/participants/{participant}/unlink', [MeetingController::class, 'unlinkParticipant'])->name('meetings.participants.unlink');
     Route::post('/meetings/{meeting}/participants/{participant}/create-person', [MeetingController::class, 'createPersonFromParticipant'])->name('meetings.participants.create-person');
     Route::get('/meetings/{meeting}/artifacts/{artifact}/download', [MeetingController::class, 'downloadArtifact'])->name('meetings.artifacts.download');
+    Route::post('/meetings/{meeting}/commitments/promote', [MeetingController::class, 'promoteCommitment'])->name('meetings.commitments.promote');
+
+    Route::get('/commitments', [CommitmentController::class, 'index'])->name('commitments.index');
+    Route::post('/commitments', [CommitmentController::class, 'store'])->name('commitments.store');
+    Route::get('/commitments/{commitment}', [CommitmentController::class, 'show'])->name('commitments.show');
+    Route::patch('/commitments/{commitment}', [CommitmentController::class, 'update'])->name('commitments.update');
+    Route::post('/commitments/{commitment}/confirm', [CommitmentController::class, 'confirm'])->name('commitments.confirm');
+    Route::post('/commitments/{commitment}/dismiss', [CommitmentController::class, 'dismiss'])->name('commitments.dismiss');
+    Route::post('/commitments/{commitment}/cancel', [CommitmentController::class, 'cancel'])->name('commitments.cancel');
+    Route::post('/commitments/{commitment}/likely-done', [CommitmentController::class, 'likelyDone'])->name('commitments.likely-done');
+    Route::post('/commitments/{commitment}/complete', [CommitmentController::class, 'complete'])->name('commitments.complete');
+    Route::post('/commitments/{commitment}/evidence', [CommitmentController::class, 'evidence'])->name('commitments.evidence');
+    Route::post('/commitments/{commitment}/merge', [CommitmentController::class, 'merge'])->name('commitments.merge');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
 

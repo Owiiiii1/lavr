@@ -1,6 +1,6 @@
 # Database (actual schema)
 
-> **CURRENT tables.** See `database/migrations/` and [CURRENT_STATE.md](CURRENT_STATE.md). People/organizations (Phase 4) and meetings (Phase 5A) are in MySQL. First-class `commitments` / `decisions` remain TARGET.
+> **CURRENT tables.** See `database/migrations/` and [CURRENT_STATE.md](CURRENT_STATE.md). People/organizations (Phase 4), meetings (Phase 5A), and first-class `commitments` (Phase 6) are in MySQL. First-class `decisions` remain TARGET.
 
 **Status.** Snapshot 2026-09-05 (plus later migrations in git). Source of truth: `database/migrations/`. This file lists **what exists**; it may omit post-snapshot tables (watchers, scheduled_reports). Code wins.
 
@@ -93,6 +93,16 @@ Engine: MySQL. CRM leftover tables were dropped. Vector DB is not used.
 `ai_provider_settings`, `ai_role_settings`, `telegram_bot_settings`, `web_research_settings`, `google_oauth_settings`, `integration_accounts`, `tool_execution_logs`, `tool_confirmations`.
 
 **google_oauth_settings:** singleton Admin Google OAuth client configuration. `client_id` and `redirect_uri` are plain strings. `client_secret` is encrypted at rest (Laravel `encrypted` cast). Not OAuth user tokens.
+
+---
+
+## Commitments (Phase 6)
+
+**commitments:** Owner-owned promises. `lifecycle_status` is durable; `status` is computed effective (`due_soon` / `overdue` only while open). Unique `(user_id, fingerprint)`. Nullable `person_id` with `unresolved_person`. Canonical completion status is `confirmed`.
+
+**commitment_evidence:** short excerpts only. Types include promise / completion / confirmation.
+
+**commitment_status_history:** from/to status, reason, optional `changed_by`.
 
 ---
 

@@ -13,6 +13,7 @@ use App\Models\KnowledgeEntity;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Project;
+use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\Directory\Exceptions\DirectoryException;
 use App\Services\Directory\PersonMergeService;
@@ -26,6 +27,7 @@ class PeopleController extends Controller
     public function __construct(
         private readonly DirectoryService $directory,
         private readonly PersonMergeService $merge,
+        private readonly CommitmentService $commitments,
     ) {}
 
     public function index(Request $request): Response
@@ -89,6 +91,10 @@ class PeopleController extends Controller
                 ->orderBy('name')
                 ->limit(50)
                 ->get(['id', 'name']),
+            'commitments' => $this->commitments->forPerson($request->user(), $person)
+                ->map(fn ($commitment): array => $this->commitments->serializeSummary($commitment))
+                ->values()
+                ->all(),
         ]);
     }
 

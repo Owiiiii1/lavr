@@ -14,6 +14,7 @@ export default function PersonShow() {
         organizations = [],
         people = [],
         knowledgeCandidates = [],
+        commitments = [],
     } = usePage().props;
     const [editing, setEditing] = useState(false);
     const editForm = useForm({
@@ -360,7 +361,23 @@ export default function PersonShow() {
                 </section>
 
                 <section className="rounded-xl border border-slate-200 bg-white p-4">
-                    <h2 className="text-sm font-semibold">Merge duplicate</h2>
+                    <h2 className="text-sm font-semibold">Commitments</h2>
+                    {commitments.length === 0 ? (
+                        <p className="mt-2 text-sm text-slate-400">No commitments.</p>
+                    ) : (
+                        <ul className="mt-2 space-y-1 text-sm">
+                            {commitments.map((item) => (
+                                <li key={item.id}>
+                                    <Link href={route('commitments.show', item.id)} className="text-indigo-700 hover:underline">
+                                        {item.title} · {item.status}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
+                <section className="rounded-xl border border-slate-200 bg-white p-4">
                     <p className="mt-1 text-xs text-slate-500">Source person is archived. Identities and projects move here.</p>
                     <form
                         className="mt-3 flex gap-2"

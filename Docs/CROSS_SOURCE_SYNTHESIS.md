@@ -1,6 +1,6 @@
 # Cross-source Synthesis & Intelligence
 
-> **CURRENT derived view.** `list_commitments` / `get_person_status` are **not** first-class `commitments` / `people` tables. Target: [COMMITMENTS.md](COMMITMENTS.md), [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md).
+> **CURRENT.** `list_commitments` / `get_person_status` read first-class `commitments` when present. Knowledge `CommitmentResolver` is fallback only if that table is empty. Canonical model: [COMMITMENTS.md](COMMITMENTS.md), [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md).
 
 **Status.** Phase E.3 **IMPLEMENTED / NOT VALIDATED**. Not MANUAL PASS. Phase E as a whole is **not** complete.
 
@@ -249,9 +249,9 @@ B.2 guardrails unchanged: opt-in, daily cap (3), cooldown, quiet hours, unique `
 | --- | --- | --- |
 | `get_synthesis` | `knowledge` | Typed synthesis (`type`, optional project/entity, `time_window`) |
 | `get_project_status` | `projects` | Cross-source current state. Does **not** replace `get_project_context` |
-| `get_person_status` | `knowledge` | Person entity in the user’s graph only |
+| `get_person_status` | `knowledge` | Canonical Person, then first-class commitments, projects, recent meetings, Knowledge fallback |
 | `list_waiting_for` | `knowledge` | Derived waiting items |
-| `list_commitments` | `knowledge` | `mine` / `others` / `all` |
+| `list_commitments` | `knowledge` | First-class first (`overdue` / `due_soon` / `open` / `detected` / `likely_done` / `confirmed` / `all`). Knowledge fallback only if the table is empty |
 
 `get_project_context` remains raw/derived project context. `get_project_status` is current synthesis (blockers, waiting, open work, people, upcoming, freshness, sources).
 
