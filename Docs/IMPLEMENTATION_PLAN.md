@@ -158,7 +158,7 @@ Target: `recording.transcript_completed` webhook → validate → deduplicate �
 
 **Not in this phase.** New People/Commitments tables (those are Phase 4 / 6). Do not hardcode an unconfirmed Zoom OAuth app type before checking current Zoom docs and the client account.
 
-**Exit.** After a Zoom meeting on the connected account, a Meeting exists in LAVR with the original transcript, without a manual file upload. Duplicates are not created on webhook retry.
+**Exit.** After a Zoom meeting on the connected account, a Meeting exists in LAVR with the original transcript, without a manual file upload. Duplicates are not created on webhook retry. **IMPLEMENTED** 2026-09-10 (mock tests). **LIVE ZOOM E2E: NOT VALIDATED.** Report: [Development/LAVR_PHASE_5B_REPORT.md](Development/LAVR_PHASE_5B_REPORT.md).
 
 ---
 

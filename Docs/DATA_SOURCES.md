@@ -33,7 +33,7 @@ On-demand translation for the Owner (UI or assistant) must not overwrite the sto
 | Uploaded documents | Storage / attachments / Knowledge ingest. |
 | Manual meeting transcripts | **IMPLEMENTED (Phase 5A).** Private `meeting_artifacts` (.txt/.vtt/.srt/.md or pasted text). Not Knowledge documents. |
 | GitHub | OAuth + tools + watcher source; not a CEO ops source of first importance. |
-| Zoom | **TARGET Phase 5B / NOT IMPLEMENTED.** Not a meeting import pipeline today. |
+| Zoom | **IMPLEMENTED / LIVE E2E NOT VALIDATED.** S2S OAuth + `recording.transcript_completed` → Meeting. Manual upload remains fallback. |
 | External dashboards / APIs | **Not** integrated (Phase 10). |
 
 Permissions: Owner/client account owns integrations. Encrypted credentials. Tool confirmation for external writes.
@@ -54,23 +54,29 @@ Permissions: Owner/client account owns integrations. Encrypted credentials. Tool
 
 ### Zoom
 
-**CURRENT:** not implemented. No Zoom OAuth app, webhook, or transcript import in this repository.
+**CURRENT:** Phase 5B ingest is in code. **LIVE ZOOM E2E: NOT VALIDATED** (no Owner Zoom credentials exercised on this host).
 
-**TARGET:** Phase 5B, immediately after Phase 5A (manual Meetings + transcript upload). Goal: after a Zoom meeting ends and Zoom finishes the cloud transcript, LAVR creates/updates a Meeting without a manual upload.
+App type: Server-to-Server OAuth for one dedicated Zoom account. Grant: `account_credentials`. Token cached until expiry minus skew; re-requested, never stored in the database.
 
-App model: a Zoom OAuth application suitable for the **client’s actual Zoom account**. Confirm app type and scopes against **current Zoom documentation** before coding. Do not treat an unconfirmed OAuth model as final. Scopes must be enough for:
+Scopes (current Zoom granular, account-level):
 
-- webhook subscriptions;
-- cloud recording transcript metadata;
-- meeting transcript read/download.
+- `cloud_recording:read:meeting_transcript:admin`
+- `cloud_recording:read:list_recording_files:admin`
+- `user:read:user:admin` (Test Connection via `GET /users/me`)
 
-Webhook: `recording.transcript_completed`. Validate authenticity per the current Zoom webhook protocol; check event type; extract account, meeting id/uuid, host, transcript/recording metadata; deduplicate; enqueue an import job; return **HTTP 200 or 204** immediately. Do not run AI or download the transcript on the webhook request.
+Webhook URL: `https://lavr.youngfashionshow.com/webhooks/zoom` (`POST /webhooks/zoom`). CRC `endpoint.url_validation`. Signature: `x-zm-signature` = `v0=` HMAC-SHA256 of `v0:{timestamp}:{rawBody}` with the webhook secret token. Replay window 5 minutes. Account id allowlist when configured.
 
-Transcript API (verify at implementation time): `GET /meetings/{meetingId}/transcript` → metadata + `download_url`. Backend downloads with the Zoom OAuth access token. No Zoom credentials in the frontend.
+Canonical transcript-ready event: `recording.transcript_completed`. `recording.completed` is telemetry only.
 
-Import statuses: `pending` / `downloading` / `processing` / `completed` / `failed` / `blocked_auth` / `transcript_unavailable`. Transcript-not-ready is not a permanent failure. Expired auth is a diagnosable `blocked_auth` state. Bounded retries only.
+Transcript API: `GET /meetings/{meetingId}/transcript` (meeting UUID, double-encoded). Download with OAuth Bearer token. Trusted hosts only (`zoom.us` / `*.zoom.us` / `zoom.com` / `zoomgov.com`). Max size matches meeting transcript limits. 404/NOT_READY bounded retry. 429 honors `Retry-After`. 401 → `blocked_auth`.
 
-Original Zoom transcript is the source artifact. AI summary/decisions/commitments are derived. [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md).
+Meeting match: `source_type=zoom` + `source_external_id` = Zoom meeting **UUID** (not numeric meeting id; recurring instances share the numeric id).
+
+Import statuses in `meetings.metadata.zoom.import_status`: pending / downloading / processing / completed / failed / blocked_auth / transcript_unavailable.
+
+Automatic Zoom import does not replace manual upload. It does not silently set `project_id`.
+
+Setup steps: [Development/LAVR_PHASE_5B_REPORT.md](Development/LAVR_PHASE_5B_REPORT.md).
 
 ### Project binding
 

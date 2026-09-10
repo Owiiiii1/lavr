@@ -39,10 +39,12 @@ use App\Http\Controllers\Settings\SettingsController;
 use App\Http\Controllers\Settings\TelegramSettingsController;
 use App\Http\Controllers\Settings\VoiceSettingsController;
 use App\Http\Controllers\Settings\WebResearchSettingsController;
+use App\Http\Controllers\Settings\ZoomIntegrationController;
 use App\Http\Controllers\Telegram\TelegramWebAppController;
 use App\Http\Controllers\TelegramGroupController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\UserAiSettingsController;
+use App\Http\Controllers\ZoomWebhookController;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +63,14 @@ Route::post('/telegram/webhook', TelegramWebhookController::class)
         ValidateCsrfToken::class,
     ])
     ->name('telegram.webhook');
+
+Route::post('/webhooks/zoom', ZoomWebhookController::class)
+    ->withoutMiddleware([
+        PreventRequestForgery::class,
+        ValidateCsrfToken::class,
+    ])
+    ->middleware('throttle:zoom-webhook')
+    ->name('webhooks.zoom');
 
 Route::middleware('web')->group(function (): void {
     Route::get('/telegram/webapp', [TelegramWebAppController::class, 'show'])
@@ -103,6 +113,7 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
         Route::get('/meetings/{meeting}', [JarvisWorkspaceMeetingsController::class, 'show'])->name('meetings.show');
         Route::patch('/meetings/{meeting}', [JarvisWorkspaceMeetingsController::class, 'update'])->name('meetings.update');
         Route::post('/meetings/{meeting}/rerun', [JarvisWorkspaceMeetingsController::class, 'rerun'])->name('meetings.rerun');
+        Route::post('/meetings/{meeting}/zoom-retry', [JarvisWorkspaceMeetingsController::class, 'retryZoom'])->name('meetings.zoom-retry');
         Route::post('/meetings/{meeting}/participants/{participant}/link', [JarvisWorkspaceMeetingsController::class, 'linkParticipant'])->name('meetings.participants.link');
         Route::post('/meetings/{meeting}/participants/{participant}/unlink', [JarvisWorkspaceMeetingsController::class, 'unlinkParticipant'])->name('meetings.participants.unlink');
         Route::post('/meetings/{meeting}/participants/{participant}/create-person', [JarvisWorkspaceMeetingsController::class, 'createPersonFromParticipant'])->name('meetings.participants.create-person');
@@ -379,6 +390,7 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::post('/meetings/{meeting}/archive', [MeetingController::class, 'archive'])->name('meetings.archive');
     Route::post('/meetings/{meeting}/restore', [MeetingController::class, 'restore'])->name('meetings.restore');
     Route::post('/meetings/{meeting}/rerun', [MeetingController::class, 'rerun'])->name('meetings.rerun');
+    Route::post('/meetings/{meeting}/zoom-retry', [MeetingController::class, 'retryZoom'])->name('meetings.zoom-retry');
     Route::post('/meetings/{meeting}/participants/{participant}/link', [MeetingController::class, 'linkParticipant'])->name('meetings.participants.link');
     Route::post('/meetings/{meeting}/participants/{participant}/unlink', [MeetingController::class, 'unlinkParticipant'])->name('meetings.participants.unlink');
     Route::post('/meetings/{meeting}/participants/{participant}/create-person', [MeetingController::class, 'createPersonFromParticipant'])->name('meetings.participants.create-person');
@@ -392,6 +404,14 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::post('/settings/integrations/google', [GoogleOAuthSettingsController::class, 'update'])
         ->middleware('throttle:10,1')
         ->name('settings.integrations.google.update');
+    Route::post('/settings/integrations/zoom', [ZoomIntegrationController::class, 'update'])
+        ->middleware('throttle:10,1')
+        ->name('settings.integrations.zoom.update');
+    Route::post('/settings/integrations/zoom/test', [ZoomIntegrationController::class, 'test'])
+        ->middleware('throttle:10,1')
+        ->name('settings.integrations.zoom.test');
+    Route::post('/settings/integrations/zoom/disconnect', [ZoomIntegrationController::class, 'disconnect'])
+        ->name('settings.integrations.zoom.disconnect');
     Route::get('/settings/integrations/google/connect', [GoogleOAuthController::class, 'connect'])
         ->middleware('throttle:10,1')
         ->name('integrations.google.connect');

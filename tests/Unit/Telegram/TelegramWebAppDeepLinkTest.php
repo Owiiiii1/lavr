@@ -15,7 +15,8 @@ class TelegramWebAppDeepLinkTest extends TestCase
         $this->assertSame('/lavr/chats/12', $links->resolve('chat_12', null));
         $this->assertSame('/lavr/projects/4', $links->resolve('project_4', null));
         $this->assertSame('/lavr/people', $links->resolve('people', 'https://evil.example/phish'));
-        $this->assertSame('/lavr/meetings', $links->resolve('meetings', null));
+        $this->assertSame('/lavr/meetings/8', $links->resolve('meeting_8', null));
+        $this->assertTrue($links->isAllowlisted('/lavr/meetings/8'));
         $this->assertSame('/lavr/notifications', $links->resolve('notifications', null));
         $this->assertSame('/lavr/reports', $links->resolve('reports', null));
         $this->assertSame('/lavr', $links->resolve('chat', null));

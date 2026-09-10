@@ -9,6 +9,7 @@ use App\Services\Integrations\Google\GoogleOAuthSettingsService;
 use App\Services\Integrations\IntegrationAccountService;
 use App\Services\Integrations\IntegrationRegistry;
 use App\Services\Users\UserCapability;
+use App\Services\Zoom\ZoomCredentialService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ class IntegrationsController extends Controller
         return [
             'providers' => $this->registry->summariesForOwner($owner),
             'google_oauth' => $this->googleOAuthSettings->adminPayload(),
+            'zoom' => app(ZoomCredentialService::class)->adminPayload($owner),
             'recent_executions' => ToolExecutionLog::query()
                 ->where('user_id', $owner->id)
                 ->orderByDesc('started_at')

@@ -34,6 +34,10 @@ final class TelegramWebAppDeepLink
             return $this->assertAllowlisted('/lavr/projects/'.$matches[1]);
         }
 
+        if (preg_match('/^meeting_(\d+)$/', $token, $matches) === 1) {
+            return $this->assertAllowlisted('/lavr/meetings/'.$matches[1]);
+        }
+
         if (preg_match('/^commitment_(\d+)$/', $token, $matches) === 1) {
             return $this->assertAllowlisted('/lavr/commitments/'.$matches[1]);
         }

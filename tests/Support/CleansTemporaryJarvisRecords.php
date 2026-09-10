@@ -53,6 +53,7 @@ use App\Models\UserProfile;
 use App\Models\VoiceSession;
 use App\Models\Watcher;
 use App\Models\WatcherOccurrence;
+use App\Models\ZoomWebhookEvent;
 use App\Services\Users\AccessCodeGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -106,6 +107,23 @@ trait CleansTemporaryJarvisRecords
             $user->forceFill(['role' => UserRole::User])->save();
         }
 
+        if (Schema::hasTable('zoom_webhook_events') && Schema::hasTable('integration_accounts')) {
+            $zoomAccounts = IntegrationAccount::query()
+                ->where('user_id', $user->id)
+                ->where('provider', 'zoom')
+                ->get();
+            foreach ($zoomAccounts as $account) {
+                $envelope = is_array($account->credentials_encrypted) ? $account->credentials_encrypted : [];
+                $accountId = trim((string) ($envelope['account_id'] ?? ''));
+                if ($accountId !== '') {
+                    ZoomWebhookEvent::query()->where('account_id', $accountId)->delete();
+                }
+            }
+        }
+        if (Schema::hasTable('zoom_webhook_events') && Schema::hasTable('meetings')) {
+            $meetingIds = Meeting::query()->where('user_id', $user->id)->pluck('id');
+            ZoomWebhookEvent::query()->whereIn('meeting_id', $meetingIds)->delete();
+        }
         if (Schema::hasTable('tool_confirmations')) {
             ToolConfirmation::query()->where('user_id', $user->id)->delete();
         }

@@ -71,10 +71,15 @@ export default function Meetings() {
                                     <p className="text-xs text-slate-400">{meeting.started_at ? meeting.started_at.slice(0, 16).replace('T', ' ') : t('meetings.noDate')}</p>
                                     <p className="mt-1 text-sm font-medium text-white">{meeting.title}</p>
                                     <p className="mt-1 text-xs text-slate-400">
+                                        {meeting.source_type === 'zoom' ? t('meetings.source_zoom') : t('meetings.source_manual')}
+                                        {' · '}
                                         {meeting.project?.name || t('meetings.noProject')}
                                         {' · '}
                                         {t(`meetings.status_${meeting.analysis_status}`)}
                                     </p>
+                                    {meeting.zoom_import?.status === 'failed' || meeting.zoom_import?.status === 'blocked_auth' || meeting.zoom_import?.status === 'transcript_unavailable' ? (
+                                        <p className="mt-1 text-xs text-red-300">{t(`meetings.zoom_${meeting.zoom_import.status}`)}</p>
+                                    ) : null}
                                     {meeting.summary ? <p className="mt-2 line-clamp-2 text-xs text-slate-300">{meeting.summary}</p> : null}
                                 </Link>
                             </li>

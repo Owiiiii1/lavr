@@ -156,7 +156,7 @@ export const en = {
         knowledge: 'Knowledge',
         knowledgeHint: 'Index, not People',
         reserved: 'This section is reserved. There are no fake records.',
-        meetingsBody: 'Meetings with manual transcript import. Automatic Zoom is Phase 5B.',
+        meetingsBody: 'Meetings with Zoom cloud transcripts and a manual upload fallback.',
         commitmentsBody: 'Commitments as a first-class entity arrive in Phase 6. This is not Tasks and not derived list_commitments.',
     },
     meetings: {
@@ -204,6 +204,12 @@ export const en = {
         error_unsupported_format: 'Supported formats: txt, vtt, srt, md.',
         error_file_too_large: 'That file is too large.',
         error_ambiguous_source: 'Use either a file or pasted text.',
+        source_zoom: 'Zoom',
+        source_manual: 'Manual',
+        zoomRetry: 'Retry Zoom import',
+        zoom_failed: 'Zoom import failed.',
+        zoom_blocked_auth: 'Zoom authorization failed.',
+        zoom_transcript_unavailable: 'Zoom transcript is not available yet.',
     },
     notifications: {
         title: 'Notifications',

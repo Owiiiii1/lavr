@@ -72,6 +72,8 @@ class NotificationInboxTest extends TestCase
         $this->assertSame('task_overdue', JarvisNotificationType::TaskOverdue->value);
         $this->assertSame('brief_ready', JarvisNotificationType::BriefReady->value);
         $this->assertSame('proactive_suggestion', JarvisNotificationType::ProactiveSuggestion->value);
+        $this->assertSame('scheduled_report_ready', JarvisNotificationType::ScheduledReportReady->value);
+        $this->assertSame('meeting_analyzed', JarvisNotificationType::MeetingAnalyzed->value);
         $this->assertSame('urgent', JarvisNotificationSeverity::Urgent->value);
     }
 

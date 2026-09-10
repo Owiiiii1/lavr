@@ -67,6 +67,16 @@ export default function MeetingShow() {
 
                 <section className="rounded-xl border border-slate-200 bg-white p-4">
                     <p className="text-xs uppercase tracking-wider text-slate-500">Analysis: {meeting.analysis_status}</p>
+                    <p className="mt-1 text-sm text-slate-600">Source: {meeting.source_type === 'zoom' ? 'Zoom' : meeting.source_type}</p>
+                    {meeting.source_type === 'zoom' && meeting.zoom_import?.status ? (
+                        <p className="mt-1 text-sm text-slate-600">
+                            External source: {meeting.zoom_import.status}
+                            {meeting.zoom_import.error ? ` · ${meeting.zoom_import.error}` : ''}
+                        </p>
+                    ) : null}
+                    {meeting.zoom_import?.retryable ? (
+                        <button type="button" onClick={() => router.post(route('meetings.zoom-retry', meeting.id))} className="mt-2 h-9 rounded-lg border px-3 text-sm">Retry Zoom import</button>
+                    ) : null}
                     {meeting.analysis?.error_message ? <p className="mt-1 text-sm text-red-600">{meeting.analysis.error_message}</p> : null}
                     <form
                         className="mt-3 grid gap-3 md:grid-cols-2"

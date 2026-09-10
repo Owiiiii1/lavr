@@ -12,6 +12,7 @@ use App\Models\Project;
 use App\Services\Meetings\Exceptions\MeetingException;
 use App\Services\Meetings\MeetingConfig;
 use App\Services\Meetings\MeetingService;
+use App\Services\Zoom\Exceptions\ZoomException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -129,6 +130,25 @@ class JarvisWorkspaceMeetingsController extends Controller
             $this->meetings->rerunAnalysis($request->user(), $meeting);
         } catch (MeetingException $exception) {
             return back()->withErrors(['analysis' => $exception->error]);
+        }
+
+        return back();
+    }
+
+    public function retryZoom(Request $request, Meeting $meeting): RedirectResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('update', $meeting);
+
+        try {
+            $this->meetings->retryZoomImport($request->user(), $meeting);
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['zoom' => $exception->error]);
+        } catch (ZoomException $exception) {
+            return back()->withErrors(['zoom' => $exception->error]);
         }
 
         return back();

@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-09 (Phase 5A Meetings + manual transcript import; runtime as after Phase 1–4)  
+**Date:** 2026-09-10 (Phase 5B Zoom cloud transcript ingest; runtime as after Phase 1–5A)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -39,8 +39,8 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | People | Canonical `people` + roles + identities + `employee_profiles`. Knowledge `person` remains index | Same; Commitments still TARGET |
 | Organizations | Canonical `organizations` + `directory_relationships` | Same |
 | Projects | Evolved work container: people, organizations, source bindings schema; meetings bind optionally | Full business context (mailboxes, commitments, …) |
-| Meetings | First-class `meetings` + participants + artifacts + versioned analyses. Manual file/paste import. Calendar events / Knowledge events are **not** Meetings | Same plus **Phase 5B Zoom automatic** ingest |
-| Zoom Integration | **Absent** | **TARGET Phase 5B / NOT IMPLEMENTED** |
+| Meetings | First-class `meetings` + participants + artifacts + versioned analyses. Manual file/paste import. Zoom cloud transcript ingest when configured. Calendar events / Knowledge events are **not** Meetings | Same |
+| Zoom Integration | Server-to-Server OAuth + `POST /webhooks/zoom` + `ProcessZoomTranscriptJob` → existing Meeting Intelligence. **LIVE ZOOM E2E: NOT VALIDATED** | Same; no bulk historical import yet |
 | Commitments | Derived (`CommitmentResolver`, knowledge events) | First-class `commitments` + evidence |
 | Decisions | Group knowledge / events | First-class `decisions` |
 | Automation | Watchers + scheduled reports + briefs + proactive | Deterministic engine + events + validation ([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md)) |
@@ -190,7 +190,7 @@ Preferred interface language and preferred assistant language are **IMPLEMENTED*
 
 - Full Telegram Mini App E2E on a real client (needs existing bot token + Owner pairing in MySQL `lavr`; see [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md))
 - `commitments` / `decisions` first-class tables (Meeting Intelligence stores detected commitments/decisions as analysis JSON only)
-- Zoom Integration: **TARGET Phase 5B / NOT IMPLEMENTED** (no OAuth, webhook, or transcript import)
+- Zoom Integration: **IMPLEMENTED / LIVE ZOOM E2E NOT VALIDATED** (S2S OAuth, webhook, transcript ingest; no live Owner Zoom credentials on this host)
 - Deterministic Automation Engine as specified (watchers/reports exist but are not the full TARGET)
 - Executive Brief section model
 - Leadership Review

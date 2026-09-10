@@ -14,6 +14,7 @@ use App\Services\Meetings\Exceptions\MeetingIntelligenceException;
 use App\Services\Memory\Exceptions\MemoryAnalysisException;
 use App\Services\Reliability\Exceptions\ClassifiedAsyncException;
 use App\Services\Storage\Exceptions\StoredFileException;
+use App\Services\Zoom\Exceptions\ZoomException;
 use Error;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -55,6 +56,18 @@ final class AsyncFailureClassifier
             }
 
             return new AsyncFailure(AsyncFailureCategory::Unknown, 'max_attempts', false, $exception::class);
+        }
+
+        if ($exception instanceof ZoomException) {
+            if ($exception->error === 'blocked_auth') {
+                return new AsyncFailure(AsyncFailureCategory::ProviderAuth, 'blocked_auth', false, $exception::class);
+            }
+
+            if ($exception->retryable) {
+                return new AsyncFailure(AsyncFailureCategory::Network, $exception->error, true, $exception::class);
+            }
+
+            return new AsyncFailure(AsyncFailureCategory::Validation, $exception->error, false, $exception::class);
         }
 
         if ($exception instanceof IntegrationException) {

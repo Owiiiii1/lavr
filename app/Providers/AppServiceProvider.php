@@ -22,6 +22,7 @@ use App\Services\Integrations\Providers\ElevenLabsIntegrationProvider;
 use App\Services\Integrations\Providers\GitHubIntegrationProvider;
 use App\Services\Integrations\Providers\GoogleIntegrationProvider;
 use App\Services\Integrations\Providers\TelegramIntegrationProvider;
+use App\Services\Integrations\Providers\ZoomIntegrationProvider;
 use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Notifications\NotificationInbox;
 use App\Services\Notifications\NotificationUrlPolicy;
@@ -454,6 +455,7 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(TelegramIntegrationProvider::class),
                 $app->make(ElevenLabsIntegrationProvider::class),
                 $app->make(GitHubIntegrationProvider::class),
+                $app->make(ZoomIntegrationProvider::class),
             ]);
         });
     }
@@ -473,6 +475,10 @@ class AppServiceProvider extends ServiceProvider
             $perMinute = max(5, (int) config('telegram.webapp.rate_limit_per_minute', 20));
 
             return Limit::perMinute($perMinute)->by($request->ip());
+        });
+
+        RateLimiter::for('zoom-webhook', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip());
         });
     }
 }

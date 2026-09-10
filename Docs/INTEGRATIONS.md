@@ -36,14 +36,14 @@ Google / ElevenLabs / GitHub / Integrations admin — **owner only** (`integrati
 
 Не хранить классы провайдеров в DB.
 
-Зарегистрированные keys сегодня: `google`, `telegram`, `elevenlabs`, `github`.
+Зарегистрированные keys сегодня: `google`, `telegram`, `elevenlabs`, `github`, `zoom`.
 
 | Provider | Status | Source of truth |
 | --- | --- | --- |
 | Google | OAuth identity + Calendar + Gmail tools (M19) | `integration_accounts` encrypted credentials |
 | ElevenLabs | placeholder Not configured | `integration_accounts` later |
 | Telegram | status bridge | existing `telegram_bot_settings` — **no token copy** |
-| GitHub | OAuth App + tools (M21, not live-validated) | `integration_accounts` encrypted credentials |
+| Zoom | S2S OAuth + webhook ingest (Phase 5B, live E2E not validated) | `integration_accounts` encrypted credentials |
 
 Telegram integration card never writes `integration_accounts.credentials_encrypted`. ADR-061.
 

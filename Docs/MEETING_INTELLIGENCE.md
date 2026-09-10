@@ -16,13 +16,13 @@ First-class Meetings exist (Phase 5A, 2026-09-09).
 | Workspace `/lavr/meetings` + Admin `/meetings` | **IMPLEMENTED** |
 | AI read tools `list_meetings` `find_meeting` `get_meeting` `get_meeting_analysis` | **IMPLEMENTED** |
 | First-class `commitments` / `decisions` rows | **NOT** — analysis JSON only |
-| Zoom OAuth / webhook / audio-video transcription | **TARGET Phase 5B / later** |
+| Zoom OAuth / webhook / cloud transcript ingest | **IMPLEMENTED / LIVE E2E NOT VALIDATED** |
 | Google Calendar | Live external source (no local event mirror) — ADR-072. Optional `source_external_id` on Meeting; no auto ingest |
 | Knowledge events | Index only — not a Meeting |
 
 A Zoom or manual transcript must **not** be stored only as a Knowledge document. Original artifact is source of truth for words. Analysis is derived.
 
-Detail: [Development/LAVR_PHASE_5A_REPORT.md](Development/LAVR_PHASE_5A_REPORT.md).
+Detail: [Development/LAVR_PHASE_5A_REPORT.md](Development/LAVR_PHASE_5A_REPORT.md), [Development/LAVR_PHASE_5B_REPORT.md](Development/LAVR_PHASE_5B_REPORT.md).
 
 ---
 
@@ -68,7 +68,7 @@ Automatic Zoom import must not replace that fallback.
 
 **Phase 5A — Meetings + Manual Transcript Import.** **IMPLEMENTED.** First-class `meetings`, participants, project binding, manual upload/paste, original transcript storage, analysis (topics, summary, decisions, action items, detected commitments, open questions, risks). Leadership Review product slice remains Phase 9. SQL lives in `database/migrations/2026_09_09_160000_create_meetings_tables.php`.
 
-**Phase 5B — Zoom Integration.** After 5A. Zoom meetings appear in LAVR when the cloud transcript is ready, without a manual upload. [DATA_SOURCES.md](DATA_SOURCES.md#zoom).
+**Phase 5B — Zoom Integration.** **IMPLEMENTED / LIVE E2E NOT VALIDATED.** After 5A. Zoom meetings appear in LAVR when the cloud transcript is ready, without a manual upload. Manual upload remains the permanent fallback. [DATA_SOURCES.md](DATA_SOURCES.md#zoom). Report: [Development/LAVR_PHASE_5B_REPORT.md](Development/LAVR_PHASE_5B_REPORT.md).
 
 ### Target Zoom flow (Phase 5B)
 
@@ -113,7 +113,7 @@ Automation Engine
 
 The webhook handler must **not** run AI, download a large transcript synchronously, or run Meeting Intelligence inline. It validates the event, deduplicates, enqueues a short import job, and returns **HTTP 200 or 204** immediately. Heavy work is queue-only.
 
-Exact Zoom app type and OAuth scopes are **not** frozen here. Confirm against current Zoom documentation and the client’s Zoom account before implementation. The backend needs enough permission for webhook subscriptions, cloud recording transcript metadata, and transcript read/download. Credentials stay on the server.
+Exact Zoom app type chosen for this dedicated backend: **Server-to-Server OAuth** (`grant_type=account_credentials`). Current granular scopes: `cloud_recording:read:meeting_transcript:admin`, `cloud_recording:read:list_recording_files:admin`, `user:read:user:admin`. No write/delete scopes. Credentials live in `integration_accounts.credentials_encrypted`. Webhook: `POST /webhooks/zoom`. Event: `recording.transcript_completed`. Transcript: `GET /meetings/{meetingId}/transcript` then download `download_url` with Bearer token from trusted Zoom hosts only.
 
 Current Zoom REST surface to use at implementation time: `GET /meetings/{meetingId}/transcript` (transcript information + `download_url`). Download with the Zoom OAuth access token on the backend. Do not expose Zoom tokens or durable public download URLs to the frontend.
 

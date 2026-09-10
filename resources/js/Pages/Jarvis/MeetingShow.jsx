@@ -49,6 +49,15 @@ export default function MeetingShow() {
             <div className="jarvis-workspace px-4 pb-8 pt-8 text-slate-100 sm:px-8">
                 <Link href="/lavr/meetings" className="text-sm text-sky-300">{t('meetings.back')}</Link>
                 <p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-slate-500">{t(`meetings.status_${meeting.analysis_status}`)}</p>
+                <p className="mt-1 text-xs text-slate-500">{meeting.source_type === 'zoom' ? t('meetings.source_zoom') : t('meetings.source_manual')}</p>
+                {meeting.zoom_import?.status && ['failed', 'blocked_auth', 'transcript_unavailable'].includes(meeting.zoom_import.status) ? (
+                    <p className="mt-2 text-sm text-red-400">{t(`meetings.zoom_${meeting.zoom_import.status}`)}</p>
+                ) : null}
+                {meeting.zoom_import?.retryable ? (
+                    <button type="button" className="mt-3 min-h-11 rounded-2xl border border-white/10 px-4 text-sm" onClick={() => router.post(route('jarvis.meetings.zoom-retry', meeting.id))}>
+                        {t('meetings.zoomRetry')}
+                    </button>
+                ) : null}
                 <h1 className="mt-2 text-2xl font-semibold text-white">{meeting.title}</h1>
                 <p className="mt-2 text-sm text-slate-400">
                     {meeting.started_at ? meeting.started_at.slice(0, 16).replace('T', ' ') : t('meetings.noDate')}

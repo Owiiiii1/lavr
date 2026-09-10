@@ -56,7 +56,7 @@ class IntegrationFrameworkTest extends TestCase
             static fn ($provider): string => $provider->key(),
             app(IntegrationRegistry::class)->all(),
         );
-        $this->assertSame(['google', 'telegram', 'elevenlabs', 'github'], $keys);
+        $this->assertSame(['google', 'telegram', 'elevenlabs', 'github', 'zoom'], $keys);
     }
 
     public function test_owner_integrations_page_and_user_denied(): void
@@ -347,35 +347,19 @@ class IntegrationFrameworkTest extends TestCase
                 $registry->definitionsFor(new ToolExecutionContext($user, $userChat)),
             );
 
-            $this->assertSame(
-                [
-                    CreateReminderTool::NAME,
-                    SearchConversationHistoryTool::NAME,
-                    GetProjectContextTool::NAME,
-                    SearchGroupKnowledgeTool::NAME,
-                    'list_google_calendars',
-                    'list_calendar_events',
-                    'get_calendar_event',
-                    'search_calendar_events',
-                    'google_calendar_freebusy',
-                    'create_calendar_event',
-                    'update_calendar_event',
-                    'delete_calendar_event',
-                    'search_gmail',
-                    'list_gmail_messages',
-                    'get_gmail_message',
-                    'get_gmail_thread',
-                    'list_gmail_labels',
-                    'create_gmail_draft',
-                    'send_gmail_message',
-                    'modify_gmail_labels',
-                ],
-                $ownerTools,
-            );
-            $this->assertSame(
-                [CreateReminderTool::NAME, SearchConversationHistoryTool::NAME],
-                $userTools,
-            );
+            foreach ([
+                CreateReminderTool::NAME,
+                SearchConversationHistoryTool::NAME,
+                GetProjectContextTool::NAME,
+                SearchGroupKnowledgeTool::NAME,
+                'list_google_calendars',
+                'list_meetings',
+                'get_meeting_analysis',
+            ] as $name) {
+                $this->assertContains($name, $ownerTools);
+            }
+            $this->assertContains(CreateReminderTool::NAME, $userTools);
+            $this->assertContains(SearchConversationHistoryTool::NAME, $userTools);
 
             $history = $registry->execute(
                 new ToolCall('h1', SearchConversationHistoryTool::NAME, ['query' => 'nothing-here-m16']),

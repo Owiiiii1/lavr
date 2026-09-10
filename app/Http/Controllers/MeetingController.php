@@ -11,6 +11,7 @@ use App\Models\Project;
 use App\Services\Meetings\Exceptions\MeetingException;
 use App\Services\Meetings\MeetingConfig;
 use App\Services\Meetings\MeetingService;
+use App\Services\Zoom\Exceptions\ZoomException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -131,6 +132,21 @@ class MeetingController extends Controller
             $this->meetings->rerunAnalysis($request->user(), $meeting);
         } catch (MeetingException $exception) {
             return back()->withErrors(['analysis' => $this->messageFor($exception)]);
+        }
+
+        return back();
+    }
+
+    public function retryZoom(Request $request, Meeting $meeting): RedirectResponse
+    {
+        $this->authorizeOwned($request, $meeting, 'update');
+
+        try {
+            $this->meetings->retryZoomImport($request->user(), $meeting);
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['zoom' => $this->messageFor($exception)]);
+        } catch (ZoomException $exception) {
+            return back()->withErrors(['zoom' => $exception->error]);
         }
 
         return back();

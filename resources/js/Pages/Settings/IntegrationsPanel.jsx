@@ -6,6 +6,7 @@ import IntegrationProviderCard from './IntegrationProviderCard';
 import TelegramPanel from './TelegramPanel';
 import VoicePanel from './VoicePanel';
 import WebResearchPanel from './WebResearchPanel';
+import ZoomConfigForm from './ZoomConfigForm';
 
 const SECTIONS = ['overview', 'web-research', 'voice', 'telegram', 'activity'];
 
@@ -140,7 +141,9 @@ export default function IntegrationsPanel() {
 
         const namedRoute = provider === 'github'
             ? 'integrations.github.disconnect'
-            : 'integrations.google.disconnect';
+            : provider === 'zoom'
+                ? 'settings.integrations.zoom.disconnect'
+                : 'integrations.google.disconnect';
 
         setDisconnecting(provider);
         router.post(route(namedRoute), {}, {
@@ -221,9 +224,10 @@ export default function IntegrationsPanel() {
                                 t={t}
                                 disconnecting={disconnecting}
                                 onDisconnect={disconnectProvider}
-                                className={provider.provider === 'google' ? 'md:col-span-3' : ''}
+                                className={['google', 'zoom'].includes(provider.provider) ? 'md:col-span-3' : ''}
                             >
                                 {provider.provider === 'google' ? <GoogleOAuthConfigForm /> : null}
+                                {provider.provider === 'zoom' ? <ZoomConfigForm /> : null}
                             </IntegrationProviderCard>
                         ))}
                     </div>

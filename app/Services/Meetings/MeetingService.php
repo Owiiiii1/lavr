@@ -18,6 +18,7 @@ use App\Services\Directory\DirectoryService;
 use App\Services\Directory\Exceptions\DirectoryException;
 use App\Services\Meetings\Exceptions\MeetingException;
 use App\Services\Users\UserCapability;
+use App\Services\Zoom\ZoomMeetingIngestor;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -217,6 +218,17 @@ final class MeetingService
         return $meeting->fresh() ?? $meeting;
     }
 
+    public function retryZoomImport(User $user, Meeting $meeting): Meeting
+    {
+        $this->owned($user, $meeting);
+
+        if ($meeting->source_type !== MeetingSourceType::Zoom) {
+            throw new MeetingException('not_found', 'This meeting is not a Zoom import.');
+        }
+
+        return app(ZoomMeetingIngestor::class)->retryMeeting($meeting);
+    }
+
     public function linkParticipant(User $user, Meeting $meeting, MeetingParticipant $participant, int $personId): MeetingParticipant
     {
         $this->owned($user, $meeting);
@@ -309,6 +321,7 @@ final class MeetingService
             'source_type' => $meeting->source_type instanceof MeetingSourceType ? $meeting->source_type->value : (string) $meeting->source_type,
             'status' => $meeting->status instanceof MeetingStatus ? $meeting->status->value : (string) $meeting->status,
             'analysis_status' => $meeting->analysis_status instanceof MeetingAnalysisStatus ? $meeting->analysis_status->value : (string) $meeting->analysis_status,
+            'zoom_import' => $this->zoomImportState($meeting),
             'summary' => $meeting->summary,
             'participants_count' => $meeting->participants_count ?? $meeting->participants->count(),
             'participants' => $meeting->participants->map(fn (MeetingParticipant $participant): array => [
@@ -441,14 +454,38 @@ final class MeetingService
 
     public function storePastedText(User $user, Meeting $meeting, string $text): MeetingArtifact
     {
+        return $this->storeImportedText(
+            $user,
+            $meeting,
+            $text,
+            'txt',
+            'pasted-transcript.txt',
+            MeetingArtifactKind::OriginalText,
+        );
+    }
+
+    public function storeImportedText(
+        User $user,
+        Meeting $meeting,
+        string $text,
+        string $extension = 'txt',
+        string $filename = 'transcript.txt',
+        MeetingArtifactKind $kind = MeetingArtifactKind::OriginalText,
+    ): MeetingArtifact {
+        $this->owned($user, $meeting);
         $text = str_replace(["\r\n", "\r"], "\n", $text);
+        $extension = strtolower($extension);
 
         if (trim($text) === '') {
-            throw new MeetingException('empty_transcript', 'Pasted transcript is empty.');
+            throw new MeetingException('empty_transcript', 'Transcript is empty.');
         }
 
-        if (mb_strlen($text) > MeetingConfig::maxPasteChars()) {
-            throw new MeetingException('file_too_large', 'Pasted transcript is too large.');
+        if (mb_strlen($text) > MeetingConfig::maxPasteChars() || strlen($text) > MeetingConfig::maxFileSizeBytes()) {
+            throw new MeetingException('file_too_large', 'Transcript is too large.');
+        }
+
+        if (! in_array($extension, MeetingConfig::allowedExtensions(), true)) {
+            throw new MeetingException('unsupported_format', 'Supported formats: txt, vtt, srt, md.');
         }
 
         $checksum = hash('sha256', $text);
@@ -461,15 +498,21 @@ final class MeetingService
             return $existing;
         }
 
-        $path = $this->storeBytes($user, $meeting, $text, 'txt');
-        $normalized = $this->normalizer->normalize($text, 'txt');
+        $path = $this->storeBytes($user, $meeting, $text, $extension);
+        $normalized = $this->normalizer->normalize($text, $extension);
+        $mime = match ($extension) {
+            'vtt' => 'text/vtt',
+            'srt' => 'application/x-subrip',
+            'md' => 'text/markdown',
+            default => 'text/plain',
+        };
 
         $artifact = MeetingArtifact::query()->create([
             'meeting_id' => $meeting->id,
-            'kind' => MeetingArtifactKind::OriginalText,
-            'original_filename' => 'pasted-transcript.txt',
-            'mime_type' => 'text/plain',
-            'extension' => 'txt',
+            'kind' => $kind,
+            'original_filename' => $filename,
+            'mime_type' => $mime,
+            'extension' => $extension,
             'checksum_sha256' => $checksum,
             'byte_size' => strlen($text),
             'disk' => MeetingConfig::disk(),
@@ -490,6 +533,32 @@ final class MeetingService
         ])->save();
 
         AnalyzeMeetingTranscriptJob::dispatch($meeting->id, (int) $meeting->user_id);
+    }
+
+    /**
+     * @return array{status: string|null, error: string|null, retryable: bool}
+     */
+    public function zoomImportState(Meeting $meeting): array
+    {
+        $metadata = is_array($meeting->metadata) ? $meeting->metadata : [];
+        $zoom = is_array($metadata['zoom'] ?? null) ? $metadata['zoom'] : [];
+        $status = isset($zoom['import_status']) ? (string) $zoom['import_status'] : null;
+        $error = isset($zoom['last_error']) ? (string) $zoom['last_error'] : null;
+        $retryable = in_array($status, ['failed', 'transcript_unavailable', 'blocked_auth'], true);
+
+        if ($meeting->source_type !== MeetingSourceType::Zoom) {
+            return [
+                'status' => null,
+                'error' => null,
+                'retryable' => false,
+            ];
+        }
+
+        return [
+            'status' => $status,
+            'error' => $error !== '' ? $error : null,
+            'retryable' => $retryable,
+        ];
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace App\Jobs;
 
 use App\Enums\AsyncFailureCategory;
+use App\Enums\JarvisNotificationType;
 use App\Enums\MeetingAnalysisStatus;
+use App\Enums\MeetingSourceType;
 use App\Jobs\Concerns\HandlesClassifiedAsyncFailure;
 use App\Models\Meeting;
 use App\Models\MeetingAnalysis;
@@ -11,6 +13,7 @@ use App\Models\User;
 use App\Services\Meetings\Exceptions\MeetingIntelligenceException;
 use App\Services\Meetings\MeetingConfig;
 use App\Services\Meetings\MeetingIntelligencePipeline;
+use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Reliability\Exceptions\ClassifiedAsyncException;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -54,6 +57,11 @@ class AnalyzeMeetingTranscriptJob implements ShouldBeUniqueUntilProcessing, Shou
 
         try {
             $pipeline->analyze($user, $meeting);
+
+            if ($meeting->source_type === MeetingSourceType::Zoom) {
+                $user->loadMissing('assistantProfile');
+                $this->notifyZoomAnalysisCompleted($user, $meeting->fresh() ?? $meeting);
+            }
         } catch (MeetingIntelligenceException $exception) {
             $this->failureWriter()->logFailure('meeting intelligence failed', $this->classifyFailure($exception), [
                 'meeting_id' => $this->meetingId,
@@ -125,5 +133,26 @@ class AnalyzeMeetingTranscriptJob implements ShouldBeUniqueUntilProcessing, Shou
             'analysis_id' => $analysis?->id,
             'error' => $code,
         ]);
+    }
+
+    private function notifyZoomAnalysisCompleted(User $user, Meeting $meeting): void
+    {
+        $locale = $user->assistantProfile?->interface_locale ?? 'uk';
+        $title = match ($locale) {
+            'en' => 'Meeting analyzed',
+            'ru' => 'Встреча проанализирована',
+            default => 'Зустріч проаналізовано',
+        };
+
+        app(JarvisNotificationService::class)->record(
+            $user,
+            JarvisNotificationType::MeetingAnalyzed,
+            $title,
+            $meeting->title,
+            'meeting_analyzed:'.$meeting->id,
+            'meeting',
+            $meeting->id,
+            '/lavr/meetings/'.$meeting->id,
+        );
     }
 }

@@ -20,6 +20,7 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | Surface | Route / channel | Role today |
 | --- | --- | --- |
 | Telegram DM | Bot webhook `/telegram/webhook` | Fast chat, pairing via `access_code`, optional voice in/out |
+| Zoom | `POST /webhooks/zoom` | Cloud transcript ingest (Phase 5B; live E2E not validated) |
 | Telegram Groups | Same bot | Source / analysis; not the CEO’s personal UI |
 | Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice + People / Organizations / Projects / Meetings |
 | Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED (needs token + pairing) |
@@ -83,7 +84,7 @@ Target sections (product UX, not a current route map):
 | Today | Attention-reduced day view |
 | People | [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md) |
 | Projects | [PROJECTS.md](PROJECTS.md) |
-| Meetings | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) — list/detail; **import status** (manual vs Zoom); source; unresolved project/people |
+| Meetings | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) — list/detail; **import status** (manual vs Zoom); source; unresolved project/people; Zoom retry |
 | Commitments | [COMMITMENTS.md](COMMITMENTS.md) |
 | Tasks | Formal tasks — [TASKS.md](TASKS.md) |
 | Waiting For | What the CEO is waiting on |

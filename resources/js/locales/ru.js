@@ -156,7 +156,7 @@ export const ru = {
         knowledge: 'Знания',
         knowledgeHint: 'Индекс, не People',
         reserved: 'Раздел зарезервирован. Фиктивных записей нет.',
-        meetingsBody: 'Встречи с ручным импортом транскриптов. Автоматический Zoom — Phase 5B.',
+        meetingsBody: 'Встречи с Zoom cloud transcripts и ручным импортом как запасным путём.',
         commitmentsBody: 'Обязательства как отдельная сущность появятся в Phase 6. Сейчас это не Tasks и не derived list_commitments.',
     },
     meetings: {
@@ -204,6 +204,12 @@ export const ru = {
         error_unsupported_format: 'Поддерживаются txt, vtt, srt, md.',
         error_file_too_large: 'Файл слишком большой.',
         error_ambiguous_source: 'Выберите файл или текст, не оба.',
+        source_zoom: 'Zoom',
+        source_manual: 'Вручную',
+        zoomRetry: 'Повторить импорт Zoom',
+        zoom_failed: 'Импорт Zoom не удался.',
+        zoom_blocked_auth: 'Авторизация Zoom не удалась.',
+        zoom_transcript_unavailable: 'Транскрипт Zoom ещё недоступен.',
     },
     notifications: {
         title: 'Уведомления',

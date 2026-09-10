@@ -156,7 +156,7 @@ export const uk = {
         knowledge: 'Знання',
         knowledgeHint: 'Індекс, не People',
         reserved: 'Розділ зарезервовано. Фіктивних записів немає.',
-        meetingsBody: 'Зустрічі з ручним імпортом транскриптів. Автоматичний Zoom — Phase 5B.',
+        meetingsBody: 'Зустрічі з Zoom cloud transcripts і ручним імпортом як запасним шляхом.',
         commitmentsBody: 'Зобов’язання як окрема сутність з’являться у Phase 6. Зараз це не Tasks і не derived list_commitments.',
     },
     meetings: {
@@ -204,6 +204,12 @@ export const uk = {
         error_unsupported_format: 'Підтримуються txt, vtt, srt, md.',
         error_file_too_large: 'Файл завеликий.',
         error_ambiguous_source: 'Оберіть файл або текст, не обидва.',
+        source_zoom: 'Zoom',
+        source_manual: 'Вручну',
+        zoomRetry: 'Повторити імпорт Zoom',
+        zoom_failed: 'Імпорт Zoom не вдався.',
+        zoom_blocked_auth: 'Авторизація Zoom не вдалася.',
+        zoom_transcript_unavailable: 'Транскрипт Zoom ще недоступний.',
     },
     notifications: {
         title: 'Сповіщення',
