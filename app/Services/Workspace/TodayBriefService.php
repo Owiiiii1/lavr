@@ -5,6 +5,7 @@ namespace App\Services\Workspace;
 use App\Enums\OwnerLocale;
 use App\Models\User;
 use App\Services\Commitments\CommitmentService;
+use App\Services\ExecutiveBrief\ExecutiveBriefService;
 use App\Services\Integrations\Google\GoogleCalendarService;
 use App\Services\Integrations\IntegrationAccountService;
 use App\Services\Locale\OwnerLocaleResolver;
@@ -27,6 +28,7 @@ final class TodayBriefService
         private readonly GoogleCalendarService $calendar,
         private readonly OwnerLocaleResolver $locales,
         private readonly CommitmentService $commitments,
+        private readonly ExecutiveBriefService $briefs,
     ) {}
 
     /**
@@ -39,39 +41,37 @@ final class TodayBriefService
         $timezone = (string) ($user->timezone ?: 'UTC');
         $now = CarbonImmutable::now($timezone);
         $locale = $this->locales->interfaceLocale($user);
-        $taskPanel = $this->safeTaskPanel($user);
-        $reminderPanel = $this->safeReminderPanel($user);
-        $inbox = $this->safeInbox($user);
-        $reportPanel = $this->safeReportPanel($user);
-        $calendar = $this->safeCalendar($user, $now, $locale);
-        $commitments = $this->safeCommitments($user);
+        $brief = null;
+        try {
+            $brief = $this->briefs->latestForToday($user);
+        } catch (\Throwable) {
+            $brief = null;
+        }
 
-        $dueTasks = array_slice(array_merge(
-            $taskPanel['overdue'] ?? [],
-            $taskPanel['today'] ?? [],
-        ), 0, 8);
-
-        $reminders = array_slice(array_merge(
-            $reminderPanel['due'] ?? [],
-            $reminderPanel['today'] ?? [],
-            $reminderPanel['upcoming'] ?? [],
-        ), 0, 8);
-        $notifications = array_slice($inbox['items'] ?? [], 0, 6);
-        $reports = array_slice($reportPanel['items'] ?? [], 0, 4);
+        $serialized = $brief !== null ? $this->briefs->serialize($brief) : null;
+        $sections = is_array($serialized['sections'] ?? null) ? $serialized['sections'] : [];
+        $commitments = $this->itemsFrom($sections, ['overdue', 'commitments', 'today']);
+        if ($commitments === []) {
+            $commitments = $this->safeCommitments($user);
+        }
 
         return [
             'brand' => 'LAVR',
             'date_label' => $now->locale($locale->value)->isoFormat('dddd, D MMMM'),
-            'summary' => $this->summary($locale, count($dueTasks), count($reminders), (int) ($inbox['unread_count'] ?? 0), count($calendar['events'] ?? [])),
-            'tasks' => $dueTasks,
-            'reminders' => $reminders,
-            'notifications' => $notifications,
-            'reports' => $reports,
-            'calendar' => $calendar['events'],
-            'calendar_hint' => $calendar['hint'],
-            'calendar_error' => $calendar['error'],
-            'commitments' => $commitments,
+            'summary' => $serialized['summary'] ?? $this->summary($locale, 0, 0, 0, count($sections['meetings'] ?? [])),
+            'executive_brief' => $serialized,
+            'attention' => $sections['attention'] ?? [],
+            'today_items' => array_merge($sections['today'] ?? [], $sections['meetings'] ?? []),
+            'tasks' => [],
+            'reminders' => [],
+            'notifications' => [],
+            'reports' => [],
+            'calendar' => $this->calendarFromBrief($sections),
+            'calendar_hint' => null,
+            'calendar_error' => $this->briefError($serialized, $locale),
+            'commitments' => $commitments !== [] ? $commitments : $this->safeCommitments($user),
             'ask_href' => '/lavr',
+            'brief_href' => $serialized['href'] ?? '/lavr/briefs',
         ];
     }
 
@@ -253,5 +253,73 @@ final class TodayBriefService
         }
 
         return OwnerCopy::get('today.summary_prefix', $locale, ['parts' => implode(', ', $parts)]);
+    }
+
+    /**
+     * @param  array<string, list<array<string, mixed>>>  $sections
+     * @param  list<string>  $keys
+     * @return list<array<string, mixed>>
+     */
+    private function itemsFrom(array $sections, array $keys): array
+    {
+        $out = [];
+        foreach ($keys as $key) {
+            foreach ($sections[$key] ?? [] as $row) {
+                if (! is_array($row) || ($row['commitment_id'] ?? $row['source_type'] ?? '') === '') {
+                    continue;
+                }
+                if (($row['source_type'] ?? '') !== 'commitment' && ($row['commitment_id'] ?? null) === null) {
+                    continue;
+                }
+                $out[] = [
+                    'id' => $row['commitment_id'] ?? $row['source_id'] ?? null,
+                    'title' => (string) ($row['title'] ?? ''),
+                    'status' => (string) ($row['type'] ?? ''),
+                    'href' => $row['deep_link'] ?? null,
+                    'person' => ['display_name' => $row['evidence']['person'] ?? null],
+                    'summary' => (string) ($row['summary'] ?? ''),
+                ];
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param  array<string, list<array<string, mixed>>>  $sections
+     * @return list<array<string, mixed>>
+     */
+    private function calendarFromBrief(array $sections): array
+    {
+        $events = [];
+        foreach (array_merge($sections['today'] ?? [], $sections['meetings'] ?? []) as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $events[] = [
+                'id' => (string) ($row['source_id'] ?? $row['dedupe_key'] ?? $row['title'] ?? ''),
+                'title' => (string) ($row['title'] ?? ''),
+                'when_label' => (string) ($row['summary'] ?? ''),
+            ];
+        }
+
+        return $events;
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $serialized
+     */
+    private function briefError(?array $serialized, OwnerLocale $locale): ?string
+    {
+        $errors = is_array($serialized['source_snapshot']['errors'] ?? null)
+            ? $serialized['source_snapshot']['errors']
+            : [];
+        foreach ($errors as $error) {
+            if (is_string($error) && trim($error) !== '') {
+                return $error;
+            }
+        }
+
+        return null;
     }
 }

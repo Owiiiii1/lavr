@@ -4,13 +4,16 @@ namespace App\Services\Automation;
 
 use App\Enums\AutomationRunOutcome;
 use App\Enums\AutomationType;
+use App\Enums\ExecutiveBriefType;
 use App\Enums\ReminderStatus;
 use App\Enums\ScheduledReportStatus;
 use App\Jobs\EvaluateWatcherJob;
 use App\Models\AutomationRun;
+use App\Models\ExecutiveBrief;
 use App\Models\Reminder;
 use App\Models\ScheduledReport;
 use App\Models\User;
+use App\Services\ExecutiveBrief\ExecutiveBriefGenerator;
 use App\Services\Reminders\ReminderDeliveryService;
 use App\Services\Reports\ScheduledReportDispatchService;
 use Carbon\CarbonImmutable;
@@ -20,6 +23,7 @@ final class AutomationRetryService
     public function __construct(
         private readonly ReminderDeliveryService $reminders,
         private readonly ScheduledReportDispatchService $reports,
+        private readonly ExecutiveBriefGenerator $briefs,
     ) {}
 
     public function retry(AutomationRun $run): AutomationRun
@@ -46,6 +50,7 @@ final class AutomationRetryService
             AutomationType::Reminder => $this->retryReminder($run),
             AutomationType::Watcher => EvaluateWatcherJob::dispatch((int) $run->automation_id),
             AutomationType::ScheduledReport => $this->retryReport($run),
+            AutomationType::ExecutiveBrief => $this->retryBrief($run),
             default => null,
         };
 
@@ -79,5 +84,26 @@ final class AutomationRetryService
         }
 
         $this->reports->run($report, $user, CarbonImmutable::now('UTC'));
+    }
+
+    private function retryBrief(AutomationRun $run): void
+    {
+        $user = User::query()->find($run->user_id);
+        if (! $user instanceof User || ! $user->isActive()) {
+            return;
+        }
+
+        $fromId = ExecutiveBrief::query()
+            ->where('user_id', $user->id)
+            ->where('automation_run_id', $run->id)
+            ->value('id');
+
+        $this->briefs->generate(
+            $user,
+            ExecutiveBriefType::Morning,
+            CarbonImmutable::now('UTC'),
+            'manual',
+            $fromId !== null ? (int) $fromId : null,
+        );
     }
 }

@@ -26,6 +26,16 @@ final class AutomationRunKey
         return 'commitment:'.$id.':'.$status.':v1';
     }
 
+    public static function executiveBrief(int $userId, string $type, string $localDate): string
+    {
+        return 'executive_brief:'.$userId.':'.$type.':'.$localDate;
+    }
+
+    public static function executiveBriefManual(int $userId, string $type, string $localDate, string $suffix): string
+    {
+        return 'executive_brief:'.$userId.':'.$type.':'.$localDate.':manual:'.$suffix;
+    }
+
     public static function brief(int $userId, string $mode, string $localDate): string
     {
         return 'brief:'.$userId.':'.$mode.':'.$localDate;

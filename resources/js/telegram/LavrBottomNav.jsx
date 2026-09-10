@@ -18,7 +18,8 @@ export default function LavrBottomNav({ force = false }) {
                 || current.startsWith('/lavr/meetings')
                 || current.startsWith('/lavr/commitments')
                 || current.startsWith('/lavr/notifications')
-                || current.startsWith('/lavr/reports'),
+                || current.startsWith('/lavr/reports')
+                || current.startsWith('/lavr/briefs'),
             label: t('navigation.more'),
             icon: MoreHorizontal,
         },

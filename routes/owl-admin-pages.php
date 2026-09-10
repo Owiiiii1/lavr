@@ -4,8 +4,10 @@ use App\Http\Controllers\AutomationRunController;
 use App\Http\Controllers\CabinetChatController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CommitmentController;
+use App\Http\Controllers\ExecutiveBriefController;
 use App\Http\Controllers\Jarvis\JarvisAttachmentController;
 use App\Http\Controllers\Jarvis\JarvisConfirmationController;
+use App\Http\Controllers\Jarvis\JarvisExecutiveBriefController;
 use App\Http\Controllers\Jarvis\JarvisKnowledgeController;
 use App\Http\Controllers\Jarvis\JarvisNotificationController;
 use App\Http\Controllers\Jarvis\JarvisProductivitySettingsController;
@@ -105,6 +107,9 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
     Route::middleware($middleware)->prefix($prefix)->name($as.'.')->group(function () use ($ownerStorage): void {
         Route::get('/', [JarvisWorkspaceController::class, 'index'])->name('index');
         Route::get('/today', [JarvisTodayController::class, 'show'])->name('today.show');
+        Route::get('/briefs', [JarvisExecutiveBriefController::class, 'index'])->name('briefs.index');
+        Route::post('/briefs/generate', [JarvisExecutiveBriefController::class, 'generate'])->name('briefs.generate');
+        Route::get('/briefs/{brief}', [JarvisExecutiveBriefController::class, 'show'])->name('briefs.show');
         Route::get('/people', [JarvisWorkspacePeopleController::class, 'index'])->name('people.index');
         Route::get('/people/{person}', [JarvisWorkspacePeopleController::class, 'show'])->name('people.show');
         Route::get('/organizations', [JarvisWorkspaceOrganizationsController::class, 'index'])->name('organizations.index');
@@ -424,6 +429,9 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
 
     Route::get('/automation-runs', [AutomationRunController::class, 'index'])->name('automation-runs.index');
     Route::post('/automation-runs/{automationRun}/retry', [AutomationRunController::class, 'retry'])->name('automation-runs.retry');
+
+    Route::get('/executive-briefs', [ExecutiveBriefController::class, 'index'])->name('executive-briefs.index');
+    Route::post('/executive-briefs/{executiveBrief}/regenerate', [ExecutiveBriefController::class, 'regenerate'])->name('executive-briefs.regenerate');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
 

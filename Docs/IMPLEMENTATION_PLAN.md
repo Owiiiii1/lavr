@@ -185,9 +185,7 @@ Target: `recording.transcript_completed` webhook → validate → deduplicate �
 
 ## Phase 8 — Executive Brief
 
-**Goal.** Daily/weekly attention-reduced brief over operational data + sources. Reuse Scheduled Report machinery.
-
-**Exit.** CEO receives Today / commitments / overdue / waiting / risks — not a dump.
+**IMPLEMENTED** 2026-09-10. Report: [Development/LAVR_PHASE_8_REPORT.md](Development/LAVR_PHASE_8_REPORT.md). First-class morning Executive Brief over commitments, meetings, mail, calendar, and integration health. Owner live synthetic scenario remains **NOT VALIDATED**. Do not restart this phase. Do not build Leadership Review here.
 
 ---
 

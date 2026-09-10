@@ -26,8 +26,8 @@ On-demand translation for the Owner (UI or assistant) must not overwrite the sto
 
 | Source | Status |
 | --- | --- |
-| Gmail / Google Workspace | OAuth `IntegrationAccount`; tools; **no mailbox mirror**; send requires confirmation. Typically **one** active Google account (ADR-070). Live campaign not fully MANUAL PASS. |
-| Calendar | Live Google Calendar; no local event table. |
+| Calendar | Live Google Calendar; no local event table. Executive Brief reads today’s events; timeout → partial. |
+| Gmail / Google Workspace | OAuth `IntegrationAccount`; tools; **no mailbox mirror**; send requires confirmation. Typically **one** active Google account (ADR-070). Live campaign not fully MANUAL PASS. Executive Brief uses important/actionable search, not a subject dump. |
 | Telegram private bot | Webhook, pairing, DM text/voice. |
 | Telegram groups | Persist + analysis tools; Owner; campaign not fully validated. |
 | Uploaded documents | Storage / attachments / Knowledge ingest. |

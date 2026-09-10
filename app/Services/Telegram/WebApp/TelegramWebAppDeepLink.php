@@ -42,6 +42,10 @@ final class TelegramWebAppDeepLink
             return $this->assertAllowlisted('/lavr/commitments/'.$matches[1]);
         }
 
+        if (preg_match('/^brief_(\d+)$/', $token, $matches) === 1) {
+            return $this->assertAllowlisted('/lavr/briefs/'.$matches[1]);
+        }
+
         $mapped = match ($token) {
             'today' => '/lavr/today',
             'chat', 'chats' => '/lavr',
@@ -54,6 +58,7 @@ final class TelegramWebAppDeepLink
             'settings' => '/lavr?settings=profile',
             'meetings' => '/lavr/meetings',
             'commitments' => '/lavr/commitments',
+            'brief', 'briefs' => '/lavr/briefs',
             default => null,
         };
 
@@ -119,6 +124,7 @@ final class TelegramWebAppDeepLink
             '/lavr/reports',
             '/lavr/meetings',
             '/lavr/commitments',
+            '/lavr/briefs',
         ];
 
         if (in_array($path, $exact, true)) {
@@ -126,7 +132,7 @@ final class TelegramWebAppDeepLink
         }
 
         return (bool) preg_match(
-            '#^/lavr/(chats|projects|commitments|meetings)/\d+$#',
+            '#^/lavr/(chats|projects|commitments|meetings|briefs)/\d+$#',
             $path,
         );
     }

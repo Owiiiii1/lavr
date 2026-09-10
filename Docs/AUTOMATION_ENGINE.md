@@ -58,7 +58,8 @@ ADR-277, ADR-278.
 | --- | --- | --- | --- |
 | **Reminder** | User (or system) acts at a **known time**: «напомни мне…» | `reminders` | Same |
 | **Watcher** | **Condition** in the future: «жди письмо…» | `watchers` | Same, hardened |
-| **Scheduled Report** | Periodic **composed digest** at clock time | `scheduled_reports` | Same + Executive Brief type |
+| **Scheduled Report** | Periodic **composed digest** at clock time | `scheduled_reports` | Same |
+| **Executive Brief** | Morning attention layer | `executive_briefs` + `automation_runs` | Evening/weekly UI |
 | **Event rule** | On operational event → automation | Partial (watcher poll + knowledge events + proactive heuristics) | First-class [EVENT_MODEL.md](EVENT_MODEL.md) |
 | **Follow-up** | Commitment / waiting tracking | In-app commitment notifications + `commitments:refresh-statuses`; Knowledge fallback remains | Policy-gated, commitment-linked (Phase 7/11) |
 
@@ -188,4 +189,4 @@ Default third-party contact: ask first. [COMMITMENTS.md](COMMITMENTS.md).
 
 ## Hardening work (Phase 7)
 
-**IMPLEMENTED** 2026-09-10. See [Development/LAVR_PHASE_7_REPORT.md](Development/LAVR_PHASE_7_REPORT.md). Remaining TARGET: Executive Brief redesign, full event bus, custom rule DSL — not this phase.
+**IMPLEMENTED** 2026-09-10. See [Development/LAVR_PHASE_7_REPORT.md](Development/LAVR_PHASE_7_REPORT.md). Executive Brief (Phase 8) hangs on the same `automation_runs` contract (`AutomationType::ExecutiveBrief`). Remaining TARGET: full event bus, custom rule DSL — not this phase.

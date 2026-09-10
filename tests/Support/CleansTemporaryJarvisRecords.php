@@ -14,6 +14,7 @@ use App\Models\Conversation;
 use App\Models\ConversationSummary;
 use App\Models\DirectoryRelationship;
 use App\Models\EmployeeProfile;
+use App\Models\ExecutiveBrief;
 use App\Models\IntegrationAccount;
 use App\Models\JarvisNotification;
 use App\Models\KnowledgeAnalysisRun;
@@ -136,6 +137,9 @@ trait CleansTemporaryJarvisRecords
         }
         if (Schema::hasTable('integration_accounts')) {
             IntegrationAccount::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('executive_briefs')) {
+            ExecutiveBrief::query()->where('user_id', $user->id)->delete();
         }
         if (Schema::hasTable('automation_runs')) {
             AutomationRun::query()->where('user_id', $user->id)->delete();

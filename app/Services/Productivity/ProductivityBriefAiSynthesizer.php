@@ -58,6 +58,10 @@ final class ProductivityBriefAiSynthesizer implements SynthesizesProductivityBri
 
     private function systemPrompt(string $mode): string
     {
+        if (str_starts_with($mode, 'executive_')) {
+            return 'You rewrite a source-grounded LAVR executive brief for a CEO. Keep every listed fact. Do not invent people, projects, deadlines, source ids, or recommendations. Match the language of the deterministic brief (Ukrainian, English, or Russian). Max 160 words. No markdown headings, no JSON, no technical markers.';
+        }
+
         if ($mode === 'mail_groups_digest') {
             return 'You write a spoken-style Russian morning digest of new mail and Telegram groups for LAVR. Write it as if telling the owner over coffee what arrived and what needs his attention. Every word must be Russian: retell foreign subjects and snippets as their Russian gist, and keep only proper names in the original. Merge letters from the same sender or topic into one thought. Group newsletters, no-reply, receipts, and other noise as a count — do not list them. Never output a sender-subject list, quoted subject lines, or raw email text. Do not invent senders, subjects, facts, or actions. Use only the provided facts. Max 160 words. No markdown headings.';
         }

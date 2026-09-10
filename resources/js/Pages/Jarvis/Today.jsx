@@ -1,6 +1,6 @@
 import LavrAppShell from '@/telegram/LavrAppShell';
 import { useTranslation } from '@/locales/useTranslation';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Component } from 'react';
 
 function Empty({ text }) {
@@ -39,14 +39,37 @@ class SectionGuard extends Component {
     }
 }
 
+function ItemList({ items }) {
+    return (
+        <ul className="space-y-2">
+            {items.map((item, index) => (
+                <li key={item.dedupe_key || item.id || `${item.title}-${index}`}>
+                    {item.deep_link || item.href ? (
+                        <Link href={item.deep_link || item.href} className="block rounded-xl bg-black/20 px-3 py-2">
+                            <p className="text-sm text-white">{item.title}</p>
+                            {item.summary ? <p className="text-xs text-slate-400">{item.summary}</p> : null}
+                        </Link>
+                    ) : (
+                        <div className="rounded-xl bg-black/20 px-3 py-2">
+                            <p className="text-sm text-white">{item.title}</p>
+                            {item.summary || item.when_label ? (
+                                <p className="text-xs text-slate-400">{item.summary || item.when_label}</p>
+                            ) : null}
+                        </div>
+                    )}
+                </li>
+            ))}
+        </ul>
+    );
+}
+
 export default function Today({ today }) {
     const { t } = useTranslation();
-    const tasks = today?.tasks || [];
-    const reminders = today?.reminders || [];
-    const notifications = today?.notifications || [];
-    const reports = today?.reports || [];
+    const attention = today?.attention || [];
+    const todayItems = today?.today_items || [];
     const events = today?.calendar || [];
     const fallback = t('today.sectionUnavailable');
+    const commitments = today?.commitments || [];
 
     return (
         <LavrAppShell>
@@ -56,48 +79,62 @@ export default function Today({ today }) {
                 <h1 className="mt-1 text-2xl font-semibold text-white">{today?.date_label || t('today.title')}</h1>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">{today?.summary}</p>
 
-                <div className="mt-6">
+                <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href={today?.ask_href || '/lavr'}
                         className="inline-flex min-h-12 min-w-[12rem] items-center justify-center rounded-2xl bg-[var(--tg-theme-button-color,#0ea5e9)] px-5 text-sm font-semibold text-[var(--tg-theme-button-text-color,#fff)]"
                     >
                         {t('today.ask')}
                     </Link>
+                    <button
+                        type="button"
+                        onClick={() => router.post('/lavr/briefs/generate')}
+                        className="inline-flex min-h-12 items-center rounded-2xl border border-white/15 px-4 text-sm text-slate-200"
+                    >
+                        {t('brief.generate')}
+                    </button>
                 </div>
 
                 <div className="mt-8 space-y-4">
+                    <SectionGuard title={t('brief.title')} fallback={fallback}>
+                        <Card title={t('brief.title')}>
+                            <p className="text-sm text-slate-200">{today?.summary}</p>
+                            <Link href={today?.brief_href || '/lavr/briefs'} className="mt-3 inline-flex min-h-11 items-center text-sm text-sky-300">
+                                {t('brief.open')}
+                            </Link>
+                        </Card>
+                    </SectionGuard>
+
                     <SectionGuard title={t('today.now')} fallback={fallback}>
                         <Card title={t('today.now')}>
-                            {notifications.length === 0 && tasks.length === 0 && reminders.length === 0 ? (
-                                <Empty text={t('today.noUrgent')} />
+                            {attention.length === 0 ? <Empty text={t('today.noUrgent')} /> : <ItemList items={attention} />}
+                        </Card>
+                    </SectionGuard>
+
+                    <SectionGuard title={t('today.calendar')} fallback={fallback}>
+                        <Card title={t('today.calendar')}>
+                            {today?.calendar_error ? (
+                                <Empty text={today.calendar_error} />
+                            ) : todayItems.length === 0 && events.length === 0 ? (
+                                <Empty text={today?.calendar_hint || t('today.noEvents')} />
                             ) : (
-                                <ul className="space-y-2">
-                                    {notifications.slice(0, 4).map((item) => (
-                                        <li key={`n-${item.id}`} className="rounded-xl bg-black/20 px-3 py-2">
-                                            <p className="text-sm text-white">{item.title}</p>
-                                            {item.body ? <p className="text-xs text-slate-400">{item.body}</p> : null}
-                                        </li>
-                                    ))}
-                                </ul>
+                                <ItemList items={todayItems.length > 0 ? todayItems : events} />
                             )}
-                            <Link href="/lavr/notifications" className="mt-3 inline-flex min-h-11 items-center text-sm text-sky-300">
-                                {t('today.allNotifications')}
-                            </Link>
                         </Card>
                     </SectionGuard>
 
                     <SectionGuard title={t('today.commitments')} fallback={fallback}>
                         <Card title={t('today.commitments')}>
-                            {(today?.commitments || []).length === 0 ? (
+                            {commitments.length === 0 ? (
                                 <Empty text={t('today.noCommitments')} />
                             ) : (
                                 <ul className="space-y-2">
-                                    {(today.commitments || []).map((item) => (
-                                        <li key={`c-${item.id}`}>
-                                            <Link href={item.href || `/lavr/commitments/${item.id}`} className="block rounded-xl bg-black/20 px-3 py-2">
+                                    {commitments.map((item) => (
+                                        <li key={`c-${item.id || item.title}`}>
+                                            <Link href={item.href || item.deep_link || `/lavr/commitments/${item.id}`} className="block rounded-xl bg-black/20 px-3 py-2">
                                                 <p className="text-sm text-white">{item.title}</p>
                                                 <p className="text-xs text-slate-400">
-                                                    {item.status}
+                                                    {item.status || item.summary || ''}
                                                     {item.person?.display_name ? ` · ${item.person.display_name}` : ''}
                                                 </p>
                                             </Link>
@@ -107,70 +144,6 @@ export default function Today({ today }) {
                             )}
                             <Link href="/lavr/commitments" className="mt-3 inline-flex min-h-11 items-center text-sm text-sky-300">
                                 {t('today.allCommitments')}
-                            </Link>
-                        </Card>
-                    </SectionGuard>
-
-                    <SectionGuard title={t('today.calendar')} fallback={fallback}>
-                        <Card title={t('today.calendar')}>
-                            {today?.calendar_error ? (
-                                <Empty text={today.calendar_error} />
-                            ) : events.length === 0 ? (
-                                <Empty text={today?.calendar_hint || t('today.noEvents')} />
-                            ) : (
-                                <ul className="space-y-2">
-                                    {events.map((item) => (
-                                        <li key={item.id || item.title} className="rounded-xl bg-black/20 px-3 py-2">
-                                            <p className="text-sm text-white">{item.title}</p>
-                                            {item.when_label ? <p className="text-xs text-slate-400">{item.when_label}</p> : null}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </Card>
-                    </SectionGuard>
-
-                    <SectionGuard title={t('today.tasksReminders')} fallback={fallback}>
-                        <Card title={t('today.tasksReminders')}>
-                            {tasks.length === 0 && reminders.length === 0 ? (
-                                <Empty text={t('today.noTasks')} />
-                            ) : (
-                                <ul className="space-y-2">
-                                    {tasks.map((item) => (
-                                        <li key={`task-${item.id}`} className="rounded-xl bg-black/20 px-3 py-2">
-                                            <p className="text-sm text-white">{item.title}</p>
-                                            {item.due_label ? <p className="text-xs text-slate-400">{item.due_label}</p> : null}
-                                        </li>
-                                    ))}
-                                    {reminders.map((item) => (
-                                        <li key={`reminder-${item.id}`} className="rounded-xl bg-black/20 px-3 py-2">
-                                            <p className="text-sm text-white">{item.text || item.title}</p>
-                                            {item.schedule_label ? <p className="text-xs text-slate-400">{item.schedule_label}</p> : null}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </Card>
-                    </SectionGuard>
-
-                    <SectionGuard title={t('today.reports')} fallback={fallback}>
-                        <Card title={t('today.reports')}>
-                            {reports.length === 0 ? (
-                                <Empty text={t('today.noReports')} />
-                            ) : (
-                                <ul className="space-y-2">
-                                    {reports.map((item) => (
-                                        <li key={item.id} className="rounded-xl bg-black/20 px-3 py-2 text-sm text-white">
-                                            {item.name}
-                                            {item.schedule_label ? (
-                                                <span className="mt-1 block text-xs text-slate-400">{item.schedule_label}</span>
-                                            ) : null}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                            <Link href="/lavr/reports" className="mt-3 inline-flex min-h-11 items-center text-sm text-sky-300">
-                                {t('today.allReports')}
                             </Link>
                         </Card>
                     </SectionGuard>

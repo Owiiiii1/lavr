@@ -57,6 +57,10 @@ final class ProductivityBriefDispatchService
             }
 
             foreach (ProductivityBriefMode::cases() as $mode) {
+                if ($mode === ProductivityBriefMode::Daily && (bool) $settings->morning_brief_enabled) {
+                    continue;
+                }
+
                 if (! $this->settings->isDue($settings, $mode->value, $user, $now)) {
                     continue;
                 }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\AutomationRun;
 use App\Models\Commitment;
+use App\Models\ExecutiveBrief;
 use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\Person;
@@ -11,6 +12,7 @@ use App\Models\Project;
 use App\Models\TelegramGroup;
 use App\Policies\AutomationRunPolicy;
 use App\Policies\CommitmentPolicy;
+use App\Policies\ExecutiveBriefPolicy;
 use App\Policies\MeetingPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\PersonPolicy;
@@ -18,6 +20,9 @@ use App\Policies\ProjectPolicy;
 use App\Policies\TelegramGroupPolicy;
 use App\Services\Ai\Contracts\AiChatGateway;
 use App\Services\Ai\ProviderAiChatGateway;
+use App\Services\Automation\ReportOutputValidator;
+use App\Services\ExecutiveBrief\ExecutiveBriefCollector;
+use App\Services\ExecutiveBrief\ExecutiveBriefComposer;
 use App\Services\Integrations\Google\GoogleCalendarService;
 use App\Services\Integrations\Google\GoogleGmailService;
 use App\Services\Integrations\IntegrationAccountService;
@@ -336,6 +341,21 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        $this->app->singleton(ExecutiveBriefCollector::class, function ($app): ExecutiveBriefCollector {
+            return new ExecutiveBriefCollector(
+                $app->make(IntegrationAccountService::class),
+                $app->make(GoogleCalendarService::class),
+                $app->make(GoogleGmailService::class),
+            );
+        });
+
+        $this->app->singleton(ExecutiveBriefComposer::class, function ($app): ExecutiveBriefComposer {
+            return new ExecutiveBriefComposer(
+                new ReportOutputValidator,
+                $app->make(SynthesizesProductivityBrief::class),
+            );
+        });
+
         $this->app->singleton(ProactiveDispatchService::class, function ($app): ProactiveDispatchService {
             return new ProactiveDispatchService(
                 new ProactivePolicy,
@@ -490,6 +510,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Meeting::class, MeetingPolicy::class);
         Gate::policy(Commitment::class, CommitmentPolicy::class);
         Gate::policy(AutomationRun::class, AutomationRunPolicy::class);
+        Gate::policy(ExecutiveBrief::class, ExecutiveBriefPolicy::class);
 
         RateLimiter::for('telegram-webapp', function (Request $request) {
             $perMinute = max(5, (int) config('telegram.webapp.rate_limit_per_minute', 20));

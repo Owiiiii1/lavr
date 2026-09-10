@@ -104,6 +104,8 @@ Engine: MySQL. CRM leftover tables were dropped. Vector DB is not used.
 
 **commitment_status_history:** from/to status, reason, optional `changed_by`.
 
+**executive_briefs:** Owner morning (also evening/weekly types). `sections_json` + `source_snapshot_json` (counts/errors, no bodies). Unique `(user_id, run_key)`.
+
 ---
 
 ## Framework

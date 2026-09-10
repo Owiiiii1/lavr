@@ -16,9 +16,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'weekly_review_weekday',
     'weekly_review_local_time',
     'proactive_enabled',
+    'morning_brief_enabled',
+    'morning_brief_local_time',
+    'morning_brief_telegram',
+    'morning_brief_inbox',
+    'morning_brief_weekends',
     'last_daily_brief_at',
     'last_evening_review_at',
     'last_weekly_review_at',
+    'last_morning_brief_at',
     'metadata',
 ])]
 class UserProductivitySetting extends Model
@@ -33,10 +39,15 @@ class UserProductivitySetting extends Model
             'evening_review_enabled' => 'boolean',
             'weekly_review_enabled' => 'boolean',
             'proactive_enabled' => 'boolean',
+            'morning_brief_enabled' => 'boolean',
+            'morning_brief_telegram' => 'boolean',
+            'morning_brief_inbox' => 'boolean',
+            'morning_brief_weekends' => 'boolean',
             'weekly_review_weekday' => 'integer',
             'last_daily_brief_at' => 'immutable_datetime',
             'last_evening_review_at' => 'immutable_datetime',
             'last_weekly_review_at' => 'immutable_datetime',
+            'last_morning_brief_at' => 'immutable_datetime',
             'metadata' => 'array',
         ];
     }
@@ -53,6 +64,11 @@ class UserProductivitySetting extends Model
         'weekly_review_weekday' => 7,
         'weekly_review_local_time' => '18:00',
         'proactive_enabled' => false,
+        'morning_brief_enabled' => true,
+        'morning_brief_local_time' => '08:30',
+        'morning_brief_telegram' => true,
+        'morning_brief_inbox' => true,
+        'morning_brief_weekends' => false,
     ];
 
     public function user(): BelongsTo

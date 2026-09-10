@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-10 (Phase 7 automation engine hardening; Phase 6 commitments)  
+**Date:** 2026-09-10 (Phase 8 Executive Brief; Phase 7 automation engine)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -43,8 +43,8 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Zoom Integration | Server-to-Server OAuth + `POST /webhooks/zoom` + `ProcessZoomTranscriptJob` → existing Meeting Intelligence. **LIVE ZOOM E2E: NOT VALIDATED** | Same; no bulk historical import yet |
 | Commitments | First-class `commitments` + evidence; Knowledge `CommitmentResolver` is fallback only when the table is empty | Same; email/Telegram extractors still TARGET |
 | Decisions | Group knowledge / events | First-class `decisions` |
-| Automation | Watchers + scheduled reports + briefs + proactive + `automation_runs` contract | Same; Executive Brief still TARGET |
-| Executive Brief | Scheduled reports + opt-in briefs | Attention-reduced daily/weekly brief |
+| Automation | Watchers + scheduled reports + briefs + proactive + `automation_runs` + morning Executive Brief | Same |
+| Executive Brief | First-class `executive_briefs` (morning); Today + `/lavr/briefs`; Telegram compact; **Owner live synthetic: NOT VALIDATED** | Evening/weekly UI not expanded |
 | Onboarding | Owner profile `completed` (legacy skip) | Business-map onboarding |
 | Telegram WebApp | **UX IMPLEMENTED / Mini App E2E NOT VALIDATED** on a real Telegram client | Same Workspace; HMAC session; Menu Button still needs token + Owner pairing |
 | Localization | **IMPLEMENTED.** Owner UI catalog `uk` / `en` / `ru`; default and fallback `uk`; `interface_locale` and `assistant_locale` on `user_assistant_profiles`; WebApp = Web. Admin kit `en`/`ru` fragments are not the product locale | Same; do not treat Admin locale as Owner Workspace locale |
@@ -197,7 +197,7 @@ Preferred interface language and preferred assistant language are **IMPLEMENTED*
 - Owner live commitments workflow (code **IMPLEMENTED**, not Owner-confirmed)
 - Zoom Integration: **IMPLEMENTED / LIVE ZOOM E2E NOT VALIDATED** (S2S OAuth, webhook, transcript ingest; no live Owner Zoom credentials on this host)
 - Owner live automation synthetic scenarios A–E (code **IMPLEMENTED**, not Owner-confirmed)
-- Executive Brief section model
+- Owner live Executive Brief synthetic morning scenario (code **IMPLEMENTED**, not Owner-confirmed)
 - Leadership Review
 - Multi-mailbox Google (one active account MVP)
 - Owner UI localization and preferred assistant language (**IMPLEMENTED** for current Owner Workspace surfaces). Admin technical UI is not fully translated. Do not treat Admin `locale` `en`/`ru` fragments as the product locale system.

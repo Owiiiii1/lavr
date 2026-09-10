@@ -32,6 +32,10 @@ Schedule::command('jarvis:reports:dispatch')
     ->everyFiveMinutes()
     ->withoutOverlapping(4);
 
+Schedule::command('executive-briefs:dispatch')
+    ->everyMinute()
+    ->withoutOverlapping(10);
+
 Schedule::command('jarvis:attachments:purge-ephemeral')
     ->hourly()
     ->withoutOverlapping(55);

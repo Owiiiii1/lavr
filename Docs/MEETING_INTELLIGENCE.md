@@ -16,7 +16,7 @@ First-class Meetings exist (Phase 5A, 2026-09-09).
 | Workspace `/lavr/meetings` + Admin `/meetings` | **IMPLEMENTED** |
 | AI read tools `list_meetings` `find_meeting` `get_meeting` `get_meeting_analysis` | **IMPLEMENTED** |
 | First-class `commitments` from `commitments_detected` | **IMPLEMENTED** (Phase 6; high confidence → `detected`; medium/low stay suggestions) |
-| First-class `decisions` rows | **NOT** — analysis JSON only |
+| First-class `decisions` rows | **NOT** — analysis JSON only; Executive Brief may surface them as decision-like items |
 | Zoom OAuth / webhook / cloud transcript ingest | **IMPLEMENTED / LIVE E2E NOT VALIDATED** |
 | Google Calendar | Live external source (no local event mirror) — ADR-072. Optional `source_external_id` on Meeting; no auto ingest |
 | Knowledge events | Index only — not a Meeting |

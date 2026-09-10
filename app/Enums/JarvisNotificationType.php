@@ -16,4 +16,5 @@ enum JarvisNotificationType: string
     case CommitmentDueSoon = 'commitment_due_soon';
     case CommitmentOverdue = 'commitment_overdue';
     case CommitmentLikelyDone = 'commitment_likely_done';
+    case ExecutiveBriefReady = 'executive_brief_ready';
 }

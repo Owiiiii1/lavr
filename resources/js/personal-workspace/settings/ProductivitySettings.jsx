@@ -18,6 +18,11 @@ export default function ProductivitySettings({ surface, settings, capabilities }
         weekly_review_weekday: Number(settings.productivity?.weekly_review_weekday || 7),
         weekly_review_local_time: settings.productivity?.weekly_review_local_time || '18:00',
         proactive_enabled: Boolean(settings.productivity?.proactive_enabled),
+        morning_brief_enabled: settings.productivity?.morning_brief_enabled !== false,
+        morning_brief_local_time: settings.productivity?.morning_brief_local_time || '08:30',
+        morning_brief_telegram: settings.productivity?.morning_brief_telegram !== false,
+        morning_brief_inbox: settings.productivity?.morning_brief_inbox !== false,
+        morning_brief_weekends: Boolean(settings.productivity?.morning_brief_weekends),
     });
     const [pushState, setPushState] = useState('disabled');
     const [webPushConfigured, setWebPushConfigured] = useState(false);
@@ -98,6 +103,45 @@ export default function ProductivitySettings({ surface, settings, capabilities }
                     description="Выключены по умолчанию. Время считается в вашем часовом поясе. Центры задач и напоминаний остаются на главном экране."
                 >
                     <div className="space-y-3 text-sm text-slate-200">
+                        <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Morning Brief</p>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Увімкнено</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.morning_brief_enabled)}
+                                onChange={(event) => productivityForm.setData('morning_brief_enabled', event.target.checked)}
+                            />
+                        </label>
+                        <input
+                            type="time"
+                            value={productivityForm.data.morning_brief_local_time}
+                            onChange={(event) => productivityForm.setData('morning_brief_local_time', event.target.value)}
+                            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-slate-100"
+                        />
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Telegram</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.morning_brief_telegram)}
+                                onChange={(event) => productivityForm.setData('morning_brief_telegram', event.target.checked)}
+                            />
+                        </label>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>In-app</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.morning_brief_inbox)}
+                                onChange={(event) => productivityForm.setData('morning_brief_inbox', event.target.checked)}
+                            />
+                        </label>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Вихідні</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.morning_brief_weekends)}
+                                onChange={(event) => productivityForm.setData('morning_brief_weekends', event.target.checked)}
+                            />
+                        </label>
                         <label className="flex items-center justify-between gap-3">
                             <span>Daily Brief</span>
                             <input

@@ -31,6 +31,11 @@ final class ProductivitySettingsService
             'weekly_review_weekday' => (int) config('productivity.briefs.weekly_weekday', 7),
             'weekly_review_local_time' => (string) config('productivity.briefs.weekly_local_time', '18:00'),
             'proactive_enabled' => false,
+            'morning_brief_enabled' => true,
+            'morning_brief_local_time' => (string) config('executive_brief.morning_local_time', '08:30'),
+            'morning_brief_telegram' => true,
+            'morning_brief_inbox' => true,
+            'morning_brief_weekends' => false,
         ]);
 
         return $settings;
@@ -54,6 +59,11 @@ final class ProductivitySettingsService
             'weekly_review_weekday' => $this->normalizeWeekday($attributes['weekly_review_weekday'] ?? $settings->weekly_review_weekday ?? $defaults->weekly_review_weekday),
             'weekly_review_local_time' => $this->normalizeTime($attributes['weekly_review_local_time'] ?? $settings->weekly_review_local_time ?? $defaults->weekly_review_local_time),
             'proactive_enabled' => (bool) ($attributes['proactive_enabled'] ?? $settings->proactive_enabled ?? $defaults->proactive_enabled),
+            'morning_brief_enabled' => (bool) ($attributes['morning_brief_enabled'] ?? $settings->morning_brief_enabled ?? $defaults->morning_brief_enabled),
+            'morning_brief_local_time' => $this->normalizeTime($attributes['morning_brief_local_time'] ?? $settings->morning_brief_local_time ?? $defaults->morning_brief_local_time),
+            'morning_brief_telegram' => (bool) ($attributes['morning_brief_telegram'] ?? $settings->morning_brief_telegram ?? $defaults->morning_brief_telegram),
+            'morning_brief_inbox' => (bool) ($attributes['morning_brief_inbox'] ?? $settings->morning_brief_inbox ?? $defaults->morning_brief_inbox),
+            'morning_brief_weekends' => (bool) ($attributes['morning_brief_weekends'] ?? $settings->morning_brief_weekends ?? $defaults->morning_brief_weekends),
         ]);
         $settings->save();
 
@@ -76,6 +86,11 @@ final class ProductivitySettingsService
             'weekly_review_weekday' => (int) $settings->weekly_review_weekday,
             'weekly_review_local_time' => (string) $settings->weekly_review_local_time,
             'proactive_enabled' => (bool) $settings->proactive_enabled,
+            'morning_brief_enabled' => (bool) $settings->morning_brief_enabled,
+            'morning_brief_local_time' => (string) ($settings->morning_brief_local_time ?: '08:30'),
+            'morning_brief_telegram' => (bool) $settings->morning_brief_telegram,
+            'morning_brief_inbox' => (bool) $settings->morning_brief_inbox,
+            'morning_brief_weekends' => (bool) $settings->morning_brief_weekends,
         ];
     }
 

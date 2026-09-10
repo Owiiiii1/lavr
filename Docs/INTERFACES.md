@@ -83,7 +83,7 @@ Target sections (product UX, not a current route map):
 | Section | Purpose |
 | --- | --- |
 | Chat | Same conversations as Telegram Chat / Web |
-| Today | Attention-reduced day view |
+| Today | Attention-reduced day view; Executive Brief card |
 | People | [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md) |
 | Projects | [PROJECTS.md](PROJECTS.md) |
 | Meetings | [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md) — list/detail; **import status** (manual vs Zoom); source; unresolved project/people; Zoom retry |
@@ -91,7 +91,7 @@ Target sections (product UX, not a current route map):
 | Tasks | Formal tasks — [TASKS.md](TASKS.md) |
 | Waiting For | What the CEO is waiting on |
 | Decisions | [DOMAIN_MODEL.md](DOMAIN_MODEL.md#decisions) |
-| Reports | Scheduled reports + Executive Brief |
+| Reports | Scheduled reports + Executive Brief (`/lavr/briefs`) |
 | Knowledge | Documents / index — [KNOWLEDGE_LAYER.md](KNOWLEDGE_LAYER.md) |
 | Notifications | Inbox |
 | Settings | Assistant, voice, integrations, policies; **UI language** and **preferred assistant language** (separate; default `uk`) |

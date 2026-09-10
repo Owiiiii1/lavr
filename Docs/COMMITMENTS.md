@@ -23,6 +23,7 @@ First-class `commitments` exist (2026-09-10). Knowledge `commitment_made` and `C
 | Confirm / dismiss / likely_done / confirmed / cancel / merge | **IMPLEMENTED** |
 | Workspace `/lavr/commitments` + Admin `/commitments` | **IMPLEMENTED** |
 | Today / Person / Project / Meeting surfaces | **IMPLEMENTED** |
+| Executive Brief collector (overdue / due today / likely_done / detected) | **IMPLEMENTED** (Phase 8) |
 | AI read: `list_commitments`, `find_commitment`, `get_commitment`; `get_person_status` prefers first-class | **IMPLEMENTED** |
 | AI write: manual create, confirm, mark confirmed, cancel, update deadline (Owner intent / confirmation) | **IMPLEMENTED** |
 | `commitments:refresh-statuses` every 15 min | **IMPLEMENTED** |

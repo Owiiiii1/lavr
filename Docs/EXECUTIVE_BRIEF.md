@@ -1,75 +1,61 @@
 # Executive Brief
 
-Canonical briefing product. Automation/validation: [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md). Domain: [DOMAIN_MODEL.md](DOMAIN_MODEL.md).
+Canonical briefing product. Automation/validation: [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md). Domain: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Report: [Development/LAVR_PHASE_8_REPORT.md](Development/LAVR_PHASE_8_REPORT.md).
 
 The Daily Executive Brief is a **central scenario**. Principle: **reduction to attention**, not volume.
 
 ---
 
-## CURRENT
+## CURRENT (Phase 8)
 
-Two related but different mechanisms:
+First-class `executive_briefs` (2026-09-10). Reuses the Phase 7 pipeline (COLLECT → NORMALIZE → PRIORITIZE → VALIDATE → optional AI → RENDER → DELIVER → RECORD). Not a second report engine. Not a `ScheduledReportType`.
 
-1. **Scheduled Reports** (`scheduled_reports`) — named, persisted, multi-source, local clock. Types: `daily_plan`, `tomorrow_plan`, `mail_groups_digest`, `custom_composite`. Workspace Center **Отчеты**. Tools `create_scheduled_report` etc. Dispatch `jarvis:reports:dispatch`.
-2. **Productivity briefs** — opt-in Daily/Evening/Weekly (`user_productivity_settings`), default off. Skipped if an active Scheduled Report already covers the same plan type.
+| Piece | Status |
+| --- | --- |
+| `executive_briefs` table + morning/evening/weekly types | **IMPLEMENTED** (UI is morning-first) |
+| Owner settings: enabled, local time, Telegram, in-app, weekends | **IMPLEMENTED** (timezone/locale = Owner profile; default recommendation 08:30, weekends off) |
+| Collectors: commitments, meetings + analysis, calendar, Gmail, blocked integrations, repeat automation failures | **IMPLEMENTED** |
+| Deterministic priority (`critical`/`high`/`normal`/`low`) + Attention Now | **IMPLEMENTED** |
+| Dedupe keys + previous-brief delta | **IMPLEMENTED** |
+| AI phrasing optional; invalid/truncated/JSON/unknown source → deterministic fallback | **IMPLEMENTED** |
+| Partial sources (Gmail/Calendar unavailable) | **IMPLEMENTED** |
+| Today `/lavr/today` uses latest morning brief as the layer | **IMPLEMENTED** |
+| Workspace `/lavr/briefs` + detail + Generate now | **IMPLEMENTED** |
+| Telegram one compact message + `brief_{id}` WebApp deep link | **IMPLEMENTED** |
+| Idempotent scheduled key `executive_brief:{user_id}:morning:{local-date}` | **IMPLEMENTED** |
+| Admin `/executive-briefs` (metrics, regenerate, no bodies) | **IMPLEMENTED** |
+| Owner live synthetic morning scenario | **NOT VALIDATED** |
 
-Neither is a full Executive Brief with Today / Inbox / Team / Commitments Due / Overdue / Waiting For / Decisions Needed / Risks / Follow-ups as first-class sections over operational People/Commitments/Meetings.
+Productivity Daily Brief is skipped when morning Executive Brief is enabled.
 
-Composer already has collect + phrasing validation + deterministic fallback (after 2026-09-09 incident fixes). Still not the TARGET section set or validation bar.
+Empty sections are omitted. Empty morning: short “no critical issues” copy, not a dump.
+
+Decisions are aggregated as brief items from Meeting Intelligence / detected commitments / blocked automations. No first-class `decisions` table.
+
+LAVR does not write third parties. Follow-ups are suggestions (“Нагадати?”).
 
 ---
 
-## TARGET
+## Pipeline
 
-First-class brief (daily and weekly) produced by the Automation Engine.
+COLLECT → NORMALIZE → PRIORITIZE → VALIDATE → OPTIONAL AI SYNTHESIS → RENDER → DELIVER → RECORD.
 
-Illustrative schedule:
+AI may compact wording. AI does not decide deadlines, overdue, source failure, schedule, or delivery idempotency.
 
-```text
-Daily 08:00
-Sources:
-- email
-- calendar
-- telegram
-- commitments
-- overdue
-- meetings
+---
 
-Format:
-executive_brief
-```
-
-Pipeline: **COLLECT → NORMALIZE → ANALYZE → VALIDATE → RENDER → DELIVER**  
-([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md)).
-
-### Sections
-
-| Block | Content |
-| --- | --- |
-| Today | Meetings / events |
-| Inbox | Only important changes |
-| Team | What happened with people / teams |
-| Commitments Due | Promised for today |
-| Overdue | Late |
-| Waiting For | What the CEO waits on |
-| Decisions Needed | Needs CEO decision |
-| Risks | What may slip |
-| Follow-ups | Who is worth writing |
-
-Empty sections are omitted or marked empty **after** validation — not dumped as “N/A” technical stubs.
-
-### Data sources
-
-Operational DB first (calendar bindings, commitments, tasks, meetings). Live mail/calendar/Telegram collectors second. Synthesis is a helper, not a substitute for missing structured rows.
-
-### Delivery
+## Delivery
 
 | Channel | Rendering |
 | --- | --- |
-| Telegram Chat | Short executive text; no IDs, no subject dumps |
-| Voice | Same canonical text, spoken |
-| Web / WebApp | Same content, richer layout (Today) |
+| Telegram Chat | One compact message; truncate to Attention + Open in LAVR if too long |
+| Web / WebApp | `/lavr/today` card + `/lavr/briefs/{id}` |
+| In-app inbox | Only when Telegram was not sent |
 
-Scheduled Report types should **gain** `executive_brief` (or equivalent) rather than invent a third briefing engine. Productivity briefs that duplicate it should remain skipped.
+Scheduled morning is skipped on weekends unless `morning_brief_weekends`. Manual generate always works.
 
-Phase 8.
+---
+
+## TARGET (later)
+
+Evening/weekly product surfaces, Leadership Review, first-class Decisions, PDF export — not Phase 8.
