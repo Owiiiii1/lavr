@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\AutomationRun;
 use App\Models\Commitment;
 use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Project;
 use App\Models\TelegramGroup;
+use App\Policies\AutomationRunPolicy;
 use App\Policies\CommitmentPolicy;
 use App\Policies\MeetingPolicy;
 use App\Policies\OrganizationPolicy;
@@ -487,6 +489,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Organization::class, OrganizationPolicy::class);
         Gate::policy(Meeting::class, MeetingPolicy::class);
         Gate::policy(Commitment::class, CommitmentPolicy::class);
+        Gate::policy(AutomationRun::class, AutomationRunPolicy::class);
 
         RateLimiter::for('telegram-webapp', function (Request $request) {
             $perMinute = max(5, (int) config('telegram.webapp.rate_limit_per_minute', 20));

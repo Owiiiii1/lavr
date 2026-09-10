@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import {
     ChevronDown,
+    Activity,
     CalendarDays,
     ChartColumn,
     FileText,
@@ -40,6 +41,7 @@ const primaryNavItems = [
     { route: 'organizations.index', icon: Building2, activePattern: 'organizations.*' },
     { route: 'meetings.index', icon: Video, activePattern: 'meetings.*' },
     { route: 'commitments.index', icon: ListChecks, activePattern: 'commitments.*' },
+    { route: 'automation-runs.index', icon: Activity, activePattern: 'automation-runs.*' },
     { route: 'telegram-groups.index', icon: MessagesSquare, activePattern: 'telegram-groups.*' },
     { route: 'calendar.index', icon: CalendarDays },
 ];
@@ -57,6 +59,7 @@ function navLabel(routeName, t) {
     if (routeName === 'organizations.index') return t.organizations;
     if (routeName === 'meetings.index') return t.meetings;
     if (routeName === 'commitments.index') return t.commitments;
+    if (routeName === 'automation-runs.index') return t.automationRuns;
     if (routeName === 'telegram-groups.index') return t.telegramGroups;
     if (routeName === 'calendar.index') return t.calendar;
     return routeName;
@@ -107,6 +110,7 @@ export default function AdminLayout({ title, children }) {
             organizations: 'Organizations',
             meetings: 'Meetings',
             commitments: 'Commitments',
+            automationRuns: 'Automation Runs',
             telegramGroups: 'Telegram Groups',
             calendar: 'Calendar',
             settings: 'Settings',
@@ -125,6 +129,7 @@ export default function AdminLayout({ title, children }) {
             organizations: 'Organizations',
             meetings: 'Meetings',
             commitments: 'Обязательства',
+            automationRuns: 'Automation Runs',
             telegramGroups: 'Telegram Groups',
             calendar: 'Календарь',
             settings: 'Настройки',
@@ -143,6 +148,7 @@ export default function AdminLayout({ title, children }) {
             organizations: 'Organizations',
             meetings: 'Meetings',
             commitments: 'Зобов’язання',
+            automationRuns: 'Automation Runs',
             telegramGroups: 'Telegram Groups',
             calendar: 'Календар',
             settings: 'Налаштування',

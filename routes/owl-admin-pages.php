@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AutomationRunController;
 use App\Http\Controllers\CabinetChatController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CommitmentController;
@@ -420,6 +421,9 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::post('/commitments/{commitment}/complete', [CommitmentController::class, 'complete'])->name('commitments.complete');
     Route::post('/commitments/{commitment}/evidence', [CommitmentController::class, 'evidence'])->name('commitments.evidence');
     Route::post('/commitments/{commitment}/merge', [CommitmentController::class, 'merge'])->name('commitments.merge');
+
+    Route::get('/automation-runs', [AutomationRunController::class, 'index'])->name('automation-runs.index');
+    Route::post('/automation-runs/{automationRun}/retry', [AutomationRunController::class, 'retry'])->name('automation-runs.retry');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
 

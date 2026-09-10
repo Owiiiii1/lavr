@@ -48,6 +48,10 @@ Schedule::command('commitments:refresh-statuses')
     ->everyFifteenMinutes()
     ->withoutOverlapping(10);
 
+Schedule::command('automation:recover-stale-runs')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping(10);
+
 Schedule::command('queue:work database --queue=analysis,memory,default --stop-when-empty --max-time=50 --tries=3 --timeout=180')
     ->everyMinute()
     ->withoutOverlapping(1);

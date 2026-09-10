@@ -94,6 +94,17 @@ class ScheduledReportComposerTest extends TestCase
         $this->assertSame($spoken, $result['text']);
     }
 
+    public function test_raw_json_ai_output_falls_back_to_the_deterministic_report(): void
+    {
+        $composer = new ScheduledReportComposer($this->synthesizer('{"subjects":["a","b"]}'));
+
+        $result = $composer->compose($this->user(), $this->report(), $this->collected());
+
+        $this->assertFalse($result['ai_used']);
+        $this->assertStringContainsString('Заполнить материалы', $result['text']);
+        $this->assertStringNotContainsString('{"subjects"', $result['text']);
+    }
+
     public function test_truncated_mail_digest_ai_falls_back_to_prose(): void
     {
         $composer = new ScheduledReportComposer($this->synthesizer('Доброе утро. Сводка по почте,'));

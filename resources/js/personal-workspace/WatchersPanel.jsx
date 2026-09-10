@@ -21,10 +21,11 @@ function WatcherCard({ watcher, busyId, onPause, onResume, onCancel }) {
     return (
         <WorkspaceCard
             title={watcher.description || watcher.name}
-            secondary={watcher.state_label}
+            secondary={watcher.last_result_label || watcher.state_label}
             secondaryTone={watcher.problem_label ? 'alert' : 'muted'}
-            meta={[watcher.linked?.project, watcher.linked?.entity]}
+            meta={[watcher.linked?.project, watcher.linked?.entity, watcher.state_label]}
             problem={watcher.problem_label}
+            badge={watcher.badge}
             muted={closed}
             actions={[
                 watcher.pausable ? { label: 'Приостановить', onSelect: () => onPause(watcher) } : null,

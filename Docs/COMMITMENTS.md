@@ -26,8 +26,10 @@ First-class `commitments` exist (2026-09-10). Knowledge `commitment_made` and `C
 | AI read: `list_commitments`, `find_commitment`, `get_commitment`; `get_person_status` prefers first-class | **IMPLEMENTED** |
 | AI write: manual create, confirm, mark confirmed, cancel, update deadline (Owner intent / confirmation) | **IMPLEMENTED** |
 | `commitments:refresh-statuses` every 15 min | **IMPLEMENTED** |
-| In-app notifications on open / due_soon / overdue / likely_done (deduped) | **IMPLEMENTED** |
-| Telegram outbound commitment alerts | **NOT** (not a Phase 6 blocker) |
+| In-app notifications on open / due_soon / overdue / likely_done (deduped once per status) | **IMPLEMENTED** |
+| Overdue follow-up is a **suggestion** (“нагадати?”); no auto-message to the person | **IMPLEMENTED** (Phase 7) |
+| Commitment transitions recorded on `automation_runs` | **IMPLEMENTED** (Phase 7) |
+| Telegram outbound commitment alerts to Owner (optional linked channel) | **IMPLEMENTED** (Owner channel only; not to third parties) |
 | Email / Telegram extraction pipelines | **NOT** (generic promotion interface is ready) |
 | Owner live synthetic workflow | **NOT VALIDATED** |
 

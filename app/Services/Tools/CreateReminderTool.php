@@ -87,7 +87,10 @@ final class CreateReminderTool implements JarvisTool
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
         $inboundText = trim((string) ($context->inbound?->body ?? ''));
-        if ($inboundText !== '' && ScheduledReportIntent::matches($inboundText)) {
+        if ($inboundText !== '' && (
+            ScheduledReportIntent::matches($inboundText)
+            || ProactiveCheckIntent::jarvisShouldMonitorMail($inboundText)
+        )) {
             return ToolResult::failure($call->id, $this->name(), [
                 'success' => false,
                 'error' => 'use_scheduled_report',
@@ -99,8 +102,7 @@ final class CreateReminderTool implements JarvisTool
             && $this->watchers !== null
             && $context->user->canUseCapability(UserCapability::GMAIL)
             && ! ProactiveCheckIntent::userSelfReminder($inboundText)
-            && (ProactiveCheckIntent::jarvisShouldMonitorMail($inboundText)
-                || ProactiveCheckIntent::isGmailEventMonitoring($inboundText))) {
+            && ProactiveCheckIntent::isGmailEventMonitoring($inboundText)) {
             return $this->watchers->execute($call, $context);
         }
 

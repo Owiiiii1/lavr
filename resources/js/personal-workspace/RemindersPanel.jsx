@@ -56,15 +56,17 @@ function ReminderCard({ reminder, busyId, onDone, onCancel, onEdit, onSnooze }) 
     return (
         <WorkspaceCard
             title={reminder.text}
-            secondary={reminder.schedule_label}
+            secondary={reminder.last_result_label || reminder.schedule_label}
             secondaryTone={reminder.is_due ? 'alert' : 'muted'}
             meta={[
                 past || closed ? reminder.status_label : null,
                 reminder.task_label,
                 reminder.recurrence ? recurrenceLabel(reminder.recurrence) : null,
                 reminder.timezone_label,
+                reminder.schedule_label,
             ]}
             problem={past ? null : reminder.problem_label}
+            badge={reminder.badge}
             muted={past || closed}
             primaryAction={
                 showDone

@@ -442,8 +442,8 @@ class WatchersTest extends TestCase
             $this->assertStringContainsString('create_watcher', $guidance);
             $this->assertStringContainsString('still_open', $guidance);
             $this->assertStringContainsString('hours=24', $guidance);
-            $this->assertStringContainsString('проверяй каждое утро почту', $guidance);
-            $this->assertStringContainsString('Jarvis-performed check', $guidance);
+            $this->assertStringContainsString('каждое утро дай сводку почты', $guidance);
+            $this->assertStringContainsString('create_scheduled_report', $guidance);
             $this->assertStringContainsString('ProactiveDispatchService', file_get_contents(base_path('app/Services/Productivity/ProactiveDispatchService.php')));
             $this->assertStringNotContainsString('ProactiveDispatchService', file_get_contents(base_path('app/Services/Watchers/WatcherEvaluationService.php')));
             $this->assertTrue(class_exists(ProactiveDispatchService::class));

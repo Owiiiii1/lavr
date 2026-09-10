@@ -5,6 +5,7 @@ namespace App\Services\Reports;
 use App\Enums\ScheduledReportType;
 use App\Models\ScheduledReport;
 use App\Models\User;
+use App\Services\Automation\ReportOutputValidator;
 use App\Services\Productivity\ProductivityBriefPhrasing;
 use App\Services\Productivity\SynthesizesProductivityBrief;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,7 @@ final class ScheduledReportComposer
 {
     public function __construct(
         private readonly ?SynthesizesProductivityBrief $synthesizer = null,
+        private readonly ReportOutputValidator $validator = new ReportOutputValidator,
     ) {}
 
     /**
@@ -34,7 +36,8 @@ final class ScheduledReportComposer
             ]);
 
             $candidate = is_string($phrased) ? trim($phrased) : '';
-            $skip = $this->phrasingSkipReason($deterministic, $candidate, $report->report_type);
+            $skip = $this->phrasingSkipReason($deterministic, $candidate, $report->report_type)
+                ?? $this->validator->rejectReason($candidate);
             if ($skip === null) {
                 $text = $candidate;
                 $aiUsed = true;
@@ -72,11 +75,14 @@ final class ScheduledReportComposer
         if ($report->report_type === ScheduledReportType::MailGroupsDigest) {
             $lines[] = $this->mailSection($items['gmail'] ?? []);
             $lines[] = $this->groupsSection($items['telegram_groups'] ?? []);
+            $lines[] = $this->namedSection('Follow-ups', $items['commitments'] ?? []);
         } else {
-            $lines[] = $this->section('Календарь', $items['calendar'] ?? []);
-            $lines[] = $this->section('Задачи', $items['tasks'] ?? []);
-            $lines[] = $this->section('Напоминания', $items['reminders'] ?? []);
-            $lines[] = $this->section('Планы и обязательства', $items['synthesis'] ?? []);
+            $lines[] = $this->namedSection('Important', $this->importantItems($items));
+            $lines[] = $this->namedSection('Календарь', $items['calendar'] ?? []);
+            $lines[] = $this->namedSection('Задачи', $items['tasks'] ?? []);
+            $lines[] = $this->namedSection('Напоминания', $items['reminders'] ?? []);
+            $lines[] = $this->namedSection('Обязательства', $items['commitments'] ?? []);
+            $lines[] = $this->namedSection('Планы и обязательства', $items['synthesis'] ?? []);
         }
 
         foreach ($collected['errors'] ?? [] as $error) {
@@ -87,7 +93,54 @@ final class ScheduledReportComposer
 
         $text = trim(implode("\n", array_filter($lines)));
 
-        return $text !== '' ? $text : $heading.': нет данных за этот период.';
+        return $text !== '' ? $text : 'На цей момент немає нових важливих подій.';
+    }
+
+    /**
+     * @param  list<array{title?: string}>  $items
+     */
+    private function namedSection(string $title, array $items): string
+    {
+        if ($items === []) {
+            return '';
+        }
+
+        $names = [];
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+            $name = trim((string) ($item['title'] ?? ''));
+            if ($name !== '') {
+                $names[] = $name;
+            }
+        }
+
+        if ($names === []) {
+            return '';
+        }
+
+        return $title.': '.implode('; ', array_slice($names, 0, 8));
+    }
+
+    /**
+     * @param  array<string, mixed>  $items
+     * @return list<array{title?: string}>
+     */
+    private function importantItems(array $items): array
+    {
+        $important = [];
+        foreach ($items['gmail'] ?? [] as $item) {
+            if (! is_array($item) || ($item['bucket'] ?? '') !== 'important') {
+                continue;
+            }
+            $title = trim((string) ($item['sender'] ?? '')).' — '.trim((string) ($item['subject'] ?? ''));
+            if ($title !== ' — ') {
+                $important[] = ['title' => $title];
+            }
+        }
+
+        return $important;
     }
 
     /**
@@ -95,19 +148,7 @@ final class ScheduledReportComposer
      */
     private function section(string $title, array $items): string
     {
-        if ($items === []) {
-            return $title.': нет.';
-        }
-
-        $names = [];
-        foreach ($items as $item) {
-            $name = trim((string) ($item['title'] ?? ''));
-            if ($name !== '') {
-                $names[] = $name;
-            }
-        }
-
-        return $title.': '.implode('; ', array_slice($names, 0, 8));
+        return $this->namedSection($title, $items);
     }
 
     /**

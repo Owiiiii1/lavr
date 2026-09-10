@@ -575,6 +575,9 @@ class RemindersTest extends TestCase
             $fake->script[] = function () {
                 throw new \RuntimeException('follow-up failed');
             };
+            $fake->script[] = function () {
+                throw new \RuntimeException('synthesis failed');
+            };
 
             $this->actingAs($user)->postJson('/cabinet/chats/'.$conversation->id.'/messages', [
                 'body' => 'Напомни через час проверить Jarvis',

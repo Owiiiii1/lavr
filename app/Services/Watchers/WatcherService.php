@@ -2,6 +2,7 @@
 
 namespace App\Services\Watchers;
 
+use App\Enums\AutomationType;
 use App\Enums\WatcherConditionType;
 use App\Enums\WatcherCreatedBy;
 use App\Enums\WatcherHealth;
@@ -11,6 +12,7 @@ use App\Enums\WatcherSourceType;
 use App\Enums\WatcherStatus;
 use App\Enums\WatcherTriggerType;
 use App\Jobs\EvaluateWatcherJob;
+use App\Models\AutomationRun;
 use App\Models\IntegrationAccount;
 use App\Models\KnowledgeEntity;
 use App\Models\Project;
@@ -19,11 +21,13 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Watcher;
 use App\Models\WatcherOccurrence;
+use App\Services\Automation\AutomationHealthService;
 use App\Services\Knowledge\KnowledgeEntityResolver;
 use App\Services\Knowledge\KnowledgeNameNormalizer;
 use App\Services\Synthesis\SynthesisCache;
 use App\Services\Users\UserCapability;
 use App\Services\Watchers\Exceptions\WatcherException;
+use App\Services\Workspace\Presentation\HumanAutomationResult;
 use App\Services\Workspace\Presentation\HumanMoment;
 use App\Services\Workspace\Presentation\HumanStatusLabel;
 use App\Services\Workspace\Presentation\HumanWatcherDescription;
@@ -359,6 +363,9 @@ final class WatcherService
         $timezone = (string) ($timezone ?: 'UTC');
         $names = $this->linkedNames($watcher);
 
+        $health = (new AutomationHealthService)->forWatcher($watcher);
+        $last = AutomationRun::latestFor(AutomationType::Watcher, (int) $watcher->id);
+
         return [
             'id' => (int) $watcher->id,
             'public_id' => $watcher->public_id,
@@ -367,6 +374,9 @@ final class WatcherService
             'state_label' => HumanStatusLabel::watcherState($watcher, $timezone),
             'problem_label' => HumanStatusLabel::watcherProblem($watcher),
             'last_triggered_label' => HumanMoment::label($watcher->last_triggered_at, $timezone),
+            'last_result_label' => HumanAutomationResult::label($last),
+            'automation_health' => $health->value,
+            'badge' => HumanAutomationResult::healthBadge($health),
             'linked' => array_filter([
                 'task' => $names['task'],
                 'project' => $names['project'],

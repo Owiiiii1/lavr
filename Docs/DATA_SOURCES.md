@@ -38,6 +38,8 @@ On-demand translation for the Owner (UI or assistant) must not overwrite the sto
 
 Permissions: Owner/client account owns integrations. Encrypted credentials. Tool confirmation for external writes.
 
+Scheduled report collectors are **independent**. Gmail or Calendar failure returns a safe section error; the rest of the report still delivers (`partial`). Revoked Gmail auth is `blocked`, not an endless retry. [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md).
+
 ---
 
 ## TARGET sources

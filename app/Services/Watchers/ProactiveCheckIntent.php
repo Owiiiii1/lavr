@@ -41,7 +41,7 @@ final class ProactiveCheckIntent
             $normalized,
         ) === 1;
 
-        if ($event === 1) {
+        if ($event) {
             return true;
         }
 

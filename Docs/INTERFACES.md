@@ -120,8 +120,11 @@ Admin remains necessary for:
 - People, Organizations, Projects, Meetings, Commitments, Tasks (Tasks already exist);
 - confirming Meeting project binding and unresolved Zoom/manual participants;
 - Sources, Integrations, Watchers, Scheduled Reports;
+- **Automation Runs** (`/automation-runs`) — technical run log, retry failed run;
 - system settings, diagnostics, AI prompts/configuration;
 - confirming difficult identity / relationship links.
+
+Workspace (Owner daily): Reminders / Watchers / Reports show enabled, next/last, last human result, blocked/degraded badge, pause. Today shows actionable results only, not technical run errors.
 
 Admin ≠ conversation channel. [PRODUCT.md](PRODUCT.md).
 

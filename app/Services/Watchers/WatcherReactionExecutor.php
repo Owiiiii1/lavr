@@ -8,6 +8,7 @@ use App\Enums\WatcherReactionType;
 use App\Models\User;
 use App\Models\Watcher;
 use App\Models\WatcherOccurrence;
+use App\Services\Automation\ExternalActionPolicy;
 use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Notifications\NotificationUrlPolicy;
 use App\Services\Reminders\ReminderService;
@@ -24,6 +25,7 @@ final class WatcherReactionExecutor
         private readonly TaskService $tasks,
         private readonly ReminderService $reminders,
         private readonly WatcherAnalysisService $analysis,
+        private readonly ExternalActionPolicy $policy = new ExternalActionPolicy,
     ) {}
 
     public function execute(User $user, Watcher $watcher, WatcherOccurrence $occurrence, WatcherObservation $observation): void
@@ -105,6 +107,7 @@ final class WatcherReactionExecutor
     private function propose(User $user, Watcher $watcher, WatcherOccurrence $occurrence, WatcherObservation $observation, array $config): void
     {
         $tool = trim((string) ($config['tool'] ?? $config['proposed_tool'] ?? 'send_gmail_message'));
+        $this->policy->levelFor($user, $tool);
         $this->notify(
             $user,
             $watcher,

@@ -2,12 +2,17 @@
 
 namespace App\Services\Productivity;
 
+use App\Enums\AutomationRunOutcome;
+use App\Enums\AutomationType;
 use App\Enums\JarvisNotificationType;
 use App\Enums\SynthesisType;
 use App\Models\JarvisNotification;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\UserProductivitySetting;
+use App\Services\Automation\AutomationExecutor;
+use App\Services\Automation\AutomationResult;
+use App\Services\Automation\AutomationRunKey;
 use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Notifications\NotificationUrlPolicy;
 use App\Services\Synthesis\CrossSourceSynthesisService;
@@ -111,6 +116,23 @@ final class ProactiveDispatchService
                             'ai_phrased' => $aiUsed,
                         ],
                         $aiUsed,
+                    );
+
+                    app(AutomationExecutor::class)->run(
+                        $user,
+                        AutomationType::Proactive,
+                        (int) $task->id,
+                        AutomationRunKey::proactive((int) $user->id, (string) $event['dedupe_key']),
+                        function () use ($row): AutomationResult {
+                            return AutomationResult::of(
+                                $row === null ? AutomationRunOutcome::NoChange : AutomationRunOutcome::Success,
+                                $row === null ? 'deduped' : 'suggested',
+                                '',
+                                0,
+                                [],
+                                $row === null ? 'deduped' : 'success',
+                            );
+                        },
                     );
 
                     if ($row !== null) {

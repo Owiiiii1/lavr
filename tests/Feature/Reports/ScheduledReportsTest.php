@@ -330,7 +330,7 @@ class ScheduledReportsTest extends TestCase
             $reminder = app(CreateReminderTool::class)->execute(
                 new ToolCall('r1', CreateReminderTool::NAME, [
                     'text' => 'проверить почту',
-                    'run_at_local' => '2026-09-09T09:00:00+02:00',
+                    'run_at_local' => '2026-12-15T09:00:00+02:00',
                 ]),
                 new ToolExecutionContext($user, $reminderInbound->conversation, $reminderInbound),
             );

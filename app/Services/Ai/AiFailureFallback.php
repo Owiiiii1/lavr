@@ -8,6 +8,7 @@ use App\Services\Ai\Exceptions\AiSafetyException;
 use App\Services\Tools\CompleteAssistantOnboardingTool;
 use App\Services\Tools\CreateReminderTool;
 use App\Services\Tools\CreateTaskTool;
+use App\Services\Tools\Reports\CreateScheduledReportTool;
 use App\Services\Tools\SetTelegramResponseModeTool;
 use App\Services\Tools\Synthesis\GetSynthesisTool;
 use App\Services\Tools\Synthesis\ListCommitmentsTool;
@@ -33,6 +34,7 @@ final class AiFailureFallback
         CreateReminderTool::NAME,
         CreateTaskTool::NAME,
         CreateWatcherTool::NAME,
+        CreateScheduledReportTool::NAME,
         SetTelegramResponseModeTool::NAME,
         UpdateAssistantProfileTool::NAME,
     ];

@@ -62,7 +62,7 @@ ADR-277, ADR-278.
 | **Event rule** | On operational event → automation | Partial (watcher poll + knowledge events + proactive heuristics) | First-class [EVENT_MODEL.md](EVENT_MODEL.md) |
 | **Follow-up** | Commitment / waiting tracking | In-app commitment notifications + `commitments:refresh-statuses`; Knowledge fallback remains | Policy-gated, commitment-linked (Phase 7/11) |
 
-Routing already exists in tools (`CreateReminderTool`, `CreateWatcherTool`, `ScheduledReportIntent`) and must stay strict. Leftover: Gmail digest watchers can still be shaped when report intent does not match (`WatcherDigestRequest`). **Target:** periodic mail digest is only a Scheduled Report.
+Routing already exists in tools (`CreateReminderTool`, `CreateWatcherTool`, `ScheduledReportIntent`, `AutomationIntentRouter`) and stays strict. Periodic mail digest is only a Scheduled Report. `WatcherDigestRequest` remains for **legacy evaluation tests**, not the create-tool path.
 
 ---
 
@@ -70,13 +70,55 @@ Routing already exists in tools (`CreateReminderTool`, `CreateWatcherTool`, `Sch
 
 | Job | Interval | Role |
 | --- | --- | --- |
-| `jarvis:reminders:dispatch` | 1 min | Due reminders |
+| `jarvis:reminders:dispatch` | 1 min | Due reminders (claim → deliver → `automation_runs`) |
 | `jarvis:tasks:dispatch` | 5 min | Task due/overdue |
-| `jarvis:watchers:dispatch` | 5 min | Evaluate watchers |
+| `jarvis:watchers:dispatch` | 5 min | Claim due watchers → `EvaluateWatcherJob` |
 | `jarvis:reports:dispatch` | 5 min | Scheduled reports |
 | `jarvis:briefs:dispatch` | 1 min | Opt-in productivity briefs |
-| `jarvis:proactive:dispatch` | 5 min | Heuristic suggestions |
+| `jarvis:proactive:dispatch` | 5 min | Heuristic suggestions (no external side-effect) |
 | `commitments:refresh-statuses` | 15 min | Deterministic `due_soon` / `overdue`; notifies once per status transition |
+| `automation:recover-stale-runs` | 15 min | Processing `automation_runs` older than N minutes → `retryable` / `failed_stale` |
+
+Scheduler only decides **what is due**. Heavy work is in services/jobs. Recurring objects use unique slot/`run_key` plus cache lock.
+
+### Unified result
+
+Every automation flow records `automation_runs` with status:
+
+`success` | `skipped` | `no_change` | `partial` | `failed` | `retryable`
+
+plus reason code, duration, source counts, delivery result, safe error class. No email bodies, transcripts, or secrets.
+
+`run_key` examples:
+
+- `reminder:{id}:2026-09-10T09:00`
+- `watcher:{id}:poll:2026-09-10T10:15`
+- `scheduled_report:{id}:{slot}`
+- `commitment:{id}:{status}:v1`
+
+Retry of the same logical run reuses the key. Duplicate scheduler ticks do not double-deliver.
+
+### Report pipeline
+
+COLLECT (independent source collectors, partial allowed) → deterministic sections → optional AI synthesis → `ReportOutputValidator` → render → deliver → record.
+
+If AI is disabled, times out, or fails validation: deterministic fallback is delivered. Empty sections are omitted. Calendar/Gmail failure does not abort the rest (`partial`). Auth revoked marks `blocked` and does not retry forever.
+
+### Watcher contract
+
+Condition + source + interval + cursor fingerprint + enabled + health. Notify on **transition**, not every poll while the condition stays true. LLM memory is not state.
+
+### External actions
+
+`ExternalActionPolicy`: read / suggest / draft / execute. Third-party writes default to **suggest**. Watcher `propose_action` never silent-sends email, Telegram to a person, calendar, or CRM.
+
+### Health
+
+Computed `healthy` / `degraded` / `blocked` / `disabled` on reminders, watchers, reports. Workspace shows last human result + badge. Admin `/automation-runs` is the technical log.
+
+Lightweight `AutomationEvent` (`commitment.overdue`, `watcher.matched`, `report.completed`) is logged; there is no Phase 11 event bus table.
+
+---
 
 Scheduled report compose: collect → deterministic RU sections → optional AI phrase → skip AI if empty / phrasing incomplete / not substantial → deliver. Live bugs (truncated AI, subject lists, calendar DI) were patched; see [CURRENT_STATE.md](CURRENT_STATE.md). This is **not** yet the full COLLECT → VALIDATE → RENDER → DELIVER contract below.
 
@@ -146,11 +188,4 @@ Default third-party contact: ask first. [COMMITMENTS.md](COMMITMENTS.md).
 
 ## Hardening work (Phase 7)
 
-Not a rewrite from zero. Tighten CURRENT objects:
-
-- keep reminder / watcher / report routing airtight;
-- retire digest-watchers as a report path;
-- validation + fallback for all automated AI text;
-- stop semantic mix-ups in tool prompts;
-- event rules as consumers of [EVENT_MODEL.md](EVENT_MODEL.md);
-- no technical leakage to Telegram.
+**IMPLEMENTED** 2026-09-10. See [Development/LAVR_PHASE_7_REPORT.md](Development/LAVR_PHASE_7_REPORT.md). Remaining TARGET: Executive Brief redesign, full event bus, custom rule DSL — not this phase.

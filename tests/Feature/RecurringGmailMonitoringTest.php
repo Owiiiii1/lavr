@@ -130,7 +130,7 @@ class RecurringGmailMonitoringTest extends TestCase
             $result = app(CreateReminderTool::class)->execute(
                 new ToolCall('c1', CreateReminderTool::NAME, [
                     'text' => 'проверить почту',
-                    'run_at_local' => '2026-09-09T09:00:00+02:00',
+                    'run_at_local' => '2026-12-15T09:00:00+02:00',
                 ]),
                 new ToolExecutionContext($user, $inbound->conversation, $inbound),
             );
@@ -275,8 +275,7 @@ class RecurringGmailMonitoringTest extends TestCase
             );
 
             $this->assertFalse($result->success);
-            $this->assertSame('google_not_connected', $result->payload['error']);
-            $this->assertSame('Могу это делать, но сначала нужно подключить Gmail.', $result->payload['message'] ?? null);
+            $this->assertSame('use_scheduled_report', $result->payload['error'] ?? null);
             $this->assertSame(0, Watcher::query()->where('user_id', $user->id)->count());
             $this->assertSame(0, Reminder::query()->where('user_id', $user->id)->count());
         } finally {
@@ -300,8 +299,7 @@ class RecurringGmailMonitoringTest extends TestCase
             );
 
             $this->assertFalse($result->success);
-            $this->assertSame('gmail_scope_required', $result->payload['error']);
-            $this->assertSame('Нужно разрешить доступ к Gmail.', $result->payload['message'] ?? null);
+            $this->assertSame('use_scheduled_report', $result->payload['error'] ?? null);
         } finally {
             $this->deleteTemporaryUser($user);
         }

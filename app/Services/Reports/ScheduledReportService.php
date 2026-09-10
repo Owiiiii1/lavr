@@ -2,13 +2,17 @@
 
 namespace App\Services\Reports;
 
+use App\Enums\AutomationType;
 use App\Enums\ScheduledReportPeriodMode;
 use App\Enums\ScheduledReportScheduleKind;
 use App\Enums\ScheduledReportStatus;
 use App\Enums\ScheduledReportType;
+use App\Models\AutomationRun;
 use App\Models\ScheduledReport;
 use App\Models\User;
+use App\Services\Automation\AutomationHealthService;
 use App\Services\Users\UserCapability;
+use App\Services\Workspace\Presentation\HumanAutomationResult;
 use App\Services\Workspace\Presentation\HumanScheduledReportDescription;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -234,6 +238,9 @@ final class ScheduledReportService
     {
         $sources = HumanScheduledReportDescription::sourceLabels($report);
 
+        $health = (new AutomationHealthService)->forReport($report);
+        $last = AutomationRun::latestFor(AutomationType::ScheduledReport, (int) $report->id);
+
         return [
             'id' => (int) $report->id,
             'name' => (string) $report->name,
@@ -249,6 +256,9 @@ final class ScheduledReportService
             'timezone' => (string) $report->timezone,
             'next_run_at' => optional($report->next_run_at)?->toIso8601String(),
             'last_success_at' => optional($report->last_success_at)?->toIso8601String(),
+            'last_result_label' => HumanAutomationResult::label($last),
+            'automation_health' => $health->value,
+            'badge' => HumanAutomationResult::healthBadge($health),
             'pausable' => $report->status === ScheduledReportStatus::Active,
             'resumable' => $report->status === ScheduledReportStatus::Paused,
             'cancellable' => $report->status !== ScheduledReportStatus::Cancelled,
@@ -291,6 +301,7 @@ final class ScheduledReportService
             'delivery' => [
                 'telegram' => (bool) ($delivery['telegram'] ?? true),
                 'web_notification' => (bool) ($delivery['web_notification'] ?? true),
+                'skip_if_empty' => (bool) ($delivery['skip_if_empty'] ?? config('automation.skip_if_empty_default', false)),
             ],
             'conversation_id' => isset($input['conversation_id']) ? (int) $input['conversation_id'] : null,
         ];
@@ -302,7 +313,7 @@ final class ScheduledReportService
      */
     private function normalizeSources(array $sources): array
     {
-        $allowed = ['tasks', 'reminders', 'projects', 'synthesis', 'google_calendar', 'gmail', 'telegram_groups', 'notifications'];
+        $allowed = ['tasks', 'reminders', 'projects', 'synthesis', 'google_calendar', 'gmail', 'telegram_groups', 'notifications', 'commitments'];
         $normalized = [];
 
         foreach ($sources as $source) {
@@ -321,8 +332,9 @@ final class ScheduledReportService
 
             $row = ['type' => $type];
             if ($type === 'google_calendar') {
-                $row['calendar_scope'] = in_array(($source['calendar_scope'] ?? 'all_relevant'), ['selected', 'all_relevant'], true)
-                    ? $source['calendar_scope']
+                $scope = (string) ($source['calendar_scope'] ?? 'all_relevant');
+                $row['calendar_scope'] = in_array($scope, ['selected', 'all_relevant'], true)
+                    ? $scope
                     : 'all_relevant';
                 if (isset($source['calendar_ids']) && is_array($source['calendar_ids'])) {
                     $row['calendar_ids'] = array_values(array_filter(array_map('strval', $source['calendar_ids'])));

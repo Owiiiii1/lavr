@@ -27,7 +27,7 @@ enum WatcherConditionType: string
         return match ($raw) {
             'event', 'exists' => self::EventExists,
             'entity_event', 'knowledge_event' => self::EntityEventType,
-            'status' => self::StatusEquals,
+            'status', 'still_open', 'remains_open', 'still_open_tomorrow', 'open_tomorrow', 'if_open' => self::StatusEquals,
             'changed' => self::StatusChanged,
             'deadline', 'due_soon' => self::DeadlineWithin,
             'overdue', 'past_due' => self::OverdueBy,

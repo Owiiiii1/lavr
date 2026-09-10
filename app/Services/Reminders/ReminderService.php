@@ -2,7 +2,9 @@
 
 namespace App\Services\Reminders;
 
+use App\Enums\AutomationType;
 use App\Enums\ReminderStatus;
+use App\Models\AutomationRun;
 use App\Models\ChannelIdentity;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -10,9 +12,11 @@ use App\Models\Reminder;
 use App\Models\ReminderOccurrence;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\Automation\AutomationHealthService;
 use App\Services\Knowledge\KnowledgeDeterministicIngestor;
 use App\Services\Users\UserCapability;
 use App\Services\Watchers\WatcherEvaluationDispatcher;
+use App\Services\Workspace\Presentation\HumanAutomationResult;
 use App\Services\Workspace\Presentation\HumanMoment;
 use App\Services\Workspace\Presentation\HumanStatusLabel;
 use Carbon\CarbonImmutable;
@@ -552,6 +556,8 @@ final class ReminderService
         $source = $this->sourceConversationPayload($reminder, $user);
         $task = $this->taskPayload($reminder, $user);
         $deliveryAvailable = $telegramConnected || $pushOn;
+        $health = (new AutomationHealthService)->forReminder($reminder);
+        $last = AutomationRun::latestFor(AutomationType::Reminder, (int) $reminder->id);
 
         return [
             'id' => (int) $reminder->id,
@@ -563,6 +569,9 @@ final class ReminderService
                 ? 'По задаче «'.$task['title'].'»'
                 : null,
             'problem_label' => HumanStatusLabel::reminderProblem($reminder, $deliveryAvailable),
+            'last_result_label' => HumanAutomationResult::label($last),
+            'automation_health' => $health->value,
+            'badge' => HumanAutomationResult::healthBadge($health),
             'timezone_label' => $timezone !== $fallbackTimezone
                 ? 'Время указано по '.$timezone
                 : null,

@@ -12,6 +12,8 @@ Existing event-like things:
 - `watcher_occurrences` — watcher firings;
 - `scheduled_report_runs` — report runs;
 - `reminder_occurrences` / `reminder_deliveries`;
+- `automation_runs` — unified execution/audit rows (no payload bodies);
+- lightweight `AutomationEvent` log lines (`commitment.overdue`, `watcher.matched`, `report.completed`) — **not** a bus table;
 - `tool_execution_logs`;
 - Laravel jobs / scheduler ticks (not a product event log).
 
@@ -53,4 +55,4 @@ Every event: time, type, source ref, related operational ids, payload hash / bou
 
 Knowledge events may remain the **index timeline**. Operational events are the **automation bus**. Do not silently treat `knowledge_events` as that bus without an explicit Phase 7 decision; default is a dedicated operational event log or a clearly versioned dual-write.
 
-Phase 7 / 6 specify persistence. This document is the taxonomy and rule: automations subscribe to typed events, they do not re-parse chat history each morning to guess what happened.
+Phase 7 added operational **run records**, not a full event bus. Automations subscribe to typed domain events in code. Full event bus remains Phase 11. Do not silently treat `knowledge_events` as that bus.

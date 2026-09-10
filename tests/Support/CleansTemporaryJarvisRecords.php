@@ -5,6 +5,7 @@ namespace Tests\Support;
 use App\Enums\ConversationKind;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Models\AutomationRun;
 use App\Models\ChannelIdentity;
 use App\Models\Commitment;
 use App\Models\CommitmentEvidence;
@@ -135,6 +136,9 @@ trait CleansTemporaryJarvisRecords
         }
         if (Schema::hasTable('integration_accounts')) {
             IntegrationAccount::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('automation_runs')) {
+            AutomationRun::query()->where('user_id', $user->id)->delete();
         }
         if (Schema::hasTable('watcher_occurrences')) {
             WatcherOccurrence::query()->where('user_id', $user->id)->delete();

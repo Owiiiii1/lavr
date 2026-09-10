@@ -40,6 +40,7 @@ final class HumanScheduledReportDescription
                 'google_calendar' => self::calendarLabel($source),
                 'gmail' => 'Gmail',
                 'telegram_groups' => 'Telegram-группы',
+                'commitments' => 'Обязательства',
                 'notifications' => 'Уведомления',
                 default => '',
             };

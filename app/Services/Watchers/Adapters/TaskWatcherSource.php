@@ -35,11 +35,15 @@ final class TaskWatcherSource implements WatcherSourceAdapter
         $due = $task->due_at instanceof CarbonImmutable ? $task->due_at->utc() : null;
         $condition = $watcher->condition_type;
         $hours = (int) ($watcher->condition_config['hours'] ?? ($watcher->condition_config['within_hours'] ?? 24));
+        $explicitHours = $watcher->condition_config['hours'] ?? $watcher->condition_config['within_hours'] ?? null;
+        $delayElapsed = $explicitHours === null || ! is_numeric($explicitHours) || (int) $explicitHours <= 0
+            || $this->createdAt($watcher)->addHours(max(1, (int) $explicitHours))->lessThanOrEqualTo($now);
 
         $match = match ($condition) {
             WatcherConditionType::OverdueBy => $open && $due !== null && $due->addHours(max(1, $hours))->lessThanOrEqualTo($now),
             WatcherConditionType::DeadlineWithin => $open && $due !== null && $due->greaterThan($now) && $due->lessThanOrEqualTo($now->addHours(max(1, $hours))),
-            WatcherConditionType::StatusEquals => mb_strtolower($task->status->value) === mb_strtolower((string) ($watcher->condition_config['status'] ?? $watcher->condition_config['expected'] ?? '')),
+            WatcherConditionType::StatusEquals => $delayElapsed
+                && mb_strtolower($task->status->value) === mb_strtolower((string) ($watcher->condition_config['status'] ?? $watcher->condition_config['expected'] ?? '')),
             WatcherConditionType::StatusChanged => $open || $task->status === TaskStatus::Completed || $task->status === TaskStatus::Cancelled,
             default => $open,
         };
@@ -66,5 +70,18 @@ final class TaskWatcherSource implements WatcherSourceAdapter
                 taskId: (int) $task->id,
             ),
         ];
+    }
+
+    private function createdAt(Watcher $watcher): CarbonImmutable
+    {
+        if ($watcher->created_at instanceof CarbonImmutable) {
+            return $watcher->created_at->utc();
+        }
+
+        if ($watcher->created_at instanceof \DateTimeInterface) {
+            return CarbonImmutable::instance($watcher->created_at)->utc();
+        }
+
+        return CarbonImmutable::now('UTC');
     }
 }

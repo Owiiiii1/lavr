@@ -22,9 +22,9 @@ final class ScheduledReportIntent
         }
 
         $periodic = preg_match('/кажд|по утрам|по вечерам|every (?:morning|evening|day)|daily/u', $normalized) === 1;
-        $asksReport = preg_match('/отч[её]т|сводк|дай план|присыл\w*.{0,40}план|планы на (?:завтра|сегодня|текущ)/u', $normalized) === 1;
+        $asksReport = preg_match('/отч[её]т|сводк|дай план|присыл\w*.{0,40}план|планы на (?:завтра|сегодня|текущ)|итог/u', $normalized) === 1;
         $periodicMailOrGroups = preg_match('/почт|gmail|inbox|письм|групп/u', $normalized) === 1
-            && preg_match('/проверяй|посмотри|сообщай|присыл|рассказ|дай |сводк|что нового/u', $normalized) === 1;
+            && preg_match('/проверяй|проверь|посмотри|сообщай|присыл|рассказ|дай |сводк|что нового/u', $normalized) === 1;
 
         return $periodic && ($asksReport || $periodicMailOrGroups);
     }
@@ -75,6 +75,7 @@ final class ScheduledReportIntent
             ScheduledReportType::DailyPlan, ScheduledReportType::TomorrowPlan => [
                 ['type' => 'tasks'],
                 ['type' => 'reminders'],
+                ['type' => 'commitments'],
                 ['type' => 'synthesis'],
                 array_filter([
                     'type' => 'google_calendar',

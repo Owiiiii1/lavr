@@ -21,9 +21,10 @@ function ReportCard({ report, busyId, onPause, onResume, onCancel }) {
     return (
         <WorkspaceCard
             title={report.name}
-            secondary={report.schedule_label}
-            secondaryTone="muted"
-            meta={[report.source_labels?.join(' · ')]}
+            secondary={report.last_result_label || report.schedule_label}
+            secondaryTone={report.badge ? 'alert' : 'muted'}
+            meta={[report.schedule_label, report.source_labels?.join(' · ')]}
+            badge={report.badge}
             muted={closed}
             actions={[
                 report.pausable ? { label: 'Приостановить', onSelect: () => onPause(report) } : null,

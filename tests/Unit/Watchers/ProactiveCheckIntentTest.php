@@ -43,6 +43,7 @@ class ProactiveCheckIntentTest extends TestCase
     {
         return [
             'wait_school' => ['Жди письмо от школы и сразу сообщи.'],
+            'wait_school_short' => ['Жди письмо от школы'],
             'watch_domain' => ['Следи за письмами от @example.com.'],
             'when_marco' => ['Когда Marco ответит, сообщи мне.'],
             'each_mail' => ['Сообщай о каждом письме от бухгалтерии.'],

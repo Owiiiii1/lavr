@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-10 (Phase 6 first-class commitments; runtime as after Phase 1–5B)  
+**Date:** 2026-09-10 (Phase 7 automation engine hardening; Phase 6 commitments)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -43,7 +43,7 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Zoom Integration | Server-to-Server OAuth + `POST /webhooks/zoom` + `ProcessZoomTranscriptJob` → existing Meeting Intelligence. **LIVE ZOOM E2E: NOT VALIDATED** | Same; no bulk historical import yet |
 | Commitments | First-class `commitments` + evidence; Knowledge `CommitmentResolver` is fallback only when the table is empty | Same; email/Telegram extractors still TARGET |
 | Decisions | Group knowledge / events | First-class `decisions` |
-| Automation | Watchers + scheduled reports + briefs + proactive | Deterministic engine + events + validation ([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md)) |
+| Automation | Watchers + scheduled reports + briefs + proactive + `automation_runs` contract | Same; Executive Brief still TARGET |
 | Executive Brief | Scheduled reports + opt-in briefs | Attention-reduced daily/weekly brief |
 | Onboarding | Owner profile `completed` (legacy skip) | Business-map onboarding |
 | Telegram WebApp | **UX IMPLEMENTED / Mini App E2E NOT VALIDATED** on a real Telegram client | Same Workspace; HMAC session; Menu Button still needs token + Owner pairing |
@@ -196,7 +196,7 @@ Preferred interface language and preferred assistant language are **IMPLEMENTED*
 - Email / Telegram commitment extractors (Meeting promotion + manual create are CURRENT)
 - Owner live commitments workflow (code **IMPLEMENTED**, not Owner-confirmed)
 - Zoom Integration: **IMPLEMENTED / LIVE ZOOM E2E NOT VALIDATED** (S2S OAuth, webhook, transcript ingest; no live Owner Zoom credentials on this host)
-- Deterministic Automation Engine as specified (watchers/reports exist but are not the full TARGET)
+- Owner live automation synthetic scenarios A–E (code **IMPLEMENTED**, not Owner-confirmed)
 - Executive Brief section model
 - Leadership Review
 - Multi-mailbox Google (one active account MVP)

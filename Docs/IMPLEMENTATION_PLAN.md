@@ -24,6 +24,7 @@ Vertical slices. Prefer shipping a thin path through UI + data + one CEO questio
 | LAVR Phase 5A | Meetings + manual transcript import |
 | LAVR Phase 5B | Zoom cloud transcript ingest (live E2E NOT VALIDATED) |
 | LAVR Phase 6 | First-class commitments + evidence + Meeting promotion |
+| LAVR Phase 7 | Automation Engine hardening: routing, `automation_runs`, idempotency, partial success, AI fallback |
 
 Validation of origin flows: [CURRENT_STATE.md](CURRENT_STATE.md), [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
 
@@ -178,9 +179,7 @@ Target: `recording.transcript_completed` webhook → validate → deduplicate �
 
 ## Phase 7 — Automation Engine hardening
 
-**Goal.** Deterministic execution; AI parses intent only; validation + fallback; no report↔reminder↔watcher mix-ups; operational events taxonomy.
-
-**Exit.** Morning report cannot silently become a subject list or a reminder. Telegram payloads stay non-technical.
+**IMPLEMENTED** 2026-09-10. Report: [Development/LAVR_PHASE_7_REPORT.md](Development/LAVR_PHASE_7_REPORT.md). Routing Reminder / Watcher / Scheduled Report is strict; `automation_runs` records executions; AI may phrase content but schedule, retries, validation, delivery, and idempotency are code-owned. Owner live synthetic scenarios A–E remain **NOT VALIDATED**. Do not restart this phase. Do not build a generic rule DSL.
 
 ---
 

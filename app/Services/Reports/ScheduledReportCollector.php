@@ -2,9 +2,11 @@
 
 namespace App\Services\Reports;
 
+use App\Enums\CommitmentLifecycleStatus;
 use App\Enums\ProductivityBriefMode;
 use App\Enums\ScheduledReportPeriodMode;
 use App\Enums\TaskStatus;
+use App\Models\Commitment;
 use App\Models\Message;
 use App\Models\Project;
 use App\Models\Reminder;
@@ -23,6 +25,7 @@ use App\Services\Users\UserCapability;
 use Carbon\CarbonImmutable;
 use DateTimeZone;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 final class ScheduledReportCollector
@@ -42,6 +45,8 @@ final class ScheduledReportCollector
         $timezone = ScheduledReportSchedule::timezoneFor($report);
         $window = $this->window($report, $now, $timezone);
         $errors = [];
+        $blocked = [];
+        $sourceStatuses = [];
         $items = [
             'tasks' => [],
             'reminders' => [],
@@ -51,6 +56,7 @@ final class ScheduledReportCollector
             'gmail' => [],
             'telegram_groups' => [],
             'notifications' => [],
+            'commitments' => [],
         ];
 
         foreach (is_array($report->sources) ? $report->sources : [] as $source) {
@@ -66,20 +72,25 @@ final class ScheduledReportCollector
                     'reminders' => $items['reminders'] = $this->reminders($user, $window),
                     'projects' => $items['projects'] = $this->projects($user),
                     'synthesis' => $items['synthesis'] = $this->synthesis($user, $report, $now, $items),
-                    'google_calendar' => $items['calendar'] = $this->calendars($user, $source, $window, $errors),
-                    'gmail' => $items['gmail'] = $this->gmail($user, $report, $window, $errors),
+                    'google_calendar' => $items['calendar'] = $this->calendars($user, $source, $window, $errors, $blocked),
+                    'gmail' => $items['gmail'] = $this->gmail($user, $report, $window, $errors, $blocked),
                     'telegram_groups' => $items['telegram_groups'] = $this->groups($user, $window),
+                    'commitments' => $items['commitments'] = $this->commitments($user),
                     'notifications' => $items['notifications'] = [],
                     default => null,
                 };
+                $sourceStatuses[$type] = in_array($type, $blocked, true) ? 'blocked' : 'ok';
             } catch (Throwable $exception) {
                 $errors[] = $this->sourceFailure($type);
+                $sourceStatuses[$type] = 'failed';
             }
         }
 
         return [
             'items' => $items,
             'errors' => $errors,
+            'blocked' => $blocked,
+            'source_statuses' => $sourceStatuses,
             'window_start' => $window['start']->toIso8601String(),
             'window_end' => $window['end']->toIso8601String(),
             'timezone' => $timezone,
@@ -244,13 +255,15 @@ final class ScheduledReportCollector
      * @param  array<string, mixed>  $source
      * @param  array{start: CarbonImmutable, end: CarbonImmutable}  $window
      * @param  list<string>  $errors
+     * @param  list<string>  $blocked
      * @return list<array{title: string, start?: string, calendar?: string}>
      */
-    private function calendars(User $user, array $source, array $window, array &$errors): array
+    private function calendars(User $user, array $source, array $window, array &$errors, array &$blocked): array
     {
         if (! $user->canUseCapability(UserCapability::GOOGLE_CALENDAR)) {
             $this->logSourceUnavailable('calendar', 'capability_missing');
             $errors[] = 'Календарь сейчас недоступен.';
+            $blocked[] = 'google_calendar';
 
             return [];
         }
@@ -267,6 +280,7 @@ final class ScheduledReportCollector
             if ($account === null) {
                 $this->logSourceUnavailable('calendar', 'no_google_account');
                 $errors[] = 'Календарь сейчас недоступен.';
+                $blocked[] = 'google_calendar';
 
                 return [];
             }
@@ -345,13 +359,15 @@ final class ScheduledReportCollector
     /**
      * @param  array{start: CarbonImmutable, end: CarbonImmutable}  $window
      * @param  list<string>  $errors
-     * @return list<array{sender: string, subject: string, bucket: string, snippet: string}>
+     * @param  list<string>  $blocked
+     * @return list<array{sender: string, subject: string, bucket: string, snippet: string, unread: bool, body_read: bool, action_needed: bool}>
      */
-    private function gmail(User $user, ScheduledReport $report, array $window, array &$errors): array
+    private function gmail(User $user, ScheduledReport $report, array $window, array &$errors, array &$blocked): array
     {
         if (! $user->canUseCapability(UserCapability::GMAIL)) {
             $this->logSourceUnavailable('gmail', 'capability_missing');
             $errors[] = 'Почта сейчас недоступна.';
+            $blocked[] = 'gmail';
 
             return [];
         }
@@ -368,6 +384,7 @@ final class ScheduledReportCollector
             if ($account === null) {
                 $this->logSourceUnavailable('gmail', 'no_google_account');
                 $errors[] = 'Почта сейчас недоступна.';
+                $blocked[] = 'gmail';
 
                 return [];
             }
@@ -387,21 +404,61 @@ final class ScheduledReportCollector
                     $subject = 'без темы';
                 }
 
+                $bucket = $this->mailBucket($sender, $subject);
+                $snippet = MailTextNormalizer::snippet((string) ($message['snippet'] ?? ''));
+
                 $items[] = [
                     'sender' => $sender !== '' ? $sender : 'Неизвестный отправитель',
                     'subject' => $subject,
-                    'bucket' => $this->mailBucket($sender, $subject),
-                    'snippet' => MailTextNormalizer::snippet((string) ($message['snippet'] ?? '')),
+                    'bucket' => $bucket,
+                    'snippet' => $snippet,
+                    'unread' => true,
+                    'body_read' => false,
+                    'action_needed' => $bucket === 'important',
                 ];
             }
 
             return $items;
         } catch (Throwable $exception) {
-            $this->logSourceUnavailable('gmail', $this->sourceErrorReason($exception));
+            $reason = $this->sourceErrorReason($exception);
+            $this->logSourceUnavailable('gmail', $reason);
             $errors[] = 'Почта сейчас недоступна.';
+            if (in_array($reason, ['blocked_auth', 'google_not_connected', 'gmail_scope_required'], true)) {
+                $blocked[] = 'gmail';
+            }
 
             return [];
         }
+    }
+
+    /**
+     * @return list<array{title: string, status: string, person?: string}>
+     */
+    private function commitments(User $user): array
+    {
+        if (! Schema::hasTable('commitments')) {
+            return [];
+        }
+
+        return Commitment::query()
+            ->with('person:id,display_name')
+            ->where('user_id', $user->id)
+            ->whereNull('merged_into_id')
+            ->where('lifecycle_status', CommitmentLifecycleStatus::Open)
+            ->orderByRaw('deadline_at is null')
+            ->orderBy('deadline_at')
+            ->limit(20)
+            ->get()
+            ->map(static function (Commitment $commitment): array {
+                $who = $commitment->person?->display_name ?? $commitment->person_name_raw;
+
+                return array_filter([
+                    'title' => (string) $commitment->title,
+                    'status' => $commitment->status instanceof \BackedEnum ? $commitment->status->value : (string) $commitment->status,
+                    'person' => is_string($who) && $who !== '' ? $who : null,
+                ], static fn ($value): bool => $value !== null);
+            })
+            ->all();
     }
 
     /**

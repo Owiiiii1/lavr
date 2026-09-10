@@ -2,6 +2,7 @@
 
 namespace App\Services\Tools\Watchers;
 
+use App\Enums\AutomationIntentKind;
 use App\Enums\ToolOperationClass;
 use App\Enums\WatcherCreatedBy;
 use App\Enums\WatcherStatus;
@@ -10,6 +11,7 @@ use App\Models\Watcher;
 use App\Services\Ai\DTO\ToolCall;
 use App\Services\Ai\DTO\ToolDefinition;
 use App\Services\Ai\DTO\ToolResult;
+use App\Services\Automation\AutomationIntentRouter;
 use App\Services\ConversationIntelligence\ReferenceResolver;
 use App\Services\Integrations\Exceptions\IntegrationException;
 use App\Services\Integrations\Google\GoogleOAuthService;
@@ -23,7 +25,6 @@ use App\Services\Watchers\Exceptions\WatcherException;
 use App\Services\Watchers\GmailEventRequest;
 use App\Services\Watchers\GmailWatcherQuery;
 use App\Services\Watchers\ProactiveCheckIntent;
-use App\Services\Watchers\WatcherDigestRequest;
 use App\Services\Watchers\WatcherSchedule;
 use App\Services\Watchers\WatcherService;
 
@@ -84,13 +85,32 @@ final class CreateWatcherTool implements JarvisTool
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
         $inbound = trim((string) ($context->inbound?->body ?? ''));
-        if ($inbound !== '' && ScheduledReportIntent::matches($inbound)) {
-            return ToolResult::failure($call->id, $this->name(), [
-                'success' => false,
-                'error' => 'use_scheduled_report',
-                'message' => 'This request is a scheduled report. Call create_scheduled_report.',
-                'kind' => 'failed',
-            ]);
+        if ($inbound !== '') {
+            $kind = (new AutomationIntentRouter)->classify($inbound);
+            if ($kind === AutomationIntentKind::Clarify) {
+                return ToolResult::failure($call->id, $this->name(), [
+                    'success' => false,
+                    'error' => 'clarify_intent',
+                    'message' => 'Уточніть: потрібна щоденна сводка, чи повідомлення лише коли виконається умова?',
+                    'kind' => 'failed',
+                ]);
+            }
+            if ($kind === AutomationIntentKind::ScheduledReport) {
+                return ToolResult::failure($call->id, $this->name(), [
+                    'success' => false,
+                    'error' => 'use_scheduled_report',
+                    'message' => 'This request is a scheduled report. Call create_scheduled_report.',
+                    'kind' => 'failed',
+                ]);
+            }
+            if ($kind === AutomationIntentKind::Reminder) {
+                return ToolResult::failure($call->id, $this->name(), [
+                    'success' => false,
+                    'error' => 'use_reminder',
+                    'message' => 'This request is a reminder. Call create_reminder.',
+                    'kind' => 'failed',
+                ]);
+            }
         }
 
         try {
@@ -138,19 +158,15 @@ final class CreateWatcherTool implements JarvisTool
         }
 
         $inbound = trim((string) ($context->inbound?->body ?? ''));
-        if (ScheduledReportIntent::matches($inbound)) {
+        if (ScheduledReportIntent::matches($inbound) || ProactiveCheckIntent::jarvisShouldMonitorMail($inbound)) {
             throw new WatcherException('use_scheduled_report', 'This request is a scheduled report. Call create_scheduled_report.');
         }
 
-        $digest = WatcherDigestRequest::gmailMorningFromInbound($inbound, $context->user);
-        if ($digest !== null) {
-            return array_merge($digest, array_filter([
-                'name' => trim((string) ($input['name'] ?? '')) !== '' ? $input['name'] : $digest['name'],
-            ]));
-        }
-
         $event = GmailEventRequest::fromInbound($inbound, $context->user, $input);
-        if ($event !== null && (ProactiveCheckIntent::isGmailEventMonitoring($inbound) || ProactiveCheckIntent::isGmailFilterAddon($inbound))) {
+        $watchingMail = ProactiveCheckIntent::isGmailEventMonitoring($inbound)
+            || ProactiveCheckIntent::isGmailFilterAddon($inbound)
+            || preg_match('/(?:жди|следи|watch|notify).{0,48}(?:письм|mail|email)/u', mb_strtolower($inbound)) === 1;
+        if ($event !== null && $watchingMail) {
             if (! GmailWatcherQuery::hasFilter(is_array($event['source'] ?? null) ? $event['source'] : [])) {
                 throw new WatcherException('gmail_filter_required', 'Gmail event watchers need a sender or domain.');
             }
@@ -341,6 +357,9 @@ final class CreateWatcherTool implements JarvisTool
     private function userMessage(WatcherException $exception): string
     {
         return match ($exception->error) {
+            'use_scheduled_report' => 'Це періодична сводка. Потрібен scheduled report, а не watcher.',
+            'use_reminder' => 'Це нагадування, не watcher.',
+            'clarify_intent' => 'Уточніть: потрібна щоденна сводка, чи повідомлення лише коли виконається умова?',
             'gmail_filter_required' => 'Не удалось создать мониторинг Gmail: нужен отправитель или домен.',
             'invalid_config' => str_contains(mb_strtolower($exception->getMessage()), 'gmail') || str_contains(mb_strtolower($exception->getMessage()), 'sender')
                 ? 'Не удалось создать мониторинг Gmail: нужен отправитель или домен.'
