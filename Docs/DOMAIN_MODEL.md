@@ -44,8 +44,15 @@ Implemented operational-ish objects (Eloquent models):
 | IntegrationAccount | OAuth connections; **multiple Google accounts** per Owner |
 | JarvisNotification | In-app inbox |
 | Memory | Personal memory engine |
+| ExecutiveBrief | Morning `executive_briefs` |
+| LeadershipReview | Grounded `leadership_reviews` |
+| OperationalEvent | First-class `operational_events` |
+| ProactiveProposal | `proactive_proposals` + audits |
+| BusinessMapProgress | Non-blocking setup (`business_map_progresses`) |
+| ValidationBatch | Synthetic validation provenance |
+| HandoverCleanupReport | Cleanup plans/results (no secrets) |
 
-**Not in code:** first-class `decisions`, operational `events` table. Calendar events and Knowledge events are not Meetings.
+**Not in code:** first-class `decisions`. Calendar events and Knowledge events are not Meetings.
 
 `list_commitments` reads first-class `commitments` first. Knowledge `CommitmentResolver` is fallback only when that table is empty for the Owner. Meeting `commitments_detected` remains analysis JSON; high-confidence items can be promoted to `detected` rows. `get_person_status`: Person → first-class commitments → projects → recent meetings → Knowledge. Meeting read tools: `list_meetings`, `find_meeting`, `get_meeting`, `get_meeting_analysis`.
 

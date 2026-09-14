@@ -19,6 +19,8 @@ export default function Dashboard() {
             logsHint: 'Recent activity and diagnostics',
             settings: 'Settings',
             settingsHint: 'AI, integrations and Telegram',
+            readiness: 'Production readiness',
+            readinessHint: 'Diagnostics and handover checklist',
         },
         ru: {
             title: 'Главная',
@@ -34,6 +36,8 @@ export default function Dashboard() {
             logsHint: 'Активность и диагностика',
             settings: 'Настройки',
             settingsHint: 'ИИ, интеграции и Telegram',
+            readiness: 'Production readiness',
+            readinessHint: 'Диагностика и handover',
         },
         uk: {
             title: 'Головна',
@@ -49,6 +53,8 @@ export default function Dashboard() {
             logsHint: 'Активність і діагностика',
             settings: 'Налаштування',
             settingsHint: 'ШІ, інтеграції та Telegram',
+            readiness: 'Production readiness',
+            readinessHint: 'Діагностика і handover',
         },
     };
     const t = text[locale] ?? text.en;
@@ -59,6 +65,7 @@ export default function Dashboard() {
         { href: route('calendar.index'), title: t.calendar, hint: t.calendarHint },
         { href: route('statistics.logs'), title: t.logs, hint: t.logsHint },
         { href: route('settings.index'), title: t.settings, hint: t.settingsHint },
+        { href: route('production-readiness.show'), title: t.readiness, hint: t.readinessHint },
     ];
 
     return (

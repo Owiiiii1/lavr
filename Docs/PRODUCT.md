@@ -52,7 +52,8 @@ Operational answers (“what did Kolya promise?”, “what is happening on Chic
 - Remember durable personal context (Memory Engine — implemented).
 - Index unstructured material (Knowledge Layer — implemented as an index, not as People/Meetings/Commitments tables).
 - Hold tasks, reminders, watchers, and scheduled reports (implemented; see CURRENT vs TARGET in those docs).
-- **Target:** structured People, Organizations, Projects-as-business-contexts, Meetings, Commitments, Decisions, Events, Executive Brief, Leadership Review.
+- **CURRENT:** structured People, Organizations, Projects-as-business-contexts, Meetings, Commitments, operational events, Executive Brief, Leadership Review, Proactive Control.
+- **TARGET later:** first-class Decisions.
 
 ## What LAVR is not
 

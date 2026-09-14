@@ -48,7 +48,9 @@ export default function ProactiveShow({ proposal }) {
                 {proposal.status === 'pending' ? (
                     <div className="mt-4 flex flex-wrap gap-2">
                         <button type="button" className="min-h-11 rounded-2xl bg-sky-500 px-4 text-sm font-semibold" onClick={() => router.post(route('jarvis.proactive.approve', proposal.id))}>
-                            {t('proactive.approve')}
+                            {proposal.person?.display_name
+                                ? t('proactive.approveTo', { name: proposal.person.display_name, target: proposal.person.email || '' })
+                                : t('proactive.approve')}
                         </button>
                         <button type="button" className="min-h-11 rounded-xl border border-white/10 px-3 text-sm" onClick={() => router.post(route('jarvis.proactive.snooze', proposal.id), { when: 'later_today' })}>
                             {t('proactive.snoozeLater')}
@@ -63,7 +65,9 @@ export default function ProactiveShow({ proposal }) {
                             <Link href={proposal.source_href} className="inline-flex min-h-11 items-center text-sm text-sky-300">{t('proactive.openSource')}</Link>
                         ) : null}
                     </div>
-                ) : null}
+                ) : (
+                    <p className="mt-4 text-sm text-amber-200">{t('proactive.alreadyResolved')}</p>
+                )}
             </div>
         </LavrAppShell>
     );

@@ -34,7 +34,9 @@ export default function ProactiveProposalCard({ proposal, compact = false }) {
             {proposal.status === 'pending' && !compact ? (
                 <div className="mt-4 flex flex-wrap gap-2">
                     <button type="button" className="min-h-10 rounded-xl bg-sky-500 px-3 text-xs font-semibold text-white" onClick={() => router.post(route('jarvis.proactive.approve', proposal.id), {}, { preserveScroll: true })}>
-                        {t('proactive.approve')}
+                        {proposal.person?.display_name
+                            ? t('proactive.approveTo', { name: proposal.person.display_name, target: proposal.person.email || '' })
+                            : t('proactive.approve')}
                     </button>
                     <Link href={`/lavr/proactive/${proposal.id}`} className="inline-flex min-h-10 items-center rounded-xl border border-white/10 px-3 text-xs">
                         {t('proactive.edit')}
@@ -49,6 +51,9 @@ export default function ProactiveProposalCard({ proposal, compact = false }) {
                         {t('proactive.dismiss')}
                     </button>
                 </div>
+            ) : null}
+            {proposal.status !== 'pending' ? (
+                <p className="mt-3 text-xs text-slate-400">{proposal.status === 'expired' ? t('proactive.alreadyResolved') : t(`proactive.status_${proposal.status}`)}</p>
             ) : null}
             {compact && proposal.status === 'pending' ? (
                 <Link href={`/lavr/proactive/${proposal.id}`} className="mt-3 inline-flex min-h-10 items-center text-xs text-sky-300">

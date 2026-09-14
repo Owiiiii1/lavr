@@ -26,7 +26,7 @@ First-class `executive_briefs` (2026-09-10). Reuses the Phase 7 pipeline (COLLEC
 | Admin `/executive-briefs` (metrics, regenerate, no bodies) | **IMPLEMENTED** |
 | Owner live synthetic morning scenario | **NOT VALIDATED** |
 
-Productivity Daily Brief is skipped when morning Executive Brief is enabled.
+Owner timezone (`users.timezone`) is canonical for presentation and scheduling. Live morning scenario remains **NOT VALIDATED**.
 
 Empty sections are omitted. Empty morning: short “no critical issues” copy, not a dump.
 

@@ -33,12 +33,19 @@ class JarvisWorkspaceProjectsController extends Controller
     {
         $this->authorize('viewAny', Project::class);
 
-        $items = $this->projects->listForOwner($request->user())
-            ->map(fn (Project $project): array => $this->directory->serializeProjectCard($project))
-            ->all();
+        $collection = $this->projects->listForOwner($request->user());
+        $page = max(1, $request->integer('page', 1));
+        $perPage = 50;
+        $total = $collection->count();
 
         return Inertia::render('Jarvis/Projects', [
-            'projects' => $items,
+            'projects' => $collection->forPage($page, $perPage)->map(fn (Project $project): array => $this->directory->serializeProjectCard($project))->values()->all(),
+            'pagination' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'last_page' => max(1, (int) ceil($total / $perPage)),
+            ],
         ]);
     }
 

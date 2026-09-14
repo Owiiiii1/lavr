@@ -30,6 +30,9 @@ export default function ProfileSettings({
     return (
         <div className="space-y-4">
             <LanguageSettings surface={surface} />
+            <Link href="/lavr/setup" className="block rounded-xl border border-white/10 px-4 py-3 text-sm text-sky-300">
+                {t('setup.title')}
+            </Link>
 
             <SettingsCard title={t('settings.profileTitle')} description={t('settings.profileDescription')}>
                 <form

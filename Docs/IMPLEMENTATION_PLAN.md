@@ -27,7 +27,8 @@ Vertical slices. Prefer shipping a thin path through UI + data + one CEO questio
 | LAVR Phase 7 | Automation Engine hardening: routing, `automation_runs`, idempotency, partial success, AI fallback |
 | LAVR Phase 8 | Morning Executive Brief; Owner live synthetic NOT VALIDATED |
 | LAVR Phase 9 | Grounded Leadership Review; Owner live synthetic NOT VALIDATED |
-| LAVR Phase 10 | Multi-source Google/Telegram/Project bindings; **LIVE MULTI-ACCOUNT NOT VALIDATED** |
+| LAVR Phase 11 | Proactive operational control; **LIVE CAMPAIGN NOT VALIDATED** |
+| LAVR Phase 12 | Production readiness / handover tooling; **CODEBASE READY FOR LIVE VALIDATION** |
 
 Validation of origin flows: [CURRENT_STATE.md](CURRENT_STATE.md), [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
 
@@ -214,9 +215,9 @@ Target: `recording.transcript_completed` webhook → validate → deduplicate �
 
 ## Phase 12 — Production polish
 
-**Goal.** Harden what already ships: validation, UX, reliability, Owner-confirmed campaigns. Not a new domain model.
+**IMPLEMENTED** 2026-09-14. Report: [Development/LAVR_PHASE_12_REPORT.md](Development/LAVR_PHASE_12_REPORT.md). Canonical: [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md). Diagnostics, business-map onboarding, handover cleanup dry-run, backup docs. **CODEBASE READY FOR LIVE VALIDATION**. Live campaigns remain **NOT VALIDATED**. Do not connect developer personal accounts. Do not run destructive handover cleanup.
 
-Ukrainian-first localization is **Phase 3C**, not this polish phase.
+Ukrainian-first localization remains Phase **3C**.
 
 ---
 

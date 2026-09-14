@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-14 (Phase 11 proactive operational control; Phase 10 multi-source)  
+**Date:** 2026-09-14 (Phase 12 production readiness; Phase 11 proactive control)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -45,6 +45,7 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Decisions | Group knowledge / events | First-class `decisions` |
 | Automation | Watchers + scheduled reports + briefs + B.2 proactive + `automation_runs` + morning Executive Brief + weekly Leadership Review + Phase 11 operational scan; watcher/report source can name account/project | Same |
 | Proactive control | First-class `operational_events` + `proactive_proposals`; typed rules; policy-gated execute; Proactive Center `/lavr/proactive`; **LIVE CAMPAIGN: NOT VALIDATED** | Live Owner campaign later |
+| Production readiness | Diagnostics, heartbeats, `/lavr/system-health`, `/lavr/setup` business map, handover cleanup dry-run; **CODEBASE READY FOR LIVE VALIDATION** | Live campaign + client handover |
 | Executive Brief | First-class `executive_briefs` (morning); Today + `/lavr/briefs`; Telegram compact; optional Leadership signal; multi-account Gmail/Calendar; unresolved high/critical non-commitment proactive items; timeout → partial; **Owner live synthetic: NOT VALIDATED** | Evening/weekly UI not expanded |
 | Multi-source | Multiple Google accounts, Project bindings, `source_items`, Telegram group sources; **LIVE MULTI-ACCOUNT: NOT VALIDATED** | Bitrix/API connectors later |
 | Leadership Review | First-class `leadership_reviews`; `/lavr/leadership`; process metrics/findings (not personality); **Owner live synthetic: NOT VALIDATED** | First-class Decisions remain later |
@@ -100,7 +101,7 @@ Detail: [Development/LAVR_PHASE_1_REPORT.md](Development/LAVR_PHASE_1_REPORT.md)
 | Domain | `lavr.youngfashionshow.com` |
 | Document root | `/var/www/lavr/public` |
 | TLS | Installed (webroot certbot) for this hostname only |
-| Scheduler (app) | `jarvis:reminders:dispatch` 1m; `jarvis:tasks:dispatch` / `jarvis:watchers:dispatch` / `jarvis:reports:dispatch` / `jarvis:proactive:dispatch` 5m; `jarvis:briefs:dispatch` 1m; `operational-control:scan` 10m; `commitments:refresh-statuses` 15m; plus reliability/voice/purge as in `routes/console.php` |
+| Scheduler (app) | `jarvis:reminders:dispatch` 1m; `jarvis:tasks:dispatch` / `jarvis:watchers:dispatch` / `jarvis:reports:dispatch` / `jarvis:proactive:dispatch` 5m; `jarvis:briefs:dispatch` 1m; `operational-control:scan` 10m; `lavr:heartbeat` 1m (scheduler stamp + queued worker ping); `commitments:refresh-statuses` 15m; plus reliability/voice/purge as in `routes/console.php` |
 | Telegram queue | host-specific flock worker (deploy crontab) |
 
 Vite production build on deploy (`public/build` gitignored).
@@ -136,6 +137,9 @@ See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names
 | Meetings | `/meetings` admin + `/lavr/meetings` | IMPLEMENTED (manual + Zoom ingest; live Zoom E2E NOT VALIDATED) |
 | Commitments | `/commitments` admin + `/lavr/commitments` | IMPLEMENTED / Owner live workflow NOT VALIDATED |
 | Proactive Center | `/lavr/proactive` | IMPLEMENTED / LIVE CAMPAIGN NOT VALIDATED |
+| System health | `/lavr/system-health` | IMPLEMENTED |
+| Business setup | `/lavr/setup` | IMPLEMENTED (non-blocking) |
+| Production readiness (Admin) | `/production-readiness` | IMPLEMENTED |
 | People | `/people` admin + `/lavr/people` | IMPLEMENTED |
 | Organizations | `/organizations` admin + `/lavr/organizations` | IMPLEMENTED |
 | Telegram Groups | `/telegram-groups` | IMPLEMENTED / NOT VALIDATED as campaign |
@@ -209,12 +213,12 @@ Preferred interface language and preferred assistant language are **IMPLEMENTED*
 - Owner UI localization and preferred assistant language (**IMPLEMENTED** for current Owner Workspace surfaces). Admin technical UI is not fully translated. Do not treat Admin `locale` `en`/`ru` fragments as the product locale system.
 - Desktop, Mobile, public registration, Neo4j, wake word, SSE for scheduler events
 
-Live campaigns still open: [DEFERRED_VALIDATION.md](DEFERRED_VALIDATION.md).
+Live campaigns still open: [PRODUCTION_VALIDATION_PLAN.md](PRODUCTION_VALIDATION_PLAN.md) (canonical). [DEFERRED_VALIDATION.md](DEFERRED_VALIDATION.md) points there.
 
 ---
 
 ## 9. TARGET (pointer only)
 
-Do not implement from this section. Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 12 polish. Phase 11 is **IMPLEMENTED**.
+Do not implement from this section. Phases 1–12 are **IMPLEMENTED**. Remaining work is live validation and client handover, not a new domain.
 
 Architecture sketch: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Decisions: ADR-266+ in [DECISIONS.md](DECISIONS.md). Localization: Phase **3C** in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) — **IMPLEMENTED** (Owner Workspace). Admin kit copy remains untranslated.

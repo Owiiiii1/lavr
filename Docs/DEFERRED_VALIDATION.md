@@ -1,10 +1,10 @@
-> **KEEP — live validation backlog.** Does not describe TARGET architecture.
+> **KEEP — live validation backlog.** Canonical campaign: [PRODUCTION_VALIDATION_PLAN.md](PRODUCTION_VALIDATION_PLAN.md). This file remains the historical Core Daily Workflow table.
 
 # Deferred Validation Backlog
 
 Owner postponed live validation campaigns. These items are **IMPLEMENTED / NOT VALIDATED** (or prepared, not executed) unless a row below says otherwise. They are **not** a claim that Core Daily Workflow covered them. They do **not** block further development.
 
-Runtime snapshot: [CURRENT_STATE.md](CURRENT_STATE.md). Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Core Daily Workflow runbook: [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
+Runtime snapshot: [CURRENT_STATE.md](CURRENT_STATE.md). Plan: [PRODUCTION_VALIDATION_PLAN.md](PRODUCTION_VALIDATION_PLAN.md). Core Daily Workflow runbook: [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
 
 | Item | Code status | Live validation |
 | --- | --- | --- |

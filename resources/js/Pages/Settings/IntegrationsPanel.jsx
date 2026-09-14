@@ -47,7 +47,7 @@ export default function IntegrationsPanel() {
 
     const text = {
         en: {
-            hint: 'Connected accounts stay here. Telegram, Web Research, Voice/Speech, and the execution log have their own subsections.',
+            hint: 'Connected accounts stay here. Telegram, Web Research, Voice/Speech, and the execution log have their own subsections. Connection is the login. Source data comes from that connection. Canonical LAVR records stay unless you delete them.',
             overview: 'Overview',
             webResearch: 'Web Research',
             voice: 'Voice / Speech',
@@ -75,9 +75,10 @@ export default function IntegrationsPanel() {
             googleAccounts: 'Google accounts',
             telegramGroups: 'Telegram groups',
             lastSync: 'Last activity',
+            disconnectConfirm: 'Connected source data may be removed. Confirmed business records are preserved.',
         },
         ru: {
-            hint: 'Подключённые аккаунты остаются здесь. Telegram, Web Research, Voice/Speech и журнал выполнений вынесены в подразделы.',
+            hint: 'Подключённые аккаунты остаются здесь. Telegram, Web Research, Voice/Speech и журнал выполнений вынесены в подразделы. Подключение — это вход. Данные источника приходят из него. Канонические записи LAVR сохраняются, пока вы их не удалите.',
             overview: 'Overview',
             webResearch: 'Web Research',
             voice: 'Voice / Speech',
@@ -105,9 +106,10 @@ export default function IntegrationsPanel() {
             googleAccounts: 'Google-аккаунты',
             telegramGroups: 'Группы Telegram',
             lastSync: 'Последняя активность',
+            disconnectConfirm: 'Данные подключения могут быть удалены. Подтверждённые бизнес-записи сохраняются.',
         },
         uk: {
-            hint: 'Підключені акаунти залишаються тут. Telegram, Web Research, Voice/Speech і журнал виконань винесені в підрозділи.',
+            hint: 'Підключені акаунти залишаються тут. Telegram, Web Research, Voice/Speech і журнал виконань винесені в підрозділи. Підключення — це вхід. Дані джерела приходять з нього. Канонічні записи LAVR залишаються, поки ви їх не видалите.',
             overview: 'Overview',
             webResearch: 'Web Research',
             voice: 'Voice / Speech',
@@ -135,6 +137,7 @@ export default function IntegrationsPanel() {
             googleAccounts: 'Google-акаунти',
             telegramGroups: 'Групи Telegram',
             lastSync: 'Остання активність',
+            disconnectConfirm: 'Дані підключення можуть бути видалені. Підтверджені бізнес-записи зберігаються.',
         },
     };
     const t = text[locale] ?? text.en;
@@ -161,6 +164,9 @@ export default function IntegrationsPanel() {
         if (disconnecting) {
             return;
         }
+        if (!window.confirm(t.disconnectConfirm || 'Connected source data may be removed. Confirmed business records are preserved.')) {
+            return;
+        }
 
         const namedRoute = provider === 'github'
             ? 'integrations.github.disconnect'
@@ -177,6 +183,9 @@ export default function IntegrationsPanel() {
 
     const disconnectAccount = (accountId) => {
         if (disconnecting) {
+            return;
+        }
+        if (!window.confirm(t.disconnectConfirm || 'Connected source data may be removed. Confirmed business records are preserved.')) {
             return;
         }
 

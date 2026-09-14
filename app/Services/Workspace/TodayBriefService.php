@@ -10,6 +10,7 @@ use App\Services\Integrations\Google\GoogleCalendarService;
 use App\Services\Integrations\IntegrationAccountService;
 use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Notifications\JarvisNotificationService;
+use App\Services\Onboarding\BusinessMapService;
 use App\Services\OperationalControl\ProactiveProposalService;
 use App\Services\Reminders\ReminderService;
 use App\Services\Reports\ScheduledReportService;
@@ -32,6 +33,7 @@ final class TodayBriefService
         private readonly CommitmentService $commitments,
         private readonly ExecutiveBriefService $briefs,
         private readonly ProactiveProposalService $proposals,
+        private readonly BusinessMapService $businessMap,
     ) {}
 
     /**
@@ -80,6 +82,7 @@ final class TodayBriefService
             'calendar_error' => $this->briefError($serialized, $locale),
             'commitments' => $commitments !== [] ? $commitments : $this->safeCommitments($user),
             'proactive' => $proactive,
+            'setup' => $this->businessMap->snapshot($user),
             'ask_href' => '/lavr',
             'brief_href' => $serialized['href'] ?? '/lavr/briefs',
         ];

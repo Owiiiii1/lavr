@@ -6,6 +6,7 @@ use App\Enums\ConversationKind;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\AutomationRun;
+use App\Models\BusinessMapProgress;
 use App\Models\ChannelIdentity;
 use App\Models\Commitment;
 use App\Models\CommitmentEvidence;
@@ -15,6 +16,7 @@ use App\Models\ConversationSummary;
 use App\Models\DirectoryRelationship;
 use App\Models\EmployeeProfile;
 use App\Models\ExecutiveBrief;
+use App\Models\HandoverCleanupReport;
 use App\Models\IntegrationAccount;
 use App\Models\JarvisNotification;
 use App\Models\KnowledgeAnalysisRun;
@@ -61,6 +63,8 @@ use App\Models\UserAiSetting;
 use App\Models\UserAssistantProfile;
 use App\Models\UserProductivitySetting;
 use App\Models\UserProfile;
+use App\Models\ValidationBatch;
+use App\Models\ValidationBatchItem;
 use App\Models\VoiceSession;
 use App\Models\Watcher;
 use App\Models\WatcherOccurrence;
@@ -146,6 +150,17 @@ trait CleansTemporaryJarvisRecords
         }
         if (Schema::hasTable('proactive_proposals')) {
             ProactiveProposal::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('handover_cleanup_reports')) {
+            HandoverCleanupReport::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('validation_batches')) {
+            $batchIds = ValidationBatch::query()->where('user_id', $user->id)->pluck('id');
+            ValidationBatchItem::query()->whereIn('validation_batch_id', $batchIds)->delete();
+            ValidationBatch::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('business_map_progresses')) {
+            BusinessMapProgress::query()->where('user_id', $user->id)->delete();
         }
         if (Schema::hasTable('operational_events')) {
             OperationalEvent::query()->where('user_id', $user->id)->delete();

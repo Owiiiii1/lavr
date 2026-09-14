@@ -149,7 +149,11 @@ final class ProactiveProposalService
             'source_href' => $payload['href'] ?? null,
             'draft_status' => $payload['draft_status'] ?? null,
             'draft_body' => $payload['draft_body'] ?? null,
-            'person' => $proposal->person ? ['id' => $proposal->person->id, 'display_name' => $proposal->person->display_name] : null,
+            'person' => $proposal->person ? [
+                'id' => $proposal->person->id,
+                'display_name' => $proposal->person->display_name,
+                'email' => $proposal->person->primary_email,
+            ] : null,
             'project' => $proposal->project ? ['id' => $proposal->project->id, 'name' => $proposal->project->name] : null,
             'commitment' => $proposal->commitment ? ['id' => $proposal->commitment->id, 'title' => $proposal->commitment->title] : null,
             'event_type' => $proposal->event?->event_type instanceof OperationalEventType ? $proposal->event->event_type->value : null,

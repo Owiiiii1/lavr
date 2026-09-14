@@ -37,8 +37,18 @@ class JarvisWorkspacePeopleController extends Controller
             $request->query('status'),
         );
 
+        $page = max(1, $request->integer('page', 1));
+        $perPage = 50;
+        $total = $people->count();
+
         return Inertia::render('Jarvis/People', [
-            'people' => $people->map(fn (Person $person): array => $this->directory->serializePersonSummary($person))->values()->all(),
+            'people' => $people->forPage($page, $perPage)->map(fn (Person $person): array => $this->directory->serializePersonSummary($person))->values()->all(),
+            'pagination' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'last_page' => max(1, (int) ceil($total / $perPage)),
+            ],
             'filters' => [
                 'q' => (string) $request->query('q', ''),
                 'role' => (string) $request->query('role', ''),

@@ -28,6 +28,10 @@ Deep rewrite: Phase 2 (this index). Origin: [LAVR_MIGRATION.md](LAVR_MIGRATION.m
 | Sources | [DATA_SOURCES.md](DATA_SOURCES.md) |
 | Leadership Review | [LEADERSHIP_REVIEW.md](LEADERSHIP_REVIEW.md) |
 | Onboarding | [ONBOARDING.md](ONBOARDING.md) |
+| Production readiness | [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md) |
+| Live validation plan | [PRODUCTION_VALIDATION_PLAN.md](PRODUCTION_VALIDATION_PLAN.md) |
+| Handover | [HANDOVER_CHECKLIST.md](HANDOVER_CHECKLIST.md), [HANDOVER_CLEANUP.md](HANDOVER_CLEANUP.md) |
+| Backup / restore | [BACKUP_AND_RESTORE.md](BACKUP_AND_RESTORE.md) |
 | Runtime snapshot | [CURRENT_STATE.md](CURRENT_STATE.md) |
 | Implementation phases 3A–12 | [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) |
 

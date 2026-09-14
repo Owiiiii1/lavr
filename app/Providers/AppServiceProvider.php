@@ -594,5 +594,21 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('zoom-webhook', function (Request $request) {
             return Limit::perMinute(60)->by($request->ip());
         });
+
+        RateLimiter::for('telegram-webhook', function (Request $request) {
+            return Limit::perMinute(120)->by($request->ip());
+        });
+
+        RateLimiter::for('owner-chat', function (Request $request) {
+            $userId = $request->user()?->id ?? $request->ip();
+
+            return Limit::perMinute(40)->by((string) $userId);
+        });
+
+        RateLimiter::for('owner-upload', function (Request $request) {
+            $userId = $request->user()?->id ?? $request->ip();
+
+            return Limit::perMinute(20)->by((string) $userId);
+        });
     }
 }

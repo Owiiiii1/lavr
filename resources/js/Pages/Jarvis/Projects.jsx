@@ -2,7 +2,7 @@ import LavrAppShell from '@/telegram/LavrAppShell';
 import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link } from '@inertiajs/react';
 
-export default function WorkspaceProjects({ projects = [] }) {
+export default function WorkspaceProjects({ projects = [], pagination = {} }) {
     const { t, bcp47 } = useTranslation();
 
     const activityLabel = (iso) => {
@@ -49,6 +49,9 @@ export default function WorkspaceProjects({ projects = [] }) {
                         ))}
                     </ul>
                 )}
+                {pagination.last_page > 1 ? (
+                    <p className="mt-4 text-sm text-slate-400">{pagination.page} / {pagination.last_page}</p>
+                ) : null}
             </div>
         </LavrAppShell>
     );

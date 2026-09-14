@@ -6,6 +6,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CommitmentController;
 use App\Http\Controllers\ExecutiveBriefController;
 use App\Http\Controllers\Jarvis\JarvisAttachmentController;
+use App\Http\Controllers\Jarvis\JarvisBusinessSetupController;
 use App\Http\Controllers\Jarvis\JarvisConfirmationController;
 use App\Http\Controllers\Jarvis\JarvisExecutiveBriefController;
 use App\Http\Controllers\Jarvis\JarvisKnowledgeController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Jarvis\JarvisReminderController;
 use App\Http\Controllers\Jarvis\JarvisScheduledReportController;
 use App\Http\Controllers\Jarvis\JarvisStorageController;
 use App\Http\Controllers\Jarvis\JarvisSynthesisController;
+use App\Http\Controllers\Jarvis\JarvisSystemHealthController;
 use App\Http\Controllers\Jarvis\JarvisTaskController;
 use App\Http\Controllers\Jarvis\JarvisTodayController;
 use App\Http\Controllers\Jarvis\JarvisVoiceController;
@@ -36,6 +38,7 @@ use App\Http\Controllers\LeadershipReviewController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PeopleController;
+use App\Http\Controllers\ProductionReadinessController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Settings\AiSettingsController;
@@ -70,6 +73,7 @@ Route::post('/telegram/webhook', TelegramWebhookController::class)
         PreventRequestForgery::class,
         ValidateCsrfToken::class,
     ])
+    ->middleware('throttle:telegram-webhook')
     ->name('telegram.webhook');
 
 Route::post('/webhooks/zoom', ZoomWebhookController::class)
@@ -128,8 +132,12 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
         Route::get('/organizations/{organization}', [JarvisWorkspaceOrganizationsController::class, 'show'])->name('organizations.show');
         Route::get('/search', [JarvisWorkspaceSearchController::class, 'show'])->name('search.show');
         Route::get('/more', [JarvisWorkspacePageController::class, 'more'])->name('more.show');
+        Route::get('/system-health', [JarvisSystemHealthController::class, 'show'])->name('system-health.show');
+        Route::get('/setup', [JarvisBusinessSetupController::class, 'show'])->name('setup.show');
+        Route::post('/setup', [JarvisBusinessSetupController::class, 'saveStep'])->name('setup.save');
+        Route::post('/setup/dismiss', [JarvisBusinessSetupController::class, 'dismiss'])->name('setup.dismiss');
         Route::get('/meetings', [JarvisWorkspaceMeetingsController::class, 'index'])->name('meetings.index');
-        Route::post('/meetings', [JarvisWorkspaceMeetingsController::class, 'store'])->name('meetings.store');
+        Route::post('/meetings', [JarvisWorkspaceMeetingsController::class, 'store'])->middleware('throttle:owner-upload')->name('meetings.store');
         Route::get('/meetings/{meeting}', [JarvisWorkspaceMeetingsController::class, 'show'])->name('meetings.show');
         Route::patch('/meetings/{meeting}', [JarvisWorkspaceMeetingsController::class, 'update'])->name('meetings.update');
         Route::post('/meetings/{meeting}/rerun', [JarvisWorkspaceMeetingsController::class, 'rerun'])->name('meetings.rerun');
@@ -173,7 +181,7 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
         Route::get('/chats/{conversation}', [JarvisWorkspaceController::class, 'show'])->name('chats.show');
         Route::patch('/chats/{conversation}', [JarvisWorkspaceController::class, 'update'])->name('chats.update');
         Route::delete('/chats/{conversation}', [JarvisWorkspaceController::class, 'destroy'])->name('chats.destroy');
-        Route::post('/chats/{conversation}/messages', [JarvisWorkspaceController::class, 'storeMessage'])->name('messages.store');
+        Route::post('/chats/{conversation}/messages', [JarvisWorkspaceController::class, 'storeMessage'])->middleware('throttle:owner-chat')->name('messages.store');
         Route::get('/chats/{conversation}/messages/older', [JarvisWorkspaceController::class, 'olderMessages'])->name('messages.older');
         Route::get('/chats/{conversation}/attachments/{attachment}/preview', [JarvisAttachmentController::class, 'preview'])
             ->name('attachments.preview');
@@ -328,7 +336,7 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
 
         if ($ownerStorage) {
             Route::get('/storage', [JarvisStorageController::class, 'index'])->name('storage.index');
-            Route::post('/storage', [JarvisStorageController::class, 'store'])->name('storage.store');
+            Route::post('/storage', [JarvisStorageController::class, 'store'])->middleware('throttle:owner-upload')->name('storage.store');
             Route::get('/storage/{file}', [JarvisStorageController::class, 'show'])->name('storage.show');
             Route::patch('/storage/{file}', [JarvisStorageController::class, 'update'])->name('storage.update');
             Route::delete('/storage/{file}', [JarvisStorageController::class, 'destroy'])->name('storage.destroy');
@@ -360,6 +368,7 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+    Route::get('/production-readiness', [ProductionReadinessController::class, 'show'])->name('production-readiness.show');
 
     Route::get('/telegram-groups', [TelegramGroupController::class, 'index'])->name('telegram-groups.index');
     Route::get('/telegram-groups/archive', [TelegramGroupController::class, 'archive'])->name('telegram-groups.archive');

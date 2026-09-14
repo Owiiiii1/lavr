@@ -1,12 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useState } from 'react';
 import SettingsCard from '@/personal-workspace/settings/SettingsCard';
-
-const RESPONSE_MODE_LABELS = {
-    text: 'текст',
-    voice: 'голос',
-    auto: 'авто',
-};
+import { useTranslation } from '@/locales/useTranslation';
 
 function integrationDot(state) {
     if (state === 'connected' || state === 'enabled') {
@@ -21,17 +16,7 @@ function integrationDot(state) {
     return 'bg-slate-500';
 }
 
-function statusLabel(state, fallback) {
-    if (state === 'connected' || state === 'enabled') {
-        return 'Connected';
-    }
-    if (state === 'not_connected' || state === 'disconnected') {
-        return 'Not connected';
-    }
-    return fallback || state || 'Not connected';
-}
-
-function IntegrationCard({ title, status, detail, actions, children, expanded, onToggle }) {
+function IntegrationCard({ title, status, detail, actions, children, expanded, onToggle, hideLabel, manageLabel }) {
     return (
         <article className="rounded-2xl border border-white/10 bg-white/5 p-4">
             <div className="flex items-start justify-between gap-3">
@@ -50,7 +35,7 @@ function IntegrationCard({ title, status, detail, actions, children, expanded, o
                             onClick={onToggle}
                             className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/5"
                         >
-                            {expanded ? 'Скрыть' : 'Manage'}
+                            {expanded ? hideLabel : manageLabel}
                         </button>
                     ) : null}
                 </div>
@@ -61,6 +46,7 @@ function IntegrationCard({ title, status, detail, actions, children, expanded, o
 }
 
 function TelegramPairingCard({ telegram }) {
+    const { t } = useTranslation();
     const [expanded, setExpanded] = useState(false);
 
     if (!telegram) {
@@ -69,24 +55,20 @@ function TelegramPairingCard({ telegram }) {
 
     return (
         <IntegrationCard
-            title="Telegram pairing"
+            title={t('settings.telegramPairing')}
             status={telegram.connected ? 'connected' : 'not_connected'}
             detail={telegram.connected
-                ? `Connected as ${telegram.account_label || 'Telegram'}`
-                : 'Not connected'}
+                ? t('settings.telegramConnectedAs', { name: telegram.account_label || 'Telegram' })
+                : t('settings.notConnected')}
             expanded={expanded}
             onToggle={() => setExpanded((value) => !value)}
+            hideLabel={t('common.hide')}
+            manageLabel={t('common.manage')}
         >
             <div className="space-y-2 text-sm text-slate-300">
-                <p>
-                    Режим ответа: {RESPONSE_MODE_LABELS[telegram.response_mode] || telegram.response_mode || 'текст'}.
-                    Сменить можно в чате: «отвечай голосом» или «отвечай текстом».
-                </p>
+                <p>{t('settings.telegramReplyMode', { mode: telegram.response_mode || 'text' })}</p>
                 {telegram.connected ? null : (
-                    <p>
-                        Чтобы связать Telegram, отправьте боту код сопряжения
-                        {telegram.access_code ? `: ${telegram.access_code}` : '.'}
-                    </p>
+                    <p>{t('settings.telegramPairCode', { code: telegram.access_code || '—' })}</p>
                 )}
             </div>
         </IntegrationCard>
@@ -94,13 +76,14 @@ function TelegramPairingCard({ telegram }) {
 }
 
 export default function IntegrationsSettings({ integrations = [], googleAccounts = [], telegram, capabilities }) {
+    const { t } = useTranslation();
     const [openProvider, setOpenProvider] = useState(null);
     const ownerCards = capabilities.integrations ? integrations : [];
 
     if (!capabilities.integrations && !telegram) {
         return (
-            <SettingsCard title="Интеграции" description="Для этого аккаунта нет доступных каналов.">
-                <p className="text-sm text-slate-400">Пусто.</p>
+            <SettingsCard title={t('settings.integrations')} description={t('settings.integrationsPersonalHint')}>
+                <p className="text-sm text-slate-400">{t('common.empty')}</p>
             </SettingsCard>
         );
     }
@@ -108,12 +91,11 @@ export default function IntegrationsSettings({ integrations = [], googleAccounts
     return (
         <div className="space-y-3">
             <div>
-                <h3 className="text-sm font-semibold text-white">Интеграции</h3>
+                <h3 className="text-sm font-semibold text-white">{t('settings.integrations')}</h3>
                 <p className="mt-1 text-xs leading-5 text-slate-400">
-                    {capabilities.integrations
-                        ? 'Статус подключений. Подключение и секреты настраиваются в Admin.'
-                        : 'Личные каналы этого аккаунта. Owner-интеграции сюда не попадают.'}
+                    {capabilities.integrations ? t('settings.integrationsAdminHint') : t('settings.integrationsPersonalHint')}
                 </p>
+                <p className="mt-2 text-xs leading-5 text-slate-500">{t('settings.dataOwnership')}</p>
             </div>
 
             {ownerCards.map((item) => {
@@ -129,7 +111,7 @@ export default function IntegrationsSettings({ integrations = [], googleAccounts
                         title={item.display_name}
                         status={item.state}
                         detail={[
-                            statusLabel(item.state, item.label),
+                            item.state === 'connected' || item.state === 'enabled' ? t('settings.connected') : t('settings.notConnected'),
                             capabilityLine || item.account_label || item.label,
                         ].filter(Boolean).join(' · ')}
                         actions={capabilities.integrations ? (
@@ -137,11 +119,13 @@ export default function IntegrationsSettings({ integrations = [], googleAccounts
                                 href={route('settings.index', { tab: 'integrations' })}
                                 className="rounded-lg bg-sky-500/90 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-400"
                             >
-                                {connected ? 'Manage' : 'Connect'}
+                                {connected ? t('common.manage') : t('common.connect')}
                             </Link>
                         ) : null}
                         expanded={openProvider === item.provider}
                         onToggle={() => setOpenProvider((current) => (current === item.provider ? null : item.provider))}
+                        hideLabel={t('common.hide')}
+                        manageLabel={t('common.manage')}
                     >
                         <p className="text-xs text-slate-400">
                             {item.account_label || item.label}
@@ -160,7 +144,7 @@ export default function IntegrationsSettings({ integrations = [], googleAccounts
                             <p className="mt-1 text-xs text-slate-400">
                                 {account.email}
                                 {' · '}
-                                {account.health === 'blocked' ? 'Needs attention' : 'Connected'}
+                                {account.health === 'blocked' ? t('settings.needsAttention') : t('settings.connected')}
                             </p>
                         </article>
                     ))}

@@ -22,6 +22,8 @@ B.2 `jarvis:proactive:dispatch` heuristics remain separate from this bus.
 
 Statuses: `observed` | `assessed` | `actionable` | `dismissed` | `resolved` | `superseded`.
 
+Handover: events/proposals derived only from a removed test source are purgeable. Confirmed canonical commitments/people/projects stay. [HANDOVER_CLEANUP.md](HANDOVER_CLEANUP.md). Live campaign: **NOT VALIDATED**.
+
 Dedupe: unique `(user_id, fingerprint)`. Same fact stays one row (severity may rise). A changed fact uses a new fingerprint.
 
 Payload is minimal JSON. No raw email bodies or transcripts. Each row carries source_type / source_id / source_external_id, canonical person/project/meeting/commitment ids, confidence, evidence_pointer.

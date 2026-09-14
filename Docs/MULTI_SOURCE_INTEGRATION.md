@@ -88,7 +88,7 @@ Remove Google/Telegram source: revoke credentials where applicable, disable proc
 
 ## TEST DATA PROVENANCE / HANDOVER
 
-Phase 12 will implement destructive cleanup. Dependency graph:
+Phase 12 **IMPLEMENTED** guarded handover cleanup (`lavr:handover-cleanup`, dry-run by default). Live handover against developer accounts: **NOT VALIDATED**. See [HANDOVER_CLEANUP.md](HANDOVER_CLEANUP.md).
 
 | Record | Bound to integration? | Purge on source delete now | Phase 12 |
 | --- | --- | --- | --- |

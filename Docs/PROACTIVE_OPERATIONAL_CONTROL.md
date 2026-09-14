@@ -77,8 +77,8 @@ Escalation raises **notification priority**, never send permission.
 
 ## Handover (Phase 12)
 
-Proactive events/proposals carry `source_type` / `source_id` / `source_external_id` / `evidence_pointer`. Phase 12 can purge rows derived from test integrations. Canonical confirmed commitments/people/projects stay. Do not add a global `is_test` flag.
+Proactive events/proposals carry `source_type` / `source_id` / `source_external_id` / `evidence_pointer`. Phase 12 handover cleanup **IMPLEMENTED** (dry-run default). Canonical confirmed commitments/people/projects stay. Do not add a global `is_test` flag. Live cleanup against developer accounts: **NOT VALIDATED**.
 
 ## Not in Phase 11
 
-Autonomous employee messaging; unrestricted Gmail/Telegram send; generic no-code rules; ML personalization; surveillance / personality; first-class Decisions; SaaS; multi-user; handover purge execution; connecting real developer accounts.
+Autonomous employee messaging; unrestricted Gmail/Telegram send; generic no-code rules; ML personalization; surveillance / personality; first-class Decisions; SaaS; multi-user; connecting real developer accounts.

@@ -8,7 +8,9 @@ Canonical automation architecture. Current watcher/report/reminder **implementat
 - [EVENT_MODEL.md](EVENT_MODEL.md)
 - [PROACTIVE_OPERATIONAL_CONTROL.md](PROACTIVE_OPERATIONAL_CONTROL.md)
 
-Those files describe **CURRENT** code. This file defines the **TARGET** engine and how current objects must be interpreted so they do not semantically collide.
+**CURRENT:** Phase 7 routing + `automation_runs` is **IMPLEMENTED**. Owner live synthetic scenarios A–E: **NOT VALIDATED**. Phase 12 adds scheduler/queue heartbeats and diagnostics only — not a second engine.
+
+Those files describe **CURRENT** code. This file also defines the **TARGET** engine and how current objects must be interpreted so they do not semantically collide.
 
 ---
 

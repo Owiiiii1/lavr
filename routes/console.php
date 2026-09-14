@@ -44,6 +44,10 @@ Schedule::command('operational-control:scan')
     ->everyTenMinutes()
     ->withoutOverlapping(15);
 
+Schedule::command('lavr:heartbeat')
+    ->everyMinute()
+    ->withoutOverlapping(2);
+
 Schedule::command('jarvis:attachments:purge-ephemeral')
     ->hourly()
     ->withoutOverlapping(55);

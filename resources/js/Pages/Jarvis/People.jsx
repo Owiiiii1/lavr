@@ -4,7 +4,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 
 export default function People() {
     const { t } = useTranslation();
-    const { people = [], filters = {}, roleOptions = [], projects = [] } = usePage().props;
+    const { people = [], filters = {}, roleOptions = [], projects = [], pagination = {} } = usePage().props;
 
     const applyFilters = (event) => {
         event.preventDefault();
@@ -106,6 +106,17 @@ export default function People() {
                         ))}
                     </ul>
                 )}
+                {pagination.last_page > 1 ? (
+                    <div className="mt-4 flex gap-3 text-sm text-slate-400">
+                        {pagination.page > 1 ? (
+                            <Link href={`/lavr/people?page=${pagination.page - 1}`} className="text-sky-300">{t('common.back')}</Link>
+                        ) : null}
+                        <span>{pagination.page} / {pagination.last_page}</span>
+                        {pagination.page < pagination.last_page ? (
+                            <Link href={`/lavr/people?page=${pagination.page + 1}`} className="text-sky-300">{t('common.next')}</Link>
+                        ) : null}
+                    </div>
+                ) : null}
             </div>
         </LavrAppShell>
     );

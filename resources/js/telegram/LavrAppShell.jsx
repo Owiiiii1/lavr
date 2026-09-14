@@ -1,15 +1,40 @@
 import LavrBottomNav from '@/telegram/LavrBottomNav';
 import TelegramWebAppBridge from '@/telegram/TelegramWebAppBridge';
+import { useTranslation } from '@/locales/useTranslation';
 import { router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { Component, useEffect, useState } from 'react';
 
 function isRootPath(path) {
     return path === '/lavr/today' || path === '/lavr';
 }
 
+class WorkspaceBoundary extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { failed: false };
+    }
+
+    static getDerivedStateFromError() {
+        return { failed: true };
+    }
+
+    render() {
+        if (this.state.failed) {
+            return (
+                <div className="px-4 py-8 text-sm text-slate-300">
+                    {this.props.fallback || 'This section is unavailable right now.'}
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
+}
+
 export default function LavrAppShell({ children, showBottomNav = true, fill = false }) {
     const page = usePage();
     const path = String(page.url || '').split('?')[0];
+    const { t } = useTranslation();
     const [isTelegram, setIsTelegram] = useState(false);
     const [keyboardOpen, setKeyboardOpen] = useState(false);
 
@@ -77,7 +102,9 @@ export default function LavrAppShell({ children, showBottomNav = true, fill = fa
 
     return (
         <div className={shellClass}>
-            <div className="lavr-shell__body">{children}</div>
+            <div className="lavr-shell__body">
+                <WorkspaceBoundary fallback={t('today.sectionUnavailable')}>{children}</WorkspaceBoundary>
+            </div>
             {showBottomNav ? <LavrBottomNav force={isTelegram} /> : null}
         </div>
     );

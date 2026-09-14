@@ -79,6 +79,20 @@ export default function Today({ today }) {
                 <h1 className="mt-1 text-2xl font-semibold text-white">{today?.date_label || t('today.title')}</h1>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">{today?.summary}</p>
 
+                {today?.setup?.show_banner ? (
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3">
+                        <p className="text-sm text-amber-100">
+                            {t('setup.progress', { done: today.setup.completed_count, total: today.setup.total })}
+                        </p>
+                        <div className="flex gap-3">
+                            <Link href="/lavr/setup" className="text-sm font-semibold text-sky-300">{t('setup.continue')}</Link>
+                            <button type="button" className="text-sm text-slate-400" onClick={() => router.post('/lavr/setup/dismiss')}>
+                                {t('setup.later')}
+                            </button>
+                        </div>
+                    </div>
+                ) : null}
+
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href={today?.ask_href || '/lavr'}
