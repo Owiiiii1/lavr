@@ -156,6 +156,15 @@ use App\Services\Tools\SearchConversationHistoryTool;
 use App\Services\Tools\SearchGroupKnowledgeTool;
 use App\Services\Tools\SetTelegramResponseModeTool;
 use App\Services\Tools\SnoozeReminderTool;
+use App\Services\Tools\Sources\BindProjectSourceTool;
+use App\Services\Tools\Sources\DisableSourceTool;
+use App\Services\Tools\Sources\ListIntegrationsTool;
+use App\Services\Tools\Sources\ListProjectSourcesTool;
+use App\Services\Tools\Sources\RemoveSourceTool;
+use App\Services\Tools\Sources\RenameSourceLabelTool;
+use App\Services\Tools\Sources\SearchEmailTool;
+use App\Services\Tools\Sources\SummarizeTelegramGroupTool;
+use App\Services\Tools\Sources\UnbindProjectSourceTool;
 use App\Services\Tools\StartTaskTool;
 use App\Services\Tools\Storage\DeleteStorageFileTool;
 use App\Services\Tools\Storage\GetStorageFileTool;
@@ -462,6 +471,15 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(UpdateCalendarEventTool::class),
                 $app->make(DeleteCalendarEventTool::class),
                 $app->make(SearchGmailTool::class),
+                $app->make(SearchEmailTool::class),
+                $app->make(ListIntegrationsTool::class),
+                $app->make(ListProjectSourcesTool::class),
+                $app->make(BindProjectSourceTool::class),
+                $app->make(UnbindProjectSourceTool::class),
+                $app->make(RenameSourceLabelTool::class),
+                $app->make(DisableSourceTool::class),
+                $app->make(RemoveSourceTool::class),
+                $app->make(SummarizeTelegramGroupTool::class),
                 $app->make(ListGmailMessagesTool::class),
                 $app->make(GetGmailMessageTool::class),
                 $app->make(GetGmailThreadTool::class),

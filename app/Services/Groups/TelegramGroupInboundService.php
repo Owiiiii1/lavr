@@ -10,8 +10,10 @@ use App\Models\TelegramGroup;
 use App\Models\TelegramGroupParticipant;
 use App\Services\Conversations\MessagePersistenceService;
 use App\Services\Conversations\PersistMessageData;
+use App\Services\Sources\SourceIngestService;
 use Illuminate\Support\Facades\Log;
 use SergiX44\Nutgram\Telegram\Types\Message\Message as TelegramMessage;
+use Throwable;
 
 final class TelegramGroupInboundService
 {
@@ -19,6 +21,7 @@ final class TelegramGroupInboundService
         private readonly TelegramGroupDiscoveryService $discovery,
         private readonly TelegramGroupMessageMapper $mapper,
         private readonly MessagePersistenceService $messages,
+        private readonly SourceIngestService $ingest,
     ) {}
 
     public function handleMessage(TelegramMessage $message, bool $edited = false): void
@@ -91,6 +94,7 @@ final class TelegramGroupInboundService
         if ($result->created) {
             $this->touchCounters($group, $result->message);
             $this->maybeLinkOutboundRole($result->message, $mapped['role']);
+            $this->ingestSource($group, $result->message, $mapped['role']);
 
             return 'persisted';
         }
@@ -196,6 +200,24 @@ final class TelegramGroupInboundService
         }
 
         return $metadata;
+    }
+
+    private function ingestSource(TelegramGroup $group, Message $message, MessageRole $role): void
+    {
+        $user = $group->conversation?->user;
+        if ($user === null) {
+            return;
+        }
+
+        try {
+            $this->ingest->ingestTelegramMessage(
+                $user,
+                $group,
+                $message,
+                $role === MessageRole::User && $message->sender_external_id === null,
+            );
+        } catch (Throwable) {
+        }
     }
 
     private function maybeLinkOutboundRole(Message $message, MessageRole $role): void

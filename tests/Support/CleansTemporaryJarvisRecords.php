@@ -38,9 +38,11 @@ use App\Models\MessageTopicRelation;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Project;
+use App\Models\ProjectSourceBinding;
 use App\Models\Reminder;
 use App\Models\ScheduledReport;
 use App\Models\ScheduledReportRun;
+use App\Models\SourceItem;
 use App\Models\Task;
 use App\Models\TelegramGroup;
 use App\Models\TelegramGroupAnalysisRun;
@@ -135,6 +137,14 @@ trait CleansTemporaryJarvisRecords
         }
         if (Schema::hasTable('tool_execution_logs')) {
             ToolExecutionLog::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('source_items')) {
+            SourceItem::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('project_source_bindings')) {
+            ProjectSourceBinding::query()
+                ->whereIn('project_id', Project::query()->where('user_id', $user->id)->select('id'))
+                ->delete();
         }
         if (Schema::hasTable('integration_accounts')) {
             IntegrationAccount::query()->where('user_id', $user->id)->delete();

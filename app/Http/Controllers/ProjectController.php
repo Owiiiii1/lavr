@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Enums\ConversationKind;
 use App\Enums\MemoryStatus;
+use App\Enums\ProjectSourceType;
+use App\Enums\SourceBindingKind;
 use App\Models\Conversation;
+use App\Models\IntegrationAccount;
 use App\Models\Memory;
 use App\Models\Organization;
 use App\Models\Person;
 use App\Models\Project;
+use App\Models\ProjectSourceBinding;
 use App\Models\TelegramGroup;
 use App\Models\Topic;
 use App\Services\Commitments\CommitmentService;
@@ -16,6 +20,7 @@ use App\Services\Directory\DirectoryService;
 use App\Services\Directory\Exceptions\DirectoryException;
 use App\Services\Projects\Exceptions\ProjectException;
 use App\Services\Projects\ProjectService;
+use App\Services\Sources\ProjectSourceBindingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,6 +32,7 @@ class ProjectController extends Controller
         private readonly ProjectService $projects,
         private readonly DirectoryService $directory,
         private readonly CommitmentService $commitments,
+        private readonly ProjectSourceBindingService $sourceBindings,
     ) {}
 
     public function index(Request $request): Response
@@ -220,6 +226,18 @@ class ProjectController extends Controller
                 ])
                 ->all(),
             'descriptionMax' => (int) config('projects.description_max'),
+            'sourceBindings' => $this->sourceBindings->serializeForProject($user, $project),
+            'availableGoogleAccounts' => IntegrationAccount::query()
+                ->where('user_id', $user->id)
+                ->where('provider', 'google')
+                ->orderByDesc('id')
+                ->get()
+                ->map(static fn ($account): array => [
+                    'id' => $account->id,
+                    'label' => $account->label(),
+                    'email' => $account->external_account_email,
+                ])
+                ->all(),
         ]);
     }
 
@@ -408,6 +426,48 @@ class ProjectController extends Controller
     {
         $this->authorizeOwned($request, $project, 'attach');
         $this->directory->detachOrganizationFromProject($request->user(), $project, $organization);
+
+        return back();
+    }
+
+    public function attachSource(Request $request, Project $project): RedirectResponse
+    {
+        $this->authorizeOwned($request, $project, 'attach');
+        $validated = $request->validate([
+            'source_type' => ['required', 'string', 'max:32'],
+            'source_id' => ['required', 'integer'],
+            'purpose' => ['nullable', 'string', 'max:120'],
+        ]);
+        $type = ProjectSourceType::tryFrom($validated['source_type']);
+        if ($type === null) {
+            return back()->withErrors(['source_type' => 'Unknown source type.']);
+        }
+
+        try {
+            $this->sourceBindings->bind(
+                $request->user(),
+                $project,
+                $type,
+                (int) $validated['source_id'],
+                SourceBindingKind::Explicit,
+                $validated['purpose'] ?? null,
+            );
+        } catch (DirectoryException $exception) {
+            return back()->withErrors(['source_id' => $this->directoryMessage($exception)]);
+        }
+
+        return back();
+    }
+
+    public function detachSource(Request $request, Project $project, ProjectSourceBinding $binding): RedirectResponse
+    {
+        $this->authorizeOwned($request, $project, 'attach');
+
+        try {
+            $this->sourceBindings->unbind($request->user(), $project, $binding);
+        } catch (DirectoryException $exception) {
+            return back()->withErrors(['source_id' => $this->directoryMessage($exception)]);
+        }
 
         return back();
     }

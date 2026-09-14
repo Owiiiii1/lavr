@@ -90,7 +90,7 @@ Engine: MySQL. CRM leftover tables were dropped. Vector DB is not used.
 
 ## Integrations / tools / settings
 
-`ai_provider_settings`, `ai_role_settings`, `telegram_bot_settings`, `web_research_settings`, `google_oauth_settings`, `integration_accounts`, `tool_execution_logs`, `tool_confirmations`.
+`ai_provider_settings`, `ai_role_settings`, `telegram_bot_settings`, `web_research_settings`, `google_oauth_settings`, `integration_accounts`, `source_items`, `project_source_bindings`, `tool_execution_logs`, `tool_confirmations`.
 
 **google_oauth_settings:** singleton Admin Google OAuth client configuration. `client_id` and `redirect_uri` are plain strings. `client_secret` is encrypted at rest (Laravel `encrypted` cast). Not OAuth user tokens.
 

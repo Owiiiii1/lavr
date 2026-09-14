@@ -25,6 +25,9 @@ Vertical slices. Prefer shipping a thin path through UI + data + one CEO questio
 | LAVR Phase 5B | Zoom cloud transcript ingest (live E2E NOT VALIDATED) |
 | LAVR Phase 6 | First-class commitments + evidence + Meeting promotion |
 | LAVR Phase 7 | Automation Engine hardening: routing, `automation_runs`, idempotency, partial success, AI fallback |
+| LAVR Phase 8 | Morning Executive Brief; Owner live synthetic NOT VALIDATED |
+| LAVR Phase 9 | Grounded Leadership Review; Owner live synthetic NOT VALIDATED |
+| LAVR Phase 10 | Multi-source Google/Telegram/Project bindings; **LIVE MULTI-ACCOUNT NOT VALIDATED** |
 
 Validation of origin flows: [CURRENT_STATE.md](CURRENT_STATE.md), [VALIDATION_CORE_WORKFLOW.md](VALIDATION_CORE_WORKFLOW.md).
 
@@ -48,7 +51,7 @@ Existing `projects`, watchers, and scheduled reports are **reused and hardened**
 | **7** | Automation Engine hardening | [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md), [EVENT_MODEL.md](EVENT_MODEL.md) |
 | **8** | Executive Brief | [EXECUTIVE_BRIEF.md](EXECUTIVE_BRIEF.md) |
 | **9** | Leadership Review | [LEADERSHIP_REVIEW.md](LEADERSHIP_REVIEW.md) |
-| **10** | Multi-source business integration | [DATA_SOURCES.md](DATA_SOURCES.md) |
+| **10** | Multi-source business integration | [DATA_SOURCES.md](DATA_SOURCES.md), [MULTI_SOURCE_INTEGRATION.md](MULTI_SOURCE_INTEGRATION.md) |
 | **11** | Proactive operational control | [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md), [COMMITMENTS.md](COMMITMENTS.md) |
 | **12** | Production polish | [CURRENT_STATE.md](CURRENT_STATE.md) |
 
@@ -197,9 +200,7 @@ Target: `recording.transcript_completed` webhook → validate → deduplicate �
 
 ## Phase 10 — Multi-source business integration
 
-**Goal.** Additional APIs; **multiple mailboxes** bound to projects (superseding one-Google-account MVP where the CEO needs it). Conferencing beyond Zoom remains upload/fallback unless a later slice names a provider.
-
-LAVR still does not become CRM/ERP.
+**IMPLEMENTED** 2026-09-14. Report: [Development/LAVR_PHASE_10_REPORT.md](Development/LAVR_PHASE_10_REPORT.md). Multiple Google accounts, Project source bindings, Telegram groups as sources, commitment candidates, provenance. **REAL MULTI-ACCOUNT LIVE VALIDATION: NOT VALIDATED**. Do not restart this phase. Do not connect developer personal accounts here. Do not build Phase 11 autonomy or Phase 12 purge.
 
 ---
 

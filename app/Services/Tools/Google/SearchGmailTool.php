@@ -30,6 +30,14 @@ final class SearchGmailTool extends GoogleGmailTool
                         'type' => 'STRING',
                         'description' => 'Required Gmail search query, for example from:name subject:contract newer_than:7d.',
                     ],
+                    'account_id' => [
+                        'type' => 'INTEGER',
+                        'description' => 'Optional integration account id. Omit to use the latest enabled mailbox.',
+                    ],
+                    'project_id' => [
+                        'type' => 'INTEGER',
+                        'description' => 'Optional project id to use that project mailbox binding.',
+                    ],
                     'max_results' => [
                         'type' => 'INTEGER',
                         'description' => 'Optional max results. Core caps this.',
@@ -56,7 +64,7 @@ final class SearchGmailTool extends GoogleGmailTool
             throw new IntegrationException('invalid_arguments', 'query is required.');
         }
 
-        return $this->ok($call, $this->gmail->searchMessages($this->resolveAccount($context), $query, [
+        return $this->ok($call, $this->gmail->searchMessages($this->resolveAccount($context, $call), $query, [
             'max_results' => isset($call->arguments['max_results']) ? (int) $call->arguments['max_results'] : null,
             'include_spam_trash' => (bool) ($call->arguments['include_spam_trash'] ?? false),
         ]));

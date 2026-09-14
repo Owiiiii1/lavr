@@ -56,7 +56,7 @@ final class GoogleCalendarFreebusyTool extends GoogleCalendarTool
 
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
-        $account = $this->resolveAccount($context);
+        $account = $this->resolveAccount($context, $call);
         $timezone = $this->times->ownerTimezone($context->user);
         if (filled($call->arguments['timezone'] ?? null)) {
             $timezone = $this->times->assertValidTimezone((string) $call->arguments['timezone']);

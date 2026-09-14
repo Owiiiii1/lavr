@@ -109,6 +109,7 @@ export default function WorkspaceSettings({
             return (
                 <IntegrationsSettings
                     integrations={settingsContext.integrations || []}
+                    googleAccounts={settingsContext.google_accounts || []}
                     telegram={settingsContext.telegram}
                     capabilities={capabilities}
                 />

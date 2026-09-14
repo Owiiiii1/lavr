@@ -63,7 +63,7 @@ final class CreateWatcherTool implements JarvisTool
                     'project_id' => ['type' => 'INTEGER', 'description' => 'Owned project id when scoped.'],
                     'entity_name' => ['type' => 'STRING', 'description' => 'Fallback name/alias to resolve a knowledge entity, e.g. YFS.'],
                     'cooldown_seconds' => ['type' => 'INTEGER', 'description' => 'Minimum seconds between notifications.'],
-                    'source' => ['type' => 'OBJECT', 'description' => 'Filters: sender, senders, sender_domain, sender_domains, subject, query, thread_id. For a Gmail digest set digest=true, query=in:inbox, schedule.kind=daily_local. For event monitoring pass sender_domains such as ["example.com"]. Do not pass integration_account_id or user_id.'],
+                    'source' => ['type' => 'OBJECT', 'description' => 'Filters: sender, senders, sender_domain, sender_domains, subject, query, thread_id, integration_account_id, project_id, telegram_group_id, scope=account|all|project. For a Gmail digest set digest=true, query=in:inbox, schedule.kind=daily_local. For event monitoring pass sender_domains such as ["example.com"]. Do not pass user_id.'],
                     'condition' => ['type' => 'OBJECT', 'description' => 'Bounded condition config: hours, status, event_type, sender, subject. For still-open-tomorrow set status=open and hours=24.'],
                     'reaction_config' => ['type' => 'OBJECT', 'description' => 'Bounded reaction config. For propose_action include tool name only — never execute it.'],
                 ],
@@ -152,9 +152,9 @@ final class CreateWatcherTool implements JarvisTool
     private function normalizeInput(ToolCall $call, ToolExecutionContext $context): array
     {
         $input = $call->arguments;
-        unset($input['user_id'], $input['integration_account_id']);
+        unset($input['user_id']);
         if (is_array($input['source'] ?? null)) {
-            unset($input['source']['user_id'], $input['source']['integration_account_id']);
+            unset($input['source']['user_id']);
         }
 
         $inbound = trim((string) ($context->inbound?->body ?? ''));
@@ -389,7 +389,10 @@ final class CreateWatcherTool implements JarvisTool
         }
 
         try {
-            $account = $this->accounts->getActiveAccount($context->user, 'google');
+            $accountId = isset($source['integration_account_id']) ? (int) $source['integration_account_id'] : 0;
+            $accounts = $accountId > 0
+                ? collect([$this->accounts->getAccount($context->user, $accountId, 'google')])
+                : $this->accounts->listEnabled($context->user, 'google');
         } catch (IntegrationException $exception) {
             if ($exception->error === 'forbidden') {
                 throw new WatcherException('capability_denied', 'Gmail watchers are not available.');
@@ -398,12 +401,16 @@ final class CreateWatcherTool implements JarvisTool
             throw new WatcherException($exception->error, $exception->getMessage());
         }
 
-        if ($account === null) {
+        if ($accounts->isEmpty()) {
             throw new WatcherException('google_not_connected', 'Gmail is not connected.');
         }
 
-        $scopes = is_array($account->scopes) ? $account->scopes : [];
-        if (! $this->oauth->hasGmailReadScope($scopes)) {
+        $hasGmail = $accounts->contains(function ($account): bool {
+            $scopes = is_array($account->scopes) ? $account->scopes : [];
+
+            return $this->oauth->hasGmailReadScope($scopes);
+        });
+        if (! $hasGmail) {
             throw new WatcherException('gmail_scope_required', 'Gmail permission is required.');
         }
     }

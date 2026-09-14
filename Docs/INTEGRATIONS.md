@@ -238,7 +238,7 @@ UI labels: Identity / Email identity / Profile / Calendar / Gmail read / Gmail c
 3. Session state: random, owner id, PKCE verifier, TTL 10 minutes, one-time. No arbitrary return URL.
 4. Callback requires authenticated owner. Invalid/expired/used state → reject, no token exchange.
 5. Token exchange + OpenID userinfo. Identity = Google `sub` (not email). Email stored as label.
-6. Upsert account. Same `sub` updates the row. A different `sub` disconnects the previous active account (one active Google account for MVP).
+6. Upsert account. Same `sub` updates the row. A different `sub` creates/keeps another connected Google account (multi-account; Phase 10).
 7. Envelope: `access_token`, `refresh_token`, `expires_at`, `token_type`. `id_token` is not stored.
 8. If Google omits `refresh_token` on reconnect, the existing refresh token is kept.
 

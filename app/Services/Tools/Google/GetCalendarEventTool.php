@@ -52,7 +52,7 @@ final class GetCalendarEventTool extends GoogleCalendarTool
             throw new IntegrationException('invalid_arguments', 'event_id is required.');
         }
 
-        $account = $this->resolveAccount($context);
+        $account = $this->resolveAccount($context, $call);
         $event = $this->calendar->getEvent($account, $this->calendarId($call), $eventId);
 
         return $this->ok($call, ['event' => $event, 'result_count' => 1]);

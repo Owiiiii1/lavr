@@ -37,6 +37,6 @@ final class ListGmailLabelsTool extends GoogleGmailTool
 
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
-        return $this->ok($call, $this->gmail->listLabels($this->resolveAccount($context)));
+        return $this->ok($call, $this->gmail->listLabels($this->resolveAccount($context, $call)));
     }
 }

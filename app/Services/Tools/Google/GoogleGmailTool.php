@@ -11,6 +11,7 @@ use App\Services\Integrations\Google\GmailAddressValidator;
 use App\Services\Integrations\Google\GoogleGmailService;
 use App\Services\Integrations\Google\GoogleOAuthService;
 use App\Services\Integrations\IntegrationAccountService;
+use App\Services\Sources\IntegrationAccountResolver;
 use App\Services\Tools\JarvisTool;
 use App\Services\Tools\ToolExecutionContext;
 use App\Services\Tools\ToolMeta;
@@ -59,9 +60,17 @@ abstract class GoogleGmailTool implements JarvisTool
         $this->resolveAccount($context);
     }
 
-    protected function resolveAccount(ToolExecutionContext $context): IntegrationAccount
+    protected function resolveAccount(ToolExecutionContext $context, ?ToolCall $call = null): IntegrationAccount
     {
+        $accountId = $call !== null ? (int) ($call->arguments['account_id'] ?? $call->arguments['integration_account_id'] ?? 0) : 0;
+        $projectId = $call !== null ? (int) ($call->arguments['project_id'] ?? 0) : 0;
+
         try {
+            if ($accountId > 0 || $projectId > 0) {
+                return app(IntegrationAccountResolver::class)
+                    ->resolve($context->user, 'gmail', $accountId > 0 ? $accountId : null, $projectId > 0 ? $projectId : null);
+            }
+
             $account = $this->accounts->getActiveAccount($context->user, 'google');
         } catch (IntegrationException $exception) {
             if ($exception->error === 'forbidden') {

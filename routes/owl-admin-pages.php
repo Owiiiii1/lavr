@@ -381,6 +381,8 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::delete('/projects/{project}/people/{person}', [ProjectController::class, 'detachPerson'])->name('projects.people.destroy');
     Route::post('/projects/{project}/organizations', [ProjectController::class, 'attachOrganization'])->name('projects.organizations.store');
     Route::delete('/projects/{project}/organizations/{organization}', [ProjectController::class, 'detachOrganization'])->name('projects.organizations.destroy');
+    Route::post('/projects/{project}/sources', [ProjectController::class, 'attachSource'])->name('projects.sources.store');
+    Route::delete('/projects/{project}/sources/{binding}', [ProjectController::class, 'detachSource'])->name('projects.sources.destroy');
 
     Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
     Route::post('/people', [PeopleController::class, 'store'])->name('people.store');
@@ -462,6 +464,11 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
         ->name('integrations.google.connect');
     Route::post('/settings/integrations/google/disconnect', [GoogleOAuthController::class, 'disconnect'])
         ->name('integrations.google.disconnect');
+    Route::patch('/settings/integrations/google/{integrationAccount}', [GoogleOAuthController::class, 'update'])
+        ->name('integrations.google.update');
+    Route::post('/settings/integrations/google/{integrationAccount}/test', [GoogleOAuthController::class, 'test'])
+        ->middleware('throttle:10,1')
+        ->name('integrations.google.test');
     Route::get('/integrations/google/callback', [GoogleOAuthController::class, 'callback'])
         ->name('integrations.google.callback');
     Route::get('/settings/integrations/github/connect', [GitHubOAuthController::class, 'connect'])

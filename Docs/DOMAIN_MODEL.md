@@ -32,7 +32,8 @@ Implemented operational-ish objects (Eloquent models):
 | EmployeeProfile | Extension of a Person with role `employee` |
 | Organization | Canonical `organizations` |
 | DirectoryRelationship | Typed P↔O / P↔P / O↔O links (`directory_relationships`) |
-| Project | Owner **business context** (people, organizations, chats, topics, memories, groups, `project_source_bindings`, optional `meetings.project_id`) |
+| Project | Owner **business context** (people, organizations, chats, topics, memories, groups, **operational** `project_source_bindings`, optional `meetings.project_id`) |
+| SourceItem | Lightweight `source_items` (external ids + metadata; not a mailbox mirror) |
 | Meeting | Canonical `meetings` + `meeting_participants` + `meeting_artifacts` + versioned `meeting_analyses` |
 | Commitment | First-class `commitments` + `commitment_evidence` + `commitment_status_history` |
 | Watcher | Condition monitor |
@@ -40,7 +41,7 @@ Implemented operational-ish objects (Eloquent models):
 | KnowledgeEntity | Includes type `person` / `organization` / `project` — **index**; optional `canonical_type` / `canonical_id` |
 | KnowledgeEvent | Timeline including `commitment_made` etc. |
 | TelegramGroup | Group source |
-| IntegrationAccount | OAuth connections |
+| IntegrationAccount | OAuth connections; **multiple Google accounts** per Owner |
 | JarvisNotification | In-app inbox |
 | Memory | Personal memory engine |
 

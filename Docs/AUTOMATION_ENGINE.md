@@ -191,3 +191,5 @@ Default third-party contact: ask first. [COMMITMENTS.md](COMMITMENTS.md).
 ## Hardening work (Phase 7)
 
 **IMPLEMENTED** 2026-09-10. See [Development/LAVR_PHASE_7_REPORT.md](Development/LAVR_PHASE_7_REPORT.md). Executive Brief (Phase 8) hangs on the same `automation_runs` contract (`AutomationType::ExecutiveBrief`). Remaining TARGET: full event bus, custom rule DSL — not this phase.
+
+Watchers and scheduled reports may name `integration_account_id`, `project_id`, or a Telegram group. Omit account id to use all enabled Gmail accounts. Reminders stay unrelated to integrations. [MULTI_SOURCE_INTEGRATION.md](MULTI_SOURCE_INTEGRATION.md).

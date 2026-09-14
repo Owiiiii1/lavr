@@ -6,6 +6,7 @@ use App\Enums\ToolOperationClass;
 use App\Services\Ai\DTO\ToolCall;
 use App\Services\Ai\DTO\ToolDefinition;
 use App\Services\Ai\DTO\ToolResult;
+use App\Services\Sources\MultiAccountCalendarAggregator;
 use App\Services\Tools\ToolExecutionContext;
 
 final class ListCalendarEventsTool extends GoogleCalendarTool
@@ -28,6 +29,14 @@ final class ListCalendarEventsTool extends GoogleCalendarTool
                     'calendar_id' => [
                         'type' => 'STRING',
                         'description' => 'Optional calendar id. Defaults to primary.',
+                    ],
+                    'account_id' => [
+                        'type' => 'INTEGER',
+                        'description' => 'Optional Google integration account id.',
+                    ],
+                    'project_id' => [
+                        'type' => 'INTEGER',
+                        'description' => 'Optional project id to use bound calendars.',
                     ],
                     'time_min' => [
                         'type' => 'STRING',
@@ -66,7 +75,6 @@ final class ListCalendarEventsTool extends GoogleCalendarTool
 
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
-        $account = $this->resolveAccount($context);
         $timezone = $this->times->ownerTimezone($context->user);
         if (filled($call->arguments['timezone'] ?? null)) {
             $timezone = $this->times->assertValidTimezone((string) $call->arguments['timezone']);
@@ -86,9 +94,24 @@ final class ListCalendarEventsTool extends GoogleCalendarTool
             $options['q'] = $query;
         }
 
-        $result = $this->calendar->listEvents($account, $this->calendarId($call), $options);
+        $accountId = isset($call->arguments['account_id']) ? (int) $call->arguments['account_id'] : 0;
+        $projectId = isset($call->arguments['project_id']) ? (int) $call->arguments['project_id'] : 0;
 
-        return $this->ok($call, $result);
+        $aggregated = app(MultiAccountCalendarAggregator::class)->listEvents(
+            $context->user,
+            $options,
+            $accountId > 0 ? $accountId : null,
+            $projectId > 0 ? $projectId : null,
+            $this->calendarId($call),
+        );
+
+        return $this->ok($call, [
+            'events' => $aggregated['events'],
+            'unavailable' => $aggregated['unavailable'],
+            'semantics' => $aggregated['semantics'],
+            'truncated' => (bool) ($aggregated['truncated'] ?? false),
+            'result_count' => count($aggregated['events']),
+        ]);
     }
 
     /**

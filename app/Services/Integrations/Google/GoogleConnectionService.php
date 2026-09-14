@@ -23,8 +23,11 @@ final class GoogleConnectionService
      */
     public function authorizationUrl(User $owner, array $additionalScopes = []): string
     {
-        $forceConsent = ! $this->hasRefreshToken($owner);
-        $authorization = $this->oauth->buildAuthorizationUrl($forceConsent, $additionalScopes);
+        $connected = $this->accounts->listAccounts($owner, 'google')
+            ->where('status', IntegrationAccountStatus::Connected)
+            ->count();
+        $forceConsent = $connected > 0 || ! $this->hasRefreshToken($owner);
+        $authorization = $this->oauth->buildAuthorizationUrl($forceConsent, $additionalScopes, $connected > 0);
         $this->state->start($owner, $authorization['state'], $authorization['verifier']);
 
         Log::info('google oauth', [
@@ -99,8 +102,6 @@ final class GoogleConnectionService
      */
     private function persistAccount(User $owner, array $identity, array $scopes, array $tokenResponse): IntegrationAccount
     {
-        $this->deactivateOtherAccounts($owner, $identity['sub']);
-
         $existing = IntegrationAccount::query()
             ->where('user_id', $owner->id)
             ->where('provider', 'google')
@@ -119,6 +120,8 @@ final class GoogleConnectionService
             $identity['email'],
             IntegrationAccountStatus::Connected,
             $scopes,
+            $existing?->metadata,
+            $existing?->display_label ?: $identity['email'],
         );
 
         $this->accounts->setCredentials($account, $merged);
@@ -128,24 +131,9 @@ final class GoogleConnectionService
         return $account->fresh() ?? $account;
     }
 
-    private function deactivateOtherAccounts(User $owner, string $sub): void
-    {
-        $others = IntegrationAccount::query()
-            ->where('user_id', $owner->id)
-            ->where('provider', 'google')
-            ->where('external_account_id', '!=', $sub)
-            ->where('status', IntegrationAccountStatus::Connected)
-            ->get();
-
-        foreach ($others as $other) {
-            $this->oauth->revokeSafely($this->revokeToken($other));
-            $this->accounts->disconnect($other);
-        }
-    }
-
     private function hasRefreshToken(User $owner): bool
     {
-        $account = $this->accounts->getActiveAccount($owner, 'google');
+        $account = $this->accounts->listEnabled($owner, 'google')->first();
         if ($account === null) {
             return false;
         }

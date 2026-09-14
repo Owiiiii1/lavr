@@ -42,7 +42,7 @@ final class ListGoogleCalendarsTool extends GoogleCalendarTool
 
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
-        $account = $this->resolveAccount($context);
+        $account = $this->resolveAccount($context, $call);
         $max = isset($call->arguments['max_results']) ? (int) $call->arguments['max_results'] : null;
         $result = $this->calendar->listCalendars($account, $max);
 

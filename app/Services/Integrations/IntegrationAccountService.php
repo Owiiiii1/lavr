@@ -3,12 +3,14 @@
 namespace App\Services\Integrations;
 
 use App\Enums\IntegrationAccountStatus;
+use App\Enums\IntegrationHealth;
 use App\Enums\UserRole;
 use App\Models\IntegrationAccount;
 use App\Models\User;
 use App\Services\Integrations\Contracts\IntegrationProvider;
 use App\Services\Integrations\Exceptions\IntegrationException;
 use App\Services\Users\UserCapability;
+use Illuminate\Support\Collection;
 
 final class IntegrationAccountService
 {
@@ -16,13 +18,59 @@ final class IntegrationAccountService
     {
         $this->assertOwner($user);
 
+        return $this->listEnabled($user, $provider)->first();
+    }
+
+    public function getAccount(User $user, int $accountId, ?string $provider = null): IntegrationAccount
+    {
+        $this->assertOwner($user);
+
+        $query = IntegrationAccount::query()
+            ->where('user_id', $user->id)
+            ->whereKey($accountId);
+
+        if ($provider !== null) {
+            $query->where('provider', $provider);
+        }
+
+        $account = $query->first();
+        if ($account === null) {
+            throw new IntegrationException('google_not_connected', 'Integration account was not found.');
+        }
+
+        return $account;
+    }
+
+    /**
+     * @return Collection<int, IntegrationAccount>
+     */
+    public function listAccounts(User $user, ?string $provider = null): Collection
+    {
+        $this->assertOwner($user);
+
+        return IntegrationAccount::query()
+            ->where('user_id', $user->id)
+            ->when($provider !== null, fn ($query) => $query->where('provider', $provider))
+            ->orderByDesc('connected_at')
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    /**
+     * @return Collection<int, IntegrationAccount>
+     */
+    public function listEnabled(User $user, string $provider): Collection
+    {
+        $this->assertOwner($user);
+
         return IntegrationAccount::query()
             ->where('user_id', $user->id)
             ->where('provider', $provider)
+            ->where('enabled', true)
             ->where('status', IntegrationAccountStatus::Connected)
             ->orderByDesc('connected_at')
             ->orderByDesc('id')
-            ->first();
+            ->get();
     }
 
     /**
@@ -37,6 +85,7 @@ final class IntegrationAccountService
         IntegrationAccountStatus $status = IntegrationAccountStatus::Disconnected,
         ?array $scopes = null,
         ?array $metadata = null,
+        ?string $displayLabel = null,
     ): IntegrationAccount {
         $this->assertOwner($user);
 
@@ -48,15 +97,41 @@ final class IntegrationAccountService
             'external_account_id' => $externalId,
         ]);
 
-        $account->fill([
+        $payload = [
             'external_account_email' => $externalAccountEmail,
             'status' => $status,
             'scopes' => $scopes,
-            'metadata' => $metadata,
-        ]);
+            'metadata' => $metadata ?? $account->metadata,
+        ];
+
+        if ($displayLabel !== null && trim($displayLabel) !== '') {
+            $payload['display_label'] = trim($displayLabel);
+        } elseif (! filled($account->display_label) && filled($externalAccountEmail)) {
+            $payload['display_label'] = $externalAccountEmail;
+        }
+
+        $account->fill($payload);
         $account->save();
 
         return $account;
+    }
+
+    public function setLabel(IntegrationAccount $account, string $label): IntegrationAccount
+    {
+        $trimmed = mb_substr(trim($label), 0, 80);
+        $account->forceFill([
+            'display_label' => $trimmed !== '' ? $trimmed : $account->external_account_email,
+        ])->save();
+
+        return $account->fresh() ?? $account;
+    }
+
+    public function setEnabled(IntegrationAccount $account, bool $enabled): IntegrationAccount
+    {
+        $account->forceFill(['enabled' => $enabled])->save();
+        app(IntegrationHealthService::class)->refresh($account->fresh() ?? $account);
+
+        return $account->fresh() ?? $account;
     }
 
     /**
@@ -82,18 +157,23 @@ final class IntegrationAccountService
     {
         $account->forceFill([
             'status' => IntegrationAccountStatus::Connected,
+            'enabled' => true,
+            'health' => IntegrationHealth::Healthy,
             'connected_at' => now(),
             'disconnected_at' => null,
             'last_error_code' => null,
+            'last_error_message' => null,
         ])->save();
     }
 
-    public function markError(IntegrationAccount $account, string $code): void
+    public function markError(IntegrationAccount $account, string $code, ?string $safeMessage = null): void
     {
         $account->forceFill([
             'status' => IntegrationAccountStatus::Error,
+            'health' => IntegrationHealth::Blocked,
             'last_error_at' => now(),
             'last_error_code' => $code,
+            'last_error_message' => $this->safeError($safeMessage ?? $code),
         ])->save();
     }
 
@@ -101,6 +181,8 @@ final class IntegrationAccountService
     {
         $account->forceFill([
             'status' => IntegrationAccountStatus::Revoked,
+            'enabled' => false,
+            'health' => IntegrationHealth::Blocked,
             'disconnected_at' => now(),
             'credentials_encrypted' => null,
         ])->save();
@@ -111,7 +193,9 @@ final class IntegrationAccountService
         $account->forceFill([
             'last_success_at' => now(),
             'last_error_code' => null,
+            'last_error_message' => null,
         ])->save();
+        app(IntegrationHealthService::class)->refresh($account->fresh() ?? $account);
     }
 
     public function recordSuccess(IntegrationAccount $account): void
@@ -119,16 +203,29 @@ final class IntegrationAccountService
         $account->forceFill([
             'last_used_at' => now(),
             'last_success_at' => now(),
+            'last_processed_at' => now(),
             'last_error_code' => null,
+            'last_error_message' => null,
         ])->save();
+        app(IntegrationHealthService::class)->refresh($account->fresh() ?? $account);
     }
 
-    public function recordError(IntegrationAccount $account, string $code): void
+    public function recordError(IntegrationAccount $account, string $code, ?string $safeMessage = null): void
     {
         $account->forceFill([
             'last_used_at' => now(),
             'last_error_at' => now(),
             'last_error_code' => $code,
+            'last_error_message' => $this->safeError($safeMessage ?? $code),
+        ])->save();
+        app(IntegrationHealthService::class)->refresh($account->fresh() ?? $account);
+    }
+
+    public function recordEvent(IntegrationAccount $account): void
+    {
+        $account->forceFill([
+            'last_event_at' => now(),
+            'last_processed_at' => now(),
         ])->save();
     }
 
@@ -143,6 +240,8 @@ final class IntegrationAccountService
 
         $account->forceFill([
             'status' => IntegrationAccountStatus::Disconnected,
+            'enabled' => false,
+            'health' => IntegrationHealth::Disabled,
             'disconnected_at' => now(),
             'credentials_encrypted' => null,
         ])->save();
@@ -159,14 +258,30 @@ final class IntegrationAccountService
             'status' => $account->status instanceof IntegrationAccountStatus
                 ? $account->status->value
                 : (string) $account->status,
+            'health' => $account->health instanceof IntegrationHealth
+                ? $account->health->value
+                : (string) $account->health,
+            'enabled' => $account->enabled === true,
             'external_account_email' => $account->external_account_email,
+            'display_label' => $account->label(),
             'scopes' => $account->scopes ?? [],
             'connected_at' => optional($account->connected_at)?->toIso8601String(),
             'last_used_at' => optional($account->last_used_at)?->toIso8601String(),
             'last_success_at' => optional($account->last_success_at)?->toIso8601String(),
+            'last_event_at' => optional($account->last_event_at)?->toIso8601String(),
+            'last_processed_at' => optional($account->last_processed_at)?->toIso8601String(),
             'last_error_at' => optional($account->last_error_at)?->toIso8601String(),
             'last_error_code' => $account->last_error_code,
+            'last_error_message' => $account->last_error_message,
+            'has_encrypted_credentials' => is_array($account->credentials_encrypted) && $account->credentials_encrypted !== [],
         ];
+    }
+
+    private function safeError(string $code): string
+    {
+        $trimmed = mb_substr(trim($code), 0, 120);
+
+        return $trimmed === '' ? 'source_error' : $trimmed;
     }
 
     private function assertOwner(User $user): void

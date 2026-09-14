@@ -26,15 +26,15 @@ On-demand translation for the Owner (UI or assistant) must not overwrite the sto
 
 | Source | Status |
 | --- | --- |
-| Calendar | Live Google Calendar; no local event table. Executive Brief reads today’s events; timeout → partial. |
-| Gmail / Google Workspace | OAuth `IntegrationAccount`; tools; **no mailbox mirror**; send requires confirmation. Typically **one** active Google account (ADR-070). Live campaign not fully MANUAL PASS. Executive Brief uses important/actionable search, not a subject dump. |
+| Gmail / Google Workspace | OAuth `IntegrationAccount`; **multiple** accounts per Owner; tools; **no mailbox mirror**; send requires confirmation. **LIVE MULTI-ACCOUNT: NOT VALIDATED**. Executive Brief uses important/actionable search, not a subject dump. |
+| Calendar | Live Google Calendar across enabled accounts; invitation dedupe; no local event table. Executive Brief reads today’s events; timeout → partial. |
 | Telegram private bot | Webhook, pairing, DM text/voice. |
-| Telegram groups | Persist + analysis tools; Owner; campaign not fully validated. |
+| Telegram groups | Persist + analysis + **Project source binding** + commitment extract; Owner; campaign not fully validated. Privacy mode: [TELEGRAM_GROUPS.md](TELEGRAM_GROUPS.md). |
 | Uploaded documents | Storage / attachments / Knowledge ingest. |
 | Manual meeting transcripts | **IMPLEMENTED (Phase 5A).** Private `meeting_artifacts` (.txt/.vtt/.srt/.md or pasted text). Not Knowledge documents. |
 | GitHub | OAuth + tools + watcher source; not a CEO ops source of first importance. |
 | Zoom | **IMPLEMENTED / LIVE E2E NOT VALIDATED.** S2S OAuth + `recording.transcript_completed` → Meeting. Manual upload remains fallback. |
-| External dashboards / APIs | **Not** integrated (Phase 10). |
+| External dashboards / APIs | Adapter interface + mock connector. Real Bitrix/REST **not** connected. |
 
 Permissions: Owner/client account owns integrations. Encrypted credentials. Tool confirmation for external writes.
 
@@ -42,16 +42,18 @@ Scheduled report collectors are **independent**. Gmail or Calendar failure retur
 
 ---
 
-## TARGET sources
+See [MULTI_SOURCE_INTEGRATION.md](MULTI_SOURCE_INTEGRATION.md) for multi-account Google, Project bindings, provenance, and handover.
 
-- Gmail / Google Workspace ( **multiple mailboxes**, each bound to Project / Organization / purpose )
-- Calendar (bound to context where possible)
-- Telegram groups (source + policy)
+### TARGET sources
+
+- Gmail / Google Workspace (multiple mailboxes bound to Project) — **IMPLEMENTED (Phase 10); live NOT VALIDATED**
+- Calendar (bound to context where possible) — **IMPLEMENTED (Phase 10)**
+- Telegram groups (source + policy) — **IMPLEMENTED (Phase 10 bind/extract)**
 - Telegram private bot (CEO channel)
-- Zoom (OAuth + `recording.transcript_completed` → Meeting) — [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md)
+- Zoom (OAuth + `recording.transcript_completed` → Meeting)
 - Manual / other conferencing transcripts (upload fallback, Phase 5A) — **IMPLEMENTED**
 - Uploaded documents
-- Future external APIs
+- Future external APIs (connector interface ready; no Bitrix yet)
 - Internal dashboards (read via API, do not clone ERP/CRM)
 
 ### Zoom

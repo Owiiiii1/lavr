@@ -4,9 +4,12 @@ namespace App\Services\Tools\Synthesis;
 
 use App\Enums\SynthesisType;
 use App\Enums\ToolOperationClass;
+use App\Models\Project;
+use App\Models\User;
 use App\Services\Ai\DTO\ToolCall;
 use App\Services\Ai\DTO\ToolDefinition;
 use App\Services\Ai\DTO\ToolResult;
+use App\Services\Sources\CrossSourceStatusService;
 use App\Services\Synthesis\CrossSourceSynthesisService;
 use App\Services\Synthesis\DTO\SynthesisScope;
 use App\Services\Synthesis\Exceptions\SynthesisException;
@@ -21,6 +24,7 @@ final class GetProjectStatusTool implements JarvisTool
 
     public function __construct(
         private readonly CrossSourceSynthesisService $synthesis,
+        private readonly CrossSourceStatusService $crossSource,
     ) {}
 
     public function name(): string
@@ -32,7 +36,7 @@ final class GetProjectStatusTool implements JarvisTool
     {
         return new ToolDefinition(
             name: self::NAME,
-            description: 'Cross-source current status for one owned project: summary, recent changes, open work, blockers, waiting-for, people, upcoming, risks, sources, freshness. Does not replace get_project_context. Does not poll integrations.',
+            description: 'Cross-source current status for one owned project: commitments, meetings, mailbox updates, Telegram group updates, calendar bindings, blockers, waiting, risks. Does not replace get_project_context. Unavailable sources are reported as unknown, not empty.',
             parameters: [
                 'type' => 'OBJECT',
                 'properties' => [
@@ -82,9 +86,29 @@ final class GetProjectStatusTool implements JarvisTool
             ]);
         }
 
+        $extra = [];
+        $project = $this->findProject($context->user, $projectId, $name);
+        if ($project !== null) {
+            $extra = $this->crossSource->project($context->user, $project);
+        }
+
         return ToolResult::success($call->id, $this->name(), [
             'success' => true,
             ...$result->toArray(),
+            ...$extra,
         ]);
+    }
+
+    private function findProject(User $user, int $projectId, string $name): ?Project
+    {
+        if ($projectId > 0) {
+            return Project::query()->where('user_id', $user->id)->whereKey($projectId)->first();
+        }
+
+        if ($name === '') {
+            return null;
+        }
+
+        return Project::query()->where('user_id', $user->id)->where('name', $name)->first();
     }
 }

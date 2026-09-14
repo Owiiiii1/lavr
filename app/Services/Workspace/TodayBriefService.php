@@ -12,6 +12,7 @@ use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Reminders\ReminderService;
 use App\Services\Reports\ScheduledReportService;
+use App\Services\Sources\MultiAccountCalendarAggregator;
 use App\Services\Tasks\TaskService;
 use App\Services\Users\UserCapability;
 use App\Support\OwnerCopy;
@@ -156,9 +157,18 @@ final class TodayBriefService
         }
 
         try {
-            $account = $this->accounts->getActiveAccount($user, 'google');
+            $aggregated = app(MultiAccountCalendarAggregator::class)->listEvents(
+                $user,
+                [
+                    'time_min' => $now->startOfDay()->utc()->toIso8601String(),
+                    'time_max' => $now->endOfDay()->utc()->toIso8601String(),
+                    'max_results' => 8,
+                    'order_by' => 'startTime',
+                    'single_events' => true,
+                ],
+            );
 
-            if ($account === null) {
+            if ($aggregated['semantics'] === 'unknown') {
                 return [
                     'events' => [],
                     'hint' => OwnerCopy::get('today.calendar_not_connected', $locale),
@@ -166,23 +176,8 @@ final class TodayBriefService
                 ];
             }
 
-            $start = $now->startOfDay();
-            $end = $now->endOfDay();
-            $result = $this->calendar->listEvents($account, 'primary', [
-                'time_min' => $start->utc()->toIso8601String(),
-                'time_max' => $end->utc()->toIso8601String(),
-                'max_results' => 8,
-                'order_by' => 'startTime',
-                'single_events' => true,
-            ]);
-
             $events = [];
-
-            foreach (array_slice($result['events'] ?? [], 0, 8) as $event) {
-                if (! is_array($event)) {
-                    continue;
-                }
-
+            foreach (array_slice($aggregated['events'], 0, 8) as $event) {
                 $events[] = [
                     'id' => (string) ($event['id'] ?? ''),
                     'title' => (string) ($event['title'] ?? OwnerCopy::get('today.event_fallback', $locale)),
@@ -190,10 +185,14 @@ final class TodayBriefService
                 ];
             }
 
+            $error = $aggregated['unavailable'] !== []
+                ? OwnerCopy::get('today.calendar_unavailable', $locale)
+                : null;
+
             return [
                 'events' => $events,
-                'hint' => $events === [] ? OwnerCopy::get('today.calendar_empty', $locale) : null,
-                'error' => null,
+                'hint' => $events === [] && $error === null ? OwnerCopy::get('today.calendar_empty', $locale) : null,
+                'error' => $aggregated['semantics'] === 'unknown' ? OwnerCopy::get('today.calendar_unavailable', $locale) : $error,
             ];
         } catch (\Throwable) {
             return [

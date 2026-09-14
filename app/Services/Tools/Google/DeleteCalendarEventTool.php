@@ -61,7 +61,7 @@ final class DeleteCalendarEventTool extends GoogleCalendarTool
             throw new IntegrationException('invalid_arguments', 'event_id is required.');
         }
 
-        $account = $this->resolveAccount($context);
+        $account = $this->resolveAccount($context, $call);
         $this->calendar->deleteEvent(
             $account,
             $this->calendarId($call),

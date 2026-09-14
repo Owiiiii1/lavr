@@ -7,6 +7,7 @@ use App\Services\Ai\DTO\ToolCall;
 use App\Services\Ai\DTO\ToolDefinition;
 use App\Services\Ai\DTO\ToolResult;
 use App\Services\Integrations\Exceptions\IntegrationException;
+use App\Services\Sources\MultiAccountCalendarAggregator;
 use App\Services\Tools\ToolExecutionContext;
 
 final class SearchCalendarEventsTool extends GoogleCalendarTool
@@ -33,6 +34,14 @@ final class SearchCalendarEventsTool extends GoogleCalendarTool
                     'calendar_id' => [
                         'type' => 'STRING',
                         'description' => 'Optional calendar id. Defaults to primary.',
+                    ],
+                    'account_id' => [
+                        'type' => 'INTEGER',
+                        'description' => 'Optional Google integration account id.',
+                    ],
+                    'project_id' => [
+                        'type' => 'INTEGER',
+                        'description' => 'Optional project id to use bound calendars.',
                     ],
                     'time_min' => [
                         'type' => 'STRING',
@@ -68,7 +77,6 @@ final class SearchCalendarEventsTool extends GoogleCalendarTool
             throw new IntegrationException('invalid_arguments', 'query is required.');
         }
 
-        $account = $this->resolveAccount($context);
         $timezone = $this->times->ownerTimezone($context->user);
         if (filled($call->arguments['timezone'] ?? null)) {
             $timezone = $this->times->assertValidTimezone((string) $call->arguments['timezone']);
@@ -88,14 +96,30 @@ final class SearchCalendarEventsTool extends GoogleCalendarTool
 
         $this->times->assertOrder($start, $end);
 
-        $result = $this->calendar->searchEvents($account, $this->calendarId($call), $query, [
-            'time_min' => $start->toIso8601String(),
-            'time_max' => $end->toIso8601String(),
-            'max_results' => isset($call->arguments['max_results']) ? (int) $call->arguments['max_results'] : null,
-            'single_events' => true,
-            'order_by' => 'startTime',
-        ]);
+        $accountId = isset($call->arguments['account_id']) ? (int) $call->arguments['account_id'] : 0;
+        $projectId = isset($call->arguments['project_id']) ? (int) $call->arguments['project_id'] : 0;
 
-        return $this->ok($call, $result);
+        $aggregated = app(MultiAccountCalendarAggregator::class)->listEvents(
+            $context->user,
+            [
+                'time_min' => $start->toIso8601String(),
+                'time_max' => $end->toIso8601String(),
+                'max_results' => isset($call->arguments['max_results']) ? (int) $call->arguments['max_results'] : null,
+                'single_events' => true,
+                'order_by' => 'startTime',
+                'q' => $query,
+            ],
+            $accountId > 0 ? $accountId : null,
+            $projectId > 0 ? $projectId : null,
+            $this->calendarId($call),
+        );
+
+        return $this->ok($call, [
+            'events' => $aggregated['events'],
+            'unavailable' => $aggregated['unavailable'],
+            'semantics' => $aggregated['semantics'],
+            'truncated' => (bool) ($aggregated['truncated'] ?? false),
+            'result_count' => count($aggregated['events']),
+        ]);
     }
 }

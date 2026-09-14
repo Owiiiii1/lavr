@@ -24,7 +24,7 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | Telegram Groups | Same bot | Source / analysis; not the CEO’s personal UI |
 | Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice + People / Organizations / Projects / Meetings / Commitments |
 | Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED (needs token + pairing) |
-| Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/people`, `/organizations`, `/telegram-groups`, …) | Technical management |
+| Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/people`, `/organizations`, `/telegram-groups`, …) | Technical management. Settings → Integrations lists **each** Google account (label, health, test/disable/reconnect) without tokens. |
 | Legacy paths | `GET /jarvis`, `GET /chat` | Redirect to `/lavr` |
 
 There is a Telegram WebApp **foundation** (Phase 3A) plus **UX completion** (Phase 3B) plus **Ukrainian-first localization** (Phase 3C): `/telegram/webapp` validates Mini App `initData` and opens the same Workspace (Today, Chat, nav, Notifications, Reports) with the same Owner locale as standalone Web. Real Telegram-client E2E is **NOT VALIDATED**. Details: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md), [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md), [Development/LAVR_PHASE_3C_REPORT.md](Development/LAVR_PHASE_3C_REPORT.md).

@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-14 (Phase 9 Leadership Review; Phase 8 Executive Brief)  
+**Date:** 2026-09-14 (Phase 10 multi-source; Phase 9 Leadership Review; Phase 8 Executive Brief)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -38,13 +38,14 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Primary rich UI | Web Workspace `/lavr` + Mini App entry `/telegram/webapp` (same UI) | Telegram WebApp = same Workspace ([INTERFACES.md](INTERFACES.md)) |
 | People | Canonical `people` + roles + identities + `employee_profiles`. Knowledge `person` remains index | Same |
 | Organizations | Canonical `organizations` + `directory_relationships` | Same |
-| Projects | Evolved work container: people, organizations, source bindings; meetings and commitments bind optionally | Full business context (mailboxes, …) |
+| Projects | Evolved work container: people, organizations, **operational** source bindings (Gmail / Calendar / Telegram group) | Same |
 | Meetings | First-class `meetings` + participants + artifacts + versioned analyses. Manual file/paste import. Zoom cloud transcript ingest when configured. Calendar events / Knowledge events are **not** Meetings | Same |
 | Zoom Integration | Server-to-Server OAuth + `POST /webhooks/zoom` + `ProcessZoomTranscriptJob` → existing Meeting Intelligence. **LIVE ZOOM E2E: NOT VALIDATED** | Same; no bulk historical import yet |
-| Commitments | First-class `commitments` + evidence; Knowledge `CommitmentResolver` is fallback only when the table is empty | Same; email/Telegram extractors still TARGET |
+| Commitments | First-class `commitments` + evidence; email/Telegram extractors promote `detected` (not `open`). Knowledge fallback only when the table is empty | Same; Owner confirms operational facts |
 | Decisions | Group knowledge / events | First-class `decisions` |
-| Automation | Watchers + scheduled reports + briefs + proactive + `automation_runs` + morning Executive Brief + weekly Leadership Review | Same |
-| Executive Brief | First-class `executive_briefs` (morning); Today + `/lavr/briefs`; Telegram compact; optional Leadership signal; **Owner live synthetic: NOT VALIDATED** | Evening/weekly UI not expanded |
+| Automation | Watchers + scheduled reports + briefs + proactive + `automation_runs` + morning Executive Brief + weekly Leadership Review; watcher/report source can name account/project | Same |
+| Executive Brief | First-class `executive_briefs` (morning); Today + `/lavr/briefs`; Telegram compact; optional Leadership signal; multi-account Gmail/Calendar; timeout → partial; **Owner live synthetic: NOT VALIDATED** | Evening/weekly UI not expanded |
+| Multi-source | Multiple Google accounts, Project bindings, `source_items`, Telegram group sources; **LIVE MULTI-ACCOUNT: NOT VALIDATED** | Bitrix/API connectors later |
 | Leadership Review | First-class `leadership_reviews`; `/lavr/leadership`; process metrics/findings (not personality); **Owner live synthetic: NOT VALIDATED** | First-class Decisions remain later |
 | Onboarding | Owner profile `completed` (legacy skip) | Business-map onboarding |
 | Telegram WebApp | **UX IMPLEMENTED / Mini App E2E NOT VALIDATED** on a real Telegram client | Same Workspace; HMAC session; Menu Button still needs token + Owner pairing |
@@ -109,7 +110,7 @@ Vite production build on deploy (`public/build` gitignored).
 
 Engine: **MySQL**, database `lavr`. CRM tables dropped historically (M0). App migrations Ran.
 
-**Present:** users, conversations, messages, memories, knowledge_*, tasks, reminders, watchers, scheduled_reports, projects, people, person_roles, person_identities, employee_profiles, organizations, directory_relationships, project_people, project_organizations, project_source_bindings, meetings, meeting_participants, meeting_artifacts, meeting_analyses, commitments, commitment_evidence, commitment_status_history, telegram_groups, integration_accounts, notifications, voice, storage, etc.
+**Present:** users, conversations, messages, memories, knowledge_*, tasks, reminders, watchers, scheduled_reports, projects, people, person_roles, person_identities, employee_profiles, organizations, directory_relationships, project_people, project_organizations, project_source_bindings, source_items, meetings, meeting_participants, meeting_artifacts, meeting_analyses, commitments, commitment_evidence, commitment_status_history, telegram_groups, integration_accounts, notifications, voice, storage, etc.
 
 **Absent:** first-class `decisions`, operational `events` bus.
 
@@ -130,7 +131,7 @@ See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names
 | Admin | `/dashboard`, `/settings/*` | IMPLEMENTED (technical) |
 | Voice | workspace + sessions | Рация MANUAL PASS; Диалог Beta NOT VALIDATED |
 | Storage | `/lavr/storage` | IMPLEMENTED |
-| Projects | `/projects` admin + `/lavr/projects` | IMPLEMENTED (business context: people/orgs/meetings/commitments) |
+| Projects | `/projects` admin + `/lavr/projects` | IMPLEMENTED (business context + source bindings) |
 | Meetings | `/meetings` admin + `/lavr/meetings` | IMPLEMENTED (manual + Zoom ingest; live Zoom E2E NOT VALIDATED) |
 | Commitments | `/commitments` admin + `/lavr/commitments` | IMPLEMENTED / Owner live workflow NOT VALIDATED |
 | People | `/people` admin + `/lavr/people` | IMPLEMENTED |
@@ -164,8 +165,9 @@ Condensed. Layer docs hold detail.
 | Watchers | Bounded conditions | MANUAL PASS **internal task watcher**; Gmail/Calendar/GitHub watchers deferred as campaigns |
 | Scheduled Reports | IMPLEMENTED | READY FOR OWNER VALIDATION; 2026-09-09 body bugs **fixed in code** |
 | Synthesis E.3 | Derived FactPack; `list_commitments` reads first-class first | MANUAL PASS tested overview/waiting; first-class Chat Q&A NOT VALIDATED |
-| Commitments | First-class rows + evidence + Meeting promotion | IMPLEMENTED / NOT VALIDATED (Owner live) |
-| Google Gmail/Calendar | Tools + OAuth | Read/send used live; confirmation UX not MANUAL PASS; no Drive |
+| Commitments | First-class rows + evidence + Meeting + email/Telegram promotion | IMPLEMENTED / NOT VALIDATED (Owner live) |
+| Google Gmail/Calendar | Multi-account tools + OAuth; no mailbox mirror | Read/send used live historically; **multi-account LIVE NOT VALIDATED**; confirmation UX not MANUAL PASS; no Drive |
+| Multi-source | Bindings, `source_items`, correlation, health | **IMPLEMENTED / LIVE MULTI-ACCOUNT NOT VALIDATED** |
 | GitHub | Tools + OAuth | NOT VALIDATED campaign |
 | Telegram DM | Pairing, text, voice reply MANUAL PASS; voice input NOT VALIDATED |
 | Telegram Groups | IMPLEMENTED | NOT VALIDATED campaign |

@@ -74,7 +74,7 @@ final class ModifyGmailLabelsTool extends GoogleGmailTool
         }
 
         return $this->ok($call, $this->gmail->modifyLabels(
-            $this->resolveAccount($context),
+            $this->resolveAccount($context, $call),
             $messageId !== '' ? $messageId : null,
             $threadId !== '' ? $threadId : null,
             is_array($call->arguments['add_label_ids'] ?? null) ? $call->arguments['add_label_ids'] : [],

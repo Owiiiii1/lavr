@@ -135,7 +135,7 @@ final class GoogleOAuthService
      * @param  list<string>  $additionalScopes
      * @return array{url: string, state: string, verifier: string}
      */
-    public function buildAuthorizationUrl(bool $forceConsent, array $additionalScopes = []): array
+    public function buildAuthorizationUrl(bool $forceConsent, array $additionalScopes = [], bool $selectAccount = false): array
     {
         $this->assertConfigured();
 
@@ -155,7 +155,11 @@ final class GoogleOAuthService
             'code_challenge_method' => 'S256',
         ];
 
-        if ($forceConsent) {
+        if ($selectAccount && $forceConsent) {
+            $query['prompt'] = 'select_account consent';
+        } elseif ($selectAccount) {
+            $query['prompt'] = 'select_account';
+        } elseif ($forceConsent) {
             $query['prompt'] = 'consent';
         }
 

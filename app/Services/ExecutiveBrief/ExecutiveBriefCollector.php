@@ -16,6 +16,7 @@ use App\Models\IntegrationAccount;
 use App\Models\Meeting;
 use App\Models\User;
 use App\Services\Integrations\Exceptions\IntegrationException;
+use App\Services\Integrations\Google\GoogleOAuthService;
 use App\Services\Integrations\IntegrationAccountService;
 use App\Services\LeadershipReview\LeadershipSignalDetector;
 use App\Services\Users\UserCapability;
@@ -410,67 +411,80 @@ final class ExecutiveBriefCollector
         }
 
         try {
-            $account = $this->accounts->getActiveAccount($user, 'google');
+            $accounts = $this->accounts->listEnabled($user, 'google');
         } catch (Throwable) {
-            $account = null;
-        }
-
-        if ($account === null) {
-            return [];
-        }
-
-        try {
-            $result = $this->calendar->listEvents($account, 'primary', [
-                'time_min' => $local->startOfDay()->utc()->toIso8601String(),
-                'time_max' => $local->endOfDay()->utc()->toIso8601String(),
-                'max_results' => 12,
-                'order_by' => 'startTime',
-                'single_events' => true,
-            ]);
-        } catch (Throwable $exception) {
-            $errors[] = 'Календар тимчасово недоступний.';
-            if ($exception instanceof IntegrationException && in_array($exception->error, ['blocked_auth', 'google_not_connected'], true)) {
-                $blocked[] = 'google_calendar';
-            }
-
-            return [];
+            $accounts = collect();
         }
 
         $items = [];
-        $now = CarbonImmutable::now('UTC');
-        foreach (array_slice($result['events'] ?? [], 0, 12) as $event) {
-            if (! is_array($event)) {
+        $healthy = 0;
+        $attempted = 0;
+        foreach ($accounts as $account) {
+            $scopes = is_array($account->scopes) ? $account->scopes : [];
+            if (! app(GoogleOAuthService::class)->hasCalendarScope($scopes)) {
                 continue;
             }
-            $title = trim((string) ($event['title'] ?? ''));
-            if ($title === '') {
-                continue;
-            }
-            $startRaw = (string) ($event['start'] ?? '');
-            $start = null;
-            try {
-                $start = $startRaw !== '' ? CarbonImmutable::parse($startRaw)->utc() : null;
-            } catch (Throwable) {
-                $start = null;
-            }
-            $hours = $start !== null ? $now->diffInHours($start, false) : null;
-            $soon = is_numeric($hours) && $hours >= 0 && $hours <= 2;
-            $id = (string) ($event['id'] ?? $title);
 
-            $items[] = new ExecutiveBriefItem(
-                type: 'calendar_event',
-                priority: $soon ? ExecutiveBriefPriority::High : ExecutiveBriefPriority::Normal,
-                title: $title,
-                summary: ($start !== null ? $start->setTimezone($local->getTimezone())->format('H:i').' · ' : '').$title,
-                section: 'today',
-                dedupeKey: 'calendar:'.$id,
-                confidence: 'high',
-                score: $soon ? 72 : 40,
-                sourceType: 'calendar',
-                dueAt: $start?->toIso8601String(),
-                deepLink: '/lavr/today',
-                evidence: ['calendar' => (string) ($event['calendar'] ?? '')],
-            );
+            $attempted++;
+
+            try {
+                $result = $this->calendar->listEvents($account, 'primary', [
+                    'time_min' => $local->startOfDay()->utc()->toIso8601String(),
+                    'time_max' => $local->endOfDay()->utc()->toIso8601String(),
+                    'max_results' => 12,
+                    'order_by' => 'startTime',
+                    'single_events' => true,
+                ]);
+                $healthy++;
+            } catch (Throwable $exception) {
+                $errors[] = ($account->label()).': календар недоступний.';
+                if ($exception instanceof IntegrationException && in_array($exception->error, ['blocked_auth', 'google_not_connected'], true)) {
+                    $blocked[] = 'google_calendar:'.$account->id;
+                }
+
+                continue;
+            }
+
+            $now = CarbonImmutable::now('UTC');
+            foreach (array_slice($result['events'] ?? [], 0, 12) as $event) {
+                if (! is_array($event)) {
+                    continue;
+                }
+                $title = trim((string) ($event['title'] ?? ''));
+                if ($title === '') {
+                    continue;
+                }
+                $startRaw = (string) ($event['start'] ?? '');
+                $start = null;
+                try {
+                    $start = $startRaw !== '' ? CarbonImmutable::parse($startRaw)->utc() : null;
+                } catch (Throwable) {
+                    $start = null;
+                }
+                $hours = $start !== null ? $now->diffInHours($start, false) : null;
+                $soon = is_numeric($hours) && $hours >= 0 && $hours <= 2;
+                $id = (string) ($event['ical_uid'] ?? $event['id'] ?? $title);
+
+                $items[] = new ExecutiveBriefItem(
+                    type: 'calendar_event',
+                    priority: $soon ? ExecutiveBriefPriority::High : ExecutiveBriefPriority::Normal,
+                    title: $title,
+                    summary: ($start !== null ? $start->setTimezone($local->getTimezone())->format('H:i').' · ' : '').$title,
+                    section: 'today',
+                    dedupeKey: 'calendar:'.$id,
+                    confidence: 'high',
+                    score: $soon ? 72 : 40,
+                    sourceType: 'calendar',
+                    dueAt: $start?->toIso8601String(),
+                    deepLink: '/lavr/today',
+                    evidence: ['calendar' => (string) ($event['calendar'] ?? ''), 'account' => $account->label()],
+                );
+            }
+        }
+
+        if ($healthy === 0 && $attempted > 0) {
+            $errors[] = $this->sourceLabel('calendar');
+            $blocked[] = 'google_calendar';
         }
 
         return $items;
@@ -488,62 +502,72 @@ final class ExecutiveBriefCollector
         }
 
         try {
-            $account = $this->accounts->getActiveAccount($user, 'google');
+            $accounts = $this->accounts->listEnabled($user, 'google');
         } catch (Throwable) {
-            $account = null;
+            $accounts = collect();
         }
 
-        if ($account === null) {
-            return [];
-        }
-
-        try {
-            $after = $windowStart->utc()->format('Y/m/d');
-            $result = $this->gmail->searchMessages($account, 'in:inbox after:'.$after, ['max_results' => (int) config('executive_brief.gmail_query_limit', 12)]);
-        } catch (Throwable $exception) {
-            $errors[] = 'Пошта тимчасово недоступна.';
-            if ($exception instanceof IntegrationException && in_array($exception->error, ['blocked_auth', 'google_not_connected', 'gmail_scope_required'], true)) {
-                $blocked[] = 'gmail';
-            }
-
-            return [];
-        }
-
-        $messages = is_array($result['messages'] ?? null) ? $result['messages'] : (is_array($result) ? $result : []);
         $items = [];
-        foreach (array_slice($messages, 0, 12) as $message) {
-            if (! is_array($message)) {
+        $healthy = 0;
+        foreach ($accounts as $account) {
+            $scopes = is_array($account->scopes) ? $account->scopes : [];
+            if (! app(GoogleOAuthService::class)->hasGmailReadScope($scopes)
+                && ! app(GoogleOAuthService::class)->hasGmailScope($scopes)) {
                 continue;
             }
-            $sender = trim((string) ($message['from'] ?? $message['sender'] ?? ''));
-            $subject = trim((string) ($message['subject'] ?? ''));
-            if ($subject === '') {
-                continue;
-            }
-            $haystack = mb_strtolower($sender.' '.$subject.' '.(string) ($message['snippet'] ?? ''));
-            if (preg_match('/no[-_. ]?reply|newsletter|unsubscribe|promo/u', $haystack) === 1) {
-                continue;
-            }
-            $important = preg_match('/urgent|срочно|invoice|счёт|action required|підтверд|підтверд|deadline|бюджет/u', $haystack) === 1;
-            $snippet = mb_substr(trim((string) ($message['snippet'] ?? '')), 0, 140);
-            $bodyRead = filled($message['body'] ?? $message['text'] ?? null);
-            $id = (string) ($message['id'] ?? hash('sha256', $sender.'|'.$subject));
 
-            $items[] = new ExecutiveBriefItem(
-                type: $important ? 'email_important' : 'email_actionable',
-                priority: $important ? ExecutiveBriefPriority::High : ExecutiveBriefPriority::Normal,
-                title: $subject,
-                summary: ($sender !== '' ? $sender.' — ' : '').($snippet !== '' ? $snippet : $subject),
-                section: 'inbox',
-                dedupeKey: 'email:'.mb_strtolower($sender).':'.mb_strtolower($subject),
-                confidence: $bodyRead ? 'medium' : 'low',
-                score: $important ? 68 : 42,
-                sourceType: 'gmail',
-                sourceId: is_numeric($id) ? (int) $id : null,
-                deepLink: '/lavr/today',
-                evidence: ['sender' => $sender, 'body_unavailable' => ! $bodyRead],
-                bodyRead: $bodyRead,
-            );
+            try {
+                $after = $windowStart->utc()->format('Y/m/d');
+                $result = $this->gmail->searchMessages($account, 'in:inbox after:'.$after, ['max_results' => (int) config('executive_brief.gmail_query_limit', 12)]);
+                $healthy++;
+            } catch (Throwable $exception) {
+                $errors[] = ($account->label()).': пошта недоступна.';
+                if ($exception instanceof IntegrationException && in_array($exception->error, ['blocked_auth', 'google_not_connected', 'gmail_scope_required'], true)) {
+                    $blocked[] = 'gmail:'.$account->id;
+                }
+
+                continue;
+            }
+
+            $messages = is_array($result['messages'] ?? null) ? $result['messages'] : (is_array($result) ? $result : []);
+            foreach (array_slice($messages, 0, 12) as $message) {
+                if (! is_array($message)) {
+                    continue;
+                }
+                $sender = trim((string) ($message['from'] ?? $message['sender'] ?? ''));
+                $subject = trim((string) ($message['subject'] ?? ''));
+                if ($subject === '') {
+                    continue;
+                }
+                $haystack = mb_strtolower($sender.' '.$subject.' '.(string) ($message['snippet'] ?? ''));
+                if (preg_match('/no[-_. ]?reply|newsletter|unsubscribe|promo/u', $haystack) === 1) {
+                    continue;
+                }
+                $important = preg_match('/urgent|срочно|invoice|счёт|action required|підтверд|підтверд|deadline|бюджет/u', $haystack) === 1;
+                $snippet = mb_substr(trim((string) ($message['snippet'] ?? '')), 0, 140);
+                $bodyRead = filled($message['body'] ?? $message['text'] ?? null);
+                $id = (string) ($message['id'] ?? hash('sha256', $sender.'|'.$subject));
+
+                $items[] = new ExecutiveBriefItem(
+                    type: $important ? 'email_important' : 'email_actionable',
+                    priority: $important ? ExecutiveBriefPriority::High : ExecutiveBriefPriority::Normal,
+                    title: $subject,
+                    summary: ($sender !== '' ? $sender.' — ' : '').($snippet !== '' ? $snippet : $subject),
+                    section: 'inbox',
+                    dedupeKey: 'email:'.mb_strtolower($sender).':'.mb_strtolower($subject),
+                    confidence: $bodyRead ? 'medium' : 'low',
+                    score: $important ? 68 : 42,
+                    sourceType: 'gmail',
+                    sourceId: is_numeric($id) ? (int) $id : null,
+                    deepLink: '/lavr/today',
+                    evidence: ['sender' => $sender, 'body_unavailable' => ! $bodyRead, 'account' => $account->label()],
+                    bodyRead: $bodyRead,
+                );
+            }
+        }
+
+        if ($healthy === 0 && $accounts->isNotEmpty() && $items === []) {
+            $blocked[] = 'gmail';
         }
 
         return $items;
@@ -586,7 +610,7 @@ final class ExecutiveBriefCollector
                 title: 'Потрібно перепідключити '.$label,
                 summary: $label.' потребує повторного підключення.',
                 section: 'attention',
-                dedupeKey: 'integration:'.$provider.':blocked',
+                dedupeKey: 'integration:'.$provider.':'.$account->id.':blocked',
                 confidence: 'high',
                 score: 88,
                 actionLabel: 'Відкрити налаштування',

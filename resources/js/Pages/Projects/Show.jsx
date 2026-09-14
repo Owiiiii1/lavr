@@ -12,6 +12,8 @@ export default function ProjectShow() {
         availableGroups = [],
         availablePeople = [],
         availableOrganizations = [],
+        availableGoogleAccounts = [],
+        sourceBindings = [],
         descriptionMax = 5000,
         commitments = [],
     } = usePage().props;
@@ -30,6 +32,7 @@ export default function ProjectShow() {
     const groupForm = useForm({ telegram_group_id: '' });
     const personForm = useForm({ person_id: '', role: '' });
     const organizationForm = useForm({ organization_id: '', role: '' });
+    const sourceForm = useForm({ source_type: 'google_mailbox', source_id: '' });
 
     const text = {
         en: {
@@ -47,6 +50,11 @@ export default function ProjectShow() {
             addTopic: 'Add topic',
             addMemory: 'Add memory',
             addGroup: 'Attach group',
+            sources: 'Sources',
+            addSource: 'Attach source',
+            mailbox: 'Gmail',
+            calendar: 'Calendar',
+            telegramGroup: 'Telegram group',
             detach: 'Detach',
             empty: 'None attached.',
             name: 'Name',
@@ -67,6 +75,11 @@ export default function ProjectShow() {
             addTopic: 'Add topic',
             addMemory: 'Add memory',
             addGroup: 'Attach group',
+            sources: 'Sources',
+            addSource: 'Attach source',
+            mailbox: 'Gmail',
+            calendar: 'Calendar',
+            telegramGroup: 'Telegram group',
             detach: 'Detach',
             empty: 'None attached.',
             name: 'Name',
@@ -87,6 +100,11 @@ export default function ProjectShow() {
             addTopic: 'Add topic',
             addMemory: 'Add memory',
             addGroup: 'Attach group',
+            sources: 'Sources',
+            addSource: 'Attach source',
+            mailbox: 'Gmail',
+            calendar: 'Calendar',
+            telegramGroup: 'Telegram group',
             detach: 'Detach',
             empty: 'None attached.',
             name: 'Name',
@@ -355,6 +373,77 @@ export default function ProjectShow() {
                     action={route('projects.organizations.store', project.id)}
                     addLabel="Attach organization"
                 />
+
+                <section className="rounded-xl border border-slate-200 bg-white p-4">
+                    <h2 className="text-sm font-semibold text-slate-900">{t.sources}</h2>
+                    {sourceBindings.length === 0 ? (
+                        <p className="mt-2 text-sm text-slate-500">{t.empty}</p>
+                    ) : (
+                        <ul className="mt-3 space-y-2">
+                            {sourceBindings.map((binding) => (
+                                <li key={binding.id} className="flex items-start justify-between gap-3 rounded-lg border border-slate-100 p-3 text-sm">
+                                    <div>
+                                        <span className="font-medium">{binding.label || binding.source_type}</span>
+                                        {binding.address ? <span className="ml-2 text-xs text-slate-500">{binding.address}</span> : null}
+                                        {binding.binding_kind === 'suggested' ? (
+                                            <span className="ml-2 text-xs text-amber-700">suggested</span>
+                                        ) : null}
+                                    </div>
+                                    <Link
+                                        href={route('projects.sources.destroy', [project.id, binding.id])}
+                                        method="delete"
+                                        as="button"
+                                        className="shrink-0 text-xs font-medium text-slate-600 hover:text-slate-900"
+                                    >
+                                        {t.detach}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    {(availableGoogleAccounts.length > 0 || availableGroups.length > 0) && (
+                        <form
+                            className="mt-3 flex flex-wrap gap-2"
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                sourceForm.post(route('projects.sources.store', project.id), {
+                                    preserveScroll: true,
+                                    onSuccess: () => sourceForm.reset('source_id'),
+                                });
+                            }}
+                        >
+                            <select
+                                value={sourceForm.data.source_type}
+                                onChange={(event) => sourceForm.setData('source_type', event.target.value)}
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                            >
+                                <option value="google_mailbox">{t.mailbox}</option>
+                                <option value="google_calendar">{t.calendar}</option>
+                                <option value="telegram_group">{t.telegramGroup}</option>
+                            </select>
+                            <select
+                                value={sourceForm.data.source_id}
+                                onChange={(event) => sourceForm.setData('source_id', event.target.value)}
+                                className="min-w-56 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                            >
+                                <option value="">Select…</option>
+                                {(sourceForm.data.source_type === 'telegram_group' ? availableGroups : availableGoogleAccounts).map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.label || item.title || item.email}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                type="submit"
+                                disabled={sourceForm.processing || !sourceForm.data.source_id}
+                                className="inline-flex h-10 items-center rounded-lg border border-slate-300 px-3 text-sm disabled:opacity-50"
+                            >
+                                {t.addSource}
+                            </button>
+                        </form>
+                    )}
+                    {sourceForm.errors.source_id && <p className="mt-2 text-xs text-red-600">{sourceForm.errors.source_id}</p>}
+                </section>
 
                 <section className="rounded-xl border border-slate-200 bg-white p-4">
                     <h2 className="text-sm font-semibold">Commitments</h2>

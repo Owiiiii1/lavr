@@ -276,8 +276,12 @@ final class ScheduledReportCollector
         }
 
         try {
-            $account = $this->accounts->getActiveAccount($user, 'google');
-            if ($account === null) {
+            $accountId = isset($source['integration_account_id']) ? (int) $source['integration_account_id'] : 0;
+            $accounts = $accountId > 0
+                ? collect([$this->accounts->getAccount($user, $accountId, 'google')])
+                : $this->accounts->listEnabled($user, 'google');
+
+            if ($accounts->isEmpty()) {
                 $this->logSourceUnavailable('calendar', 'no_google_account');
                 $errors[] = 'Календарь сейчас недоступен.';
                 $blocked[] = 'google_calendar';
@@ -285,27 +289,41 @@ final class ScheduledReportCollector
                 return [];
             }
 
-            $calendars = self::selectCalendars($this->calendar->listCalendars($account)['calendars'] ?? [], $source);
             $events = [];
+            $healthy = 0;
+            foreach ($accounts as $account) {
+                try {
+                    $calendars = self::selectCalendars($this->calendar->listCalendars($account)['calendars'] ?? [], $source);
+                    $healthy++;
+                    foreach ($calendars as $calendar) {
+                        $result = $this->calendar->listEvents($account, (string) $calendar['id'], [
+                            'time_min' => $window['start']->utc()->toIso8601String(),
+                            'time_max' => $window['end']->utc()->toIso8601String(),
+                            'max_results' => 20,
+                        ]);
 
-            foreach ($calendars as $calendar) {
-                $result = $this->calendar->listEvents($account, (string) $calendar['id'], [
-                    'time_min' => $window['start']->utc()->toIso8601String(),
-                    'time_max' => $window['end']->utc()->toIso8601String(),
-                    'max_results' => 20,
-                ]);
+                        foreach ($result['events'] ?? [] as $event) {
+                            if (! is_array($event)) {
+                                continue;
+                            }
 
-                foreach ($result['events'] ?? [] as $event) {
-                    if (! is_array($event)) {
-                        continue;
+                            $events[] = [
+                                'title' => (string) ($event['title'] ?? 'Событие'),
+                                'start' => (string) ($event['start'] ?? ''),
+                                'calendar' => (string) ($calendar['summary'] ?? $calendar['id']),
+                                'account' => $account->label(),
+                            ];
+                        }
                     }
-
-                    $events[] = [
-                        'title' => (string) ($event['title'] ?? 'Событие'),
-                        'start' => (string) ($event['start'] ?? ''),
-                        'calendar' => (string) ($calendar['summary'] ?? $calendar['id']),
-                    ];
+                } catch (Throwable $exception) {
+                    $this->logSourceUnavailable('calendar', $this->sourceErrorReason($exception));
+                    $errors[] = $account->label().': календарь недоступен.';
+                    $blocked[] = 'google_calendar:'.$account->id;
                 }
+            }
+
+            if ($healthy === 0) {
+                $blocked[] = 'google_calendar';
             }
 
             return $events;
@@ -380,8 +398,20 @@ final class ScheduledReportCollector
         }
 
         try {
-            $account = $this->accounts->getActiveAccount($user, 'google');
-            if ($account === null) {
+            $accountId = isset($report->sources[0]['integration_account_id']) ? (int) $report->sources[0]['integration_account_id'] : 0;
+            $sourceCfg = [];
+            foreach (is_array($report->sources) ? $report->sources : [] as $row) {
+                if (is_array($row) && ($row['type'] ?? '') === 'gmail') {
+                    $sourceCfg = $row;
+                    break;
+                }
+            }
+            $accountId = isset($sourceCfg['integration_account_id']) ? (int) $sourceCfg['integration_account_id'] : 0;
+            $accounts = $accountId > 0
+                ? collect([$this->accounts->getAccount($user, $accountId, 'google')])
+                : $this->accounts->listEnabled($user, 'google');
+
+            if ($accounts->isEmpty()) {
                 $this->logSourceUnavailable('gmail', 'no_google_account');
                 $errors[] = 'Почта сейчас недоступна.';
                 $blocked[] = 'gmail';
@@ -390,32 +420,49 @@ final class ScheduledReportCollector
             }
 
             $after = $window['start']->utc()->format('Y/m/d');
-            $result = $this->gmail->searchMessages($account, 'in:inbox after:'.$after, ['max_results' => 20]);
             $items = [];
+            $healthy = 0;
+            foreach ($accounts as $account) {
+                try {
+                    $result = $this->gmail->searchMessages($account, 'in:inbox after:'.$after, ['max_results' => 20]);
+                    $healthy++;
+                } catch (Throwable $exception) {
+                    $this->logSourceUnavailable('gmail', $this->sourceErrorReason($exception));
+                    $errors[] = $account->label().': почта недоступна.';
+                    $blocked[] = 'gmail:'.$account->id;
 
-            foreach ($result['messages'] ?? $result['items'] ?? [] as $message) {
-                if (! is_array($message)) {
                     continue;
                 }
 
-                $sender = MailTextNormalizer::normalize((string) ($message['from'] ?? $message['sender'] ?? ''));
-                $subject = MailTextNormalizer::normalize((string) ($message['subject'] ?? $message['title'] ?? ''));
-                if ($subject === '') {
-                    $subject = 'без темы';
+                foreach ($result['messages'] ?? $result['items'] ?? [] as $message) {
+                    if (! is_array($message)) {
+                        continue;
+                    }
+
+                    $sender = MailTextNormalizer::normalize((string) ($message['from'] ?? $message['sender'] ?? ''));
+                    $subject = MailTextNormalizer::normalize((string) ($message['subject'] ?? $message['title'] ?? ''));
+                    if ($subject === '') {
+                        $subject = 'без темы';
+                    }
+
+                    $bucket = $this->mailBucket($sender, $subject);
+                    $snippet = MailTextNormalizer::snippet((string) ($message['snippet'] ?? ''));
+
+                    $items[] = [
+                        'sender' => $sender !== '' ? $sender : 'Неизвестный отправитель',
+                        'subject' => $subject,
+                        'bucket' => $bucket,
+                        'snippet' => $snippet,
+                        'unread' => true,
+                        'body_read' => false,
+                        'action_needed' => $bucket === 'important',
+                        'account' => $account->label(),
+                    ];
                 }
+            }
 
-                $bucket = $this->mailBucket($sender, $subject);
-                $snippet = MailTextNormalizer::snippet((string) ($message['snippet'] ?? ''));
-
-                $items[] = [
-                    'sender' => $sender !== '' ? $sender : 'Неизвестный отправитель',
-                    'subject' => $subject,
-                    'bucket' => $bucket,
-                    'snippet' => $snippet,
-                    'unread' => true,
-                    'body_read' => false,
-                    'action_needed' => $bucket === 'important',
-                ];
+            if ($healthy === 0) {
+                $blocked[] = 'gmail';
             }
 
             return $items;

@@ -29,7 +29,7 @@ final class ToolExecutionService
         $startedAt = microtime(true);
         $tool = $registry->resolve($call->name);
         $meta = $tool?->meta();
-        $account = $this->resolveAccount($context, $meta);
+        $account = $this->resolveAccount($context, $meta, $call);
 
         if ($tool === null || ! $tool->isAvailable($context)) {
             $result = ToolResult::failure($call->id, $call->name, [
@@ -192,13 +192,19 @@ final class ToolExecutionService
         return $result;
     }
 
-    private function resolveAccount(ToolExecutionContext $context, ?ToolMeta $meta): ?IntegrationAccount
+    private function resolveAccount(ToolExecutionContext $context, ?ToolMeta $meta, ToolCall $call): ?IntegrationAccount
     {
         if ($meta?->provider === null) {
             return null;
         }
 
+        $accountId = (int) ($call->arguments['account_id'] ?? $call->arguments['integration_account_id'] ?? 0);
+
         try {
+            if ($accountId > 0) {
+                return $this->accounts->getAccount($context->user, $accountId, $meta->provider);
+            }
+
             return $this->accounts->getActiveAccount($context->user, $meta->provider);
         } catch (IntegrationException) {
             return null;

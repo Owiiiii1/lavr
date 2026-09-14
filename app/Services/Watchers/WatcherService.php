@@ -587,7 +587,9 @@ final class WatcherService
             $reminderId = null;
         }
 
-        $accountId = isset($input['integration_account_id']) ? (int) $input['integration_account_id'] : null;
+        $accountId = isset($input['integration_account_id'])
+            ? (int) $input['integration_account_id']
+            : (isset($sourceConfig['integration_account_id']) ? (int) $sourceConfig['integration_account_id'] : null);
 
         if ($accountId !== null && $accountId > 0) {
             $owned = IntegrationAccount::query()->where('user_id', $user->id)->whereKey($accountId)->exists();

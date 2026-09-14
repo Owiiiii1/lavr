@@ -12,6 +12,7 @@ use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\Directory\Exceptions\DirectoryException;
 use App\Services\Meetings\MeetingService;
+use App\Services\Sources\CrossSourceStatusService;
 use App\Services\Synthesis\CrossSourceSynthesisService;
 use App\Services\Synthesis\DTO\SynthesisScope;
 use App\Services\Synthesis\Exceptions\SynthesisException;
@@ -29,6 +30,7 @@ final class GetPersonStatusTool implements JarvisTool
         private readonly DirectoryService $directory,
         private readonly CommitmentService $commitments,
         private readonly MeetingService $meetings,
+        private readonly CrossSourceStatusService $crossSource,
     ) {}
 
     public function name(): string
@@ -127,12 +129,21 @@ final class GetPersonStatusTool implements JarvisTool
                     }
                 }
 
+                $sourceFacts = [];
+                if ($personIdResolved > 0) {
+                    $personModel = Person::query()->where('user_id', $context->user->id)->whereKey($personIdResolved)->first();
+                    if ($personModel !== null) {
+                        $sourceFacts = $this->crossSource->person($context->user, $personModel);
+                    }
+                }
+
                 return ToolResult::success($call->id, $this->name(), [
                     'success' => true,
                     ...$structured,
                     'commitments' => $activeCommitments,
                     'recent_meetings' => $recentMeetings,
                     'knowledge' => $knowledge,
+                    ...$sourceFacts,
                 ]);
             }
         }

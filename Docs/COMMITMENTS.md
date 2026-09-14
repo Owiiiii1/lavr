@@ -32,7 +32,7 @@ First-class `commitments` exist (2026-09-10). Knowledge `commitment_made` and `C
 | Overdue follow-up is a **suggestion** (“нагадати?”); no auto-message to the person | **IMPLEMENTED** (Phase 7) |
 | Commitment transitions recorded on `automation_runs` | **IMPLEMENTED** (Phase 7) |
 | Telegram outbound commitment alerts to Owner (optional linked channel) | **IMPLEMENTED** (Owner channel only; not to third parties) |
-| Email / Telegram extraction pipelines | **NOT** (generic promotion interface is ready) |
+| Email / Telegram extraction pipelines | **IMPLEMENTED (Phase 10)** — `detected`; Owner confirms. Live multi-source **NOT VALIDATED** |
 | Owner live synthetic workflow | **NOT VALIDATED** |
 
 Config: `config/commitments.php` (`COMMITMENTS_DUE_SOON_HOURS`, default 48).

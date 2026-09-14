@@ -501,7 +501,10 @@ class ExecutiveBriefTest extends TestCase
             [
                 'status' => IntegrationAccountStatus::Connected,
                 'external_account_email' => 'owner@example.test',
-                'scopes' => ['https://www.googleapis.com/auth/gmail.readonly'],
+                'scopes' => [
+                    'https://www.googleapis.com/auth/gmail.readonly',
+                    'https://www.googleapis.com/auth/calendar',
+                ],
             ],
         );
     }

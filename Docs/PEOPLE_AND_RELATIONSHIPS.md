@@ -24,7 +24,7 @@ A Person with role `employee`. Extra fields: `position`, `department`, `manager_
 
 ### Identities (`person_identities`)
 
-Types: `email`, `phone`, `telegram_user_id`, `telegram_username`, `zoom_email`, `other`. Unique on `(type, normalized_value)`. Merge via `PersonMergeService` (Admin action).
+Email / Telegram user id / username resolve to `person_identities`. Unknown senders stay unresolved on `source_items`. LAVR does **not** auto-create Person from mail or group messages. [MULTI_SOURCE_INTEGRATION.md](MULTI_SOURCE_INTEGRATION.md).
 
 ### Organizations (`organizations`)
 

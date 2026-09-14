@@ -48,7 +48,7 @@ final class GetGmailMessageTool extends GoogleGmailTool
             throw new IntegrationException('invalid_arguments', 'message_id is required.');
         }
 
-        $message = $this->gmail->getMessage($this->resolveAccount($context), $messageId);
+        $message = $this->gmail->getMessage($this->resolveAccount($context, $call), $messageId);
 
         return $this->ok($call, [
             'message' => $message,

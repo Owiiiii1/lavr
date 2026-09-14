@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProjectSourceType;
+use App\Enums\SourceBindingKind;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'project_id',
     'source_type',
     'source_id',
+    'binding_kind',
     'purpose',
     'importance',
     'monitoring_policy',
@@ -18,6 +20,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class ProjectSourceBinding extends Model
 {
+    protected $attributes = [
+        'binding_kind' => 'explicit',
+    ];
+
     /**
      * @return array<string, string>
      */
@@ -25,8 +31,14 @@ class ProjectSourceBinding extends Model
     {
         return [
             'source_type' => ProjectSourceType::class,
+            'binding_kind' => SourceBindingKind::class,
             'metadata' => 'array',
         ];
+    }
+
+    public function isExplicit(): bool
+    {
+        return $this->binding_kind === SourceBindingKind::Explicit;
     }
 
     public function project(): BelongsTo

@@ -331,6 +331,11 @@ final class ScheduledReportService
             }
 
             $row = ['type' => $type];
+            foreach (['integration_account_id', 'project_id', 'telegram_group_id', 'scope'] as $key) {
+                if (isset($source[$key]) && $source[$key] !== '' && $source[$key] !== null) {
+                    $row[$key] = is_numeric($source[$key]) ? (int) $source[$key] : (string) $source[$key];
+                }
+            }
             if ($type === 'google_calendar') {
                 $scope = (string) ($source['calendar_scope'] ?? 'all_relevant');
                 $row['calendar_scope'] = in_array($scope, ['selected', 'all_relevant'], true)

@@ -35,6 +35,8 @@ export default function IntegrationsPanel() {
         section: initialSection = 'overview',
     } = usePage().props;
     const providers = integrations.providers ?? [];
+    const googleAccounts = integrations.google_accounts ?? [];
+    const telegramGroups = integrations.telegram_groups ?? [];
     const executions = integrations.recent_executions ?? [];
     const [disconnecting, setDisconnecting] = useState(null);
     const [section, setSection] = useState(SECTIONS.includes(initialSection) ? initialSection : 'overview');
@@ -66,6 +68,13 @@ export default function IntegrationsPanel() {
             voiceHint: 'STT/TTS providers and ElevenLabs configured status. Not Conversation AI.',
             activityHint: `${executions.length} recent tool executions`,
             telegramTitle: 'Telegram',
+            addGoogle: 'Add Google account',
+            disable: 'Disable',
+            enable: 'Enable',
+            test: 'Test',
+            googleAccounts: 'Google accounts',
+            telegramGroups: 'Telegram groups',
+            lastSync: 'Last activity',
         },
         ru: {
             hint: 'Подключённые аккаунты остаются здесь. Telegram, Web Research, Voice/Speech и журнал выполнений вынесены в подразделы.',
@@ -89,6 +98,13 @@ export default function IntegrationsPanel() {
             voiceHint: 'STT/TTS провайдеры и статус ElevenLabs. Не Conversation AI.',
             activityHint: `${executions.length} recent tool executions`,
             telegramTitle: 'Telegram',
+            addGoogle: 'Добавить Google-аккаунт',
+            disable: 'Отключить',
+            enable: 'Включить',
+            test: 'Проверить',
+            googleAccounts: 'Google-аккаунты',
+            telegramGroups: 'Группы Telegram',
+            lastSync: 'Последняя активность',
         },
         uk: {
             hint: 'Підключені акаунти залишаються тут. Telegram, Web Research, Voice/Speech і журнал виконань винесені в підрозділи.',
@@ -112,6 +128,13 @@ export default function IntegrationsPanel() {
             voiceHint: 'STT/TTS провайдери і статус ElevenLabs. Не Conversation AI.',
             activityHint: `${executions.length} recent tool executions`,
             telegramTitle: 'Telegram',
+            addGoogle: 'Додати Google-акаунт',
+            disable: 'Вимкнути',
+            enable: 'Увімкнути',
+            test: 'Перевірити',
+            googleAccounts: 'Google-акаунти',
+            telegramGroups: 'Групи Telegram',
+            lastSync: 'Остання активність',
         },
     };
     const t = text[locale] ?? text.en;
@@ -150,6 +173,26 @@ export default function IntegrationsPanel() {
             preserveScroll: true,
             onFinish: () => setDisconnecting(null),
         });
+    };
+
+    const disconnectAccount = (accountId) => {
+        if (disconnecting) {
+            return;
+        }
+
+        setDisconnecting(`google-${accountId}`);
+        router.post(route('integrations.google.disconnect'), { account_id: accountId }, {
+            preserveScroll: true,
+            onFinish: () => setDisconnecting(null),
+        });
+    };
+
+    const testAccount = (accountId) => {
+        router.post(route('integrations.google.test', accountId), {}, { preserveScroll: true });
+    };
+
+    const setAccountEnabled = (accountId, enabled) => {
+        router.patch(route('integrations.google.update', accountId), { enabled }, { preserveScroll: true });
     };
 
     const accountProviders = providers.filter((provider) => provider.provider !== 'telegram');
@@ -231,6 +274,85 @@ export default function IntegrationsPanel() {
                             </IntegrationProviderCard>
                         ))}
                     </div>
+
+                    {googleAccounts.length > 0 && (
+                        <section className="rounded-xl border border-[#E6DCC8] bg-[#FBF8F1] p-4">
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                                <h2 className="text-base font-semibold text-slate-900">{t.googleAccounts}</h2>
+                                <a
+                                    href={route('integrations.google.connect')}
+                                    className="text-sm font-medium text-indigo-700"
+                                >
+                                    {t.addGoogle}
+                                </a>
+                            </div>
+                            <ul className="space-y-3">
+                                {googleAccounts.map((account) => (
+                                    <li key={account.id} className="rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-slate-900">{account.label}</p>
+                                                <p className="text-slate-600">{account.email}</p>
+                                                <p className="mt-1 text-xs text-slate-500">
+                                                    {account.gmail_connected ? 'Gmail' : 'No Gmail'}
+                                                    {' · '}
+                                                    {account.calendar_connected ? 'Calendar' : 'No Calendar'}
+                                                    {' · '}
+                                                    {account.health || account.status}
+                                                    {account.last_success_at ? ` · ${t.lastSync}` : ''}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => testAccount(account.id)}
+                                                    className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium"
+                                                >
+                                                    {t.test}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAccountEnabled(account.id, !account.enabled)}
+                                                    className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium"
+                                                >
+                                                    {account.enabled ? t.disable : t.enable}
+                                                </button>
+                                                <a
+                                                    href={route('integrations.google.connect')}
+                                                    className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium"
+                                                >
+                                                    {t.reconnect}
+                                                </a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => disconnectAccount(account.id)}
+                                                    disabled={disconnecting !== null}
+                                                    className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium disabled:opacity-60"
+                                                >
+                                                    {t.disconnect}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    )}
+
+                    {telegramGroups.length > 0 && (
+                        <section className="rounded-xl border border-[#E6DCC8] bg-[#FBF8F1] p-4">
+                            <h2 className="mb-3 text-base font-semibold text-slate-900">{t.telegramGroups}</h2>
+                            <ul className="space-y-2 text-sm text-slate-700">
+                                {telegramGroups.map((group) => (
+                                    <li key={group.id}>
+                                        {group.title}
+                                        {group.monitoring_enabled ? ' · monitoring' : ''}
+                                        {group.last_message_at ? ` · ${group.last_message_at}` : ''}
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    )}
 
                     <div className="grid gap-4 md:grid-cols-3">
                         <button

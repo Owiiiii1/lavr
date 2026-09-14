@@ -7,23 +7,26 @@ use App\Models\User;
 use App\Services\Integrations\Exceptions\IntegrationException;
 use App\Services\Integrations\Google\GoogleGmailService;
 use App\Services\Integrations\IntegrationAccountService;
+use App\Services\Sources\IntegrationAccountResolver;
 use App\Services\Users\UserCapability;
 use App\Services\Watchers\Contracts\GmailWatcherClient;
 use App\Services\Watchers\GmailWatcherQuery;
 use App\Services\Watchers\WatcherSchedule;
 use App\Services\Watchers\WatcherSupport;
+use Throwable;
 
 final class LiveGmailWatcherClient implements GmailWatcherClient
 {
     public function __construct(
         private readonly GoogleGmailService $gmail,
         private readonly IntegrationAccountService $accounts,
+        private readonly IntegrationAccountResolver $resolver,
     ) {}
 
     public function search(User $user, array $source): array
     {
-        $account = $this->resolveAccount($user, $source);
-        if ($account === null || ! $user->canUseCapability(UserCapability::GMAIL)) {
+        $accounts = $this->resolveAccounts($user, $source);
+        if ($accounts === [] || ! $user->canUseCapability(UserCapability::GMAIL)) {
             throw new IntegrationException('google_not_connected', 'Gmail is not connected.');
         }
 
@@ -34,19 +37,34 @@ final class LiveGmailWatcherClient implements GmailWatcherClient
         if ($query === '') {
             throw new IntegrationException('invalid_config', 'Gmail watchers need a sender, domain, subject, thread, or query.');
         }
-        $result = $this->gmail->searchMessages($account, $query, ['max_results' => 20]);
+
         $rows = [];
-        foreach ($result['messages'] ?? [] as $message) {
-            if (! is_array($message)) {
+        $healthy = 0;
+        foreach ($accounts as $account) {
+            try {
+                $result = $this->gmail->searchMessages($account, $query, ['max_results' => 20]);
+                $healthy++;
+            } catch (Throwable) {
                 continue;
             }
-            $rows[] = [
-                'id' => (string) ($message['id'] ?? ''),
-                'thread_id' => (string) ($message['thread_id'] ?? ($message['threadId'] ?? '')),
-                'sender' => (string) ($message['from'] ?? ($message['sender'] ?? '')),
-                'subject' => WatcherSupport::summary((string) ($message['subject'] ?? '')),
-                'occurred_at' => (string) ($message['date'] ?? ($message['internal_date'] ?? '')),
-            ];
+
+            foreach ($result['messages'] ?? [] as $message) {
+                if (! is_array($message)) {
+                    continue;
+                }
+                $rows[] = [
+                    'id' => (string) ($message['id'] ?? ''),
+                    'thread_id' => (string) ($message['thread_id'] ?? ($message['threadId'] ?? '')),
+                    'sender' => (string) ($message['from'] ?? ($message['sender'] ?? '')),
+                    'subject' => WatcherSupport::summary((string) ($message['subject'] ?? '')),
+                    'occurred_at' => (string) ($message['date'] ?? ($message['internal_date'] ?? '')),
+                    'account_id' => $account->id,
+                ];
+            }
+        }
+
+        if ($healthy === 0) {
+            throw new IntegrationException('google_unavailable', 'Gmail is currently unavailable.');
         }
 
         return $rows;
@@ -54,7 +72,8 @@ final class LiveGmailWatcherClient implements GmailWatcherClient
 
     public function snippet(User $user, array $source, string $messageId): array
     {
-        $account = $this->resolveAccount($user, $source);
+        $accounts = $this->resolveAccounts($user, $source);
+        $account = $accounts[0] ?? null;
         if ($account === null) {
             throw new IntegrationException('google_not_connected', 'Gmail is not connected.');
         }
@@ -71,18 +90,29 @@ final class LiveGmailWatcherClient implements GmailWatcherClient
 
     /**
      * @param  array<string, mixed>  $source
+     * @return list<IntegrationAccount>
      */
-    private function resolveAccount(User $user, array $source): ?IntegrationAccount
+    private function resolveAccounts(User $user, array $source): array
     {
         $accountId = isset($source['integration_account_id']) ? (int) $source['integration_account_id'] : 0;
         if ($accountId > 0) {
-            return IntegrationAccount::query()
+            $account = IntegrationAccount::query()
                 ->where('user_id', $user->id)
                 ->where('provider', 'google')
                 ->whereKey($accountId)
                 ->first();
+
+            return $account !== null ? [$account] : [];
         }
 
-        return $this->accounts->getActiveAccount($user, 'google');
+        $projectId = isset($source['project_id']) ? (int) $source['project_id'] : 0;
+        if ($projectId > 0) {
+            $bound = $this->resolver->forProject($user, $projectId, 'gmail');
+            if ($bound->isNotEmpty()) {
+                return $bound->all();
+            }
+        }
+
+        return $this->resolver->enabledFor($user, 'gmail')->all();
     }
 }

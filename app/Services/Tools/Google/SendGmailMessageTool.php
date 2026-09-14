@@ -88,6 +88,6 @@ final class SendGmailMessageTool extends GoogleGmailTool
 
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
-        return $this->ok($call, $this->gmail->sendMessage($this->resolveAccount($context), $call->arguments));
+        return $this->ok($call, $this->gmail->sendMessage($this->resolveAccount($context, $call), $call->arguments));
     }
 }

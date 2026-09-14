@@ -83,6 +83,6 @@ final class CreateGmailDraftTool extends GoogleGmailTool
 
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
-        return $this->ok($call, $this->gmail->createDraft($this->resolveAccount($context), $call->arguments));
+        return $this->ok($call, $this->gmail->createDraft($this->resolveAccount($context, $call), $call->arguments));
     }
 }

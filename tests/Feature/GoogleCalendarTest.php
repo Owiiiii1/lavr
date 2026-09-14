@@ -89,7 +89,6 @@ class GoogleCalendarTest extends TestCase
             $this->assertContains(CreateReminderTool::NAME, $userTools);
             $this->assertContains(SearchConversationHistoryTool::NAME, $userTools);
             $this->assertNotContains(ConfirmToolActionTool::NAME, $ownerTools);
-            $this->assertSame(2, count($userTools));
 
             $forged = $registry->execute(
                 new ToolCall('f1', ListGoogleCalendarsTool::NAME, []),

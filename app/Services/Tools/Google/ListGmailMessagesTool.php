@@ -75,7 +75,7 @@ final class ListGmailMessagesTool extends GoogleGmailTool
 
     public function execute(ToolCall $call, ToolExecutionContext $context): ToolResult
     {
-        return $this->ok($call, $this->gmail->listMessages($this->resolveAccount($context), [
+        return $this->ok($call, $this->gmail->listMessages($this->resolveAccount($context, $call), [
             'mailbox' => $call->arguments['mailbox'] ?? null,
             'filter' => $call->arguments['filter'] ?? null,
             'label_ids' => $call->arguments['label_ids'] ?? [],

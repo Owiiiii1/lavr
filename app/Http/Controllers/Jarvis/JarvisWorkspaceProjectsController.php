@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Jarvis;
 
 use App\Http\Controllers\Controller;
+use App\Models\IntegrationAccount;
 use App\Models\Project;
+use App\Models\TelegramGroup;
 use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\LeadershipReview\LeadershipReviewService;
 use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Projects\ProjectService;
+use App\Services\Sources\ProjectSourceBindingService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,6 +24,7 @@ class JarvisWorkspaceProjectsController extends Controller
         private readonly CommitmentService $commitments,
         private readonly LeadershipReviewService $leadership,
         private readonly OwnerLocaleResolver $locales,
+        private readonly ProjectSourceBindingService $sourceBindings,
     ) {}
 
     public function index(Request $request): Response
@@ -57,11 +61,7 @@ class JarvisWorkspaceProjectsController extends Controller
                     'chat_type' => $group->chat_type,
                     'status' => $group->status->value,
                 ])->values()->all(),
-                'source_bindings' => $project->sourceBindings->map(static fn ($binding): array => [
-                    'id' => $binding->id,
-                    'source_type' => $binding->source_type->value,
-                    'purpose' => $binding->purpose,
-                ])->values()->all(),
+                'source_bindings' => $this->sourceBindings->serializeForProject($request->user(), $project),
                 'owner_person' => $project->ownerPerson ? [
                     'id' => $project->ownerPerson->id,
                     'display_name' => $project->ownerPerson->display_name,
@@ -77,6 +77,28 @@ class JarvisWorkspaceProjectsController extends Controller
                 $this->locales->interfaceLocale($request->user()),
             ),
             'admin_href' => route('projects.show', $project),
+            'available_google_accounts' => IntegrationAccount::query()
+                ->where('user_id', $request->user()->id)
+                ->where('provider', 'google')
+                ->orderByDesc('id')
+                ->get()
+                ->map(static fn ($account): array => [
+                    'id' => $account->id,
+                    'label' => $account->label(),
+                    'email' => $account->external_account_email,
+                ])
+                ->all(),
+            'available_telegram_groups' => TelegramGroup::query()
+                ->whereHas('conversation', fn ($query) => $query->where('user_id', $request->user()->id))
+                ->orderBy('title')
+                ->limit(50)
+                ->get(['id', 'title', 'chat_type'])
+                ->map(static fn (TelegramGroup $group): array => [
+                    'id' => $group->id,
+                    'title' => $group->title ?: $group->chat_type,
+                ])
+                ->values()
+                ->all(),
         ]);
     }
 }

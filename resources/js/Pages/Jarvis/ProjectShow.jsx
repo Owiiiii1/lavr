@@ -1,11 +1,22 @@
 import LavrAppShell from '@/telegram/LavrAppShell';
 import { useTranslation } from '@/locales/useTranslation';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 import LeadershipInsights from '@/personal-workspace/LeadershipInsights';
 
-export default function ProjectShow({ project, commitments = [], process = {}, admin_href }) {
+export default function ProjectShow({
+    project,
+    commitments = [],
+    process = {},
+    admin_href,
+    available_google_accounts = [],
+    available_telegram_groups = [],
+}) {
     const { t } = useTranslation();
+    const sourceForm = useForm({ source_type: 'google_mailbox', source_id: '' });
+    const sourceOptions = sourceForm.data.source_type === 'telegram_group'
+        ? available_telegram_groups
+        : available_google_accounts;
 
     return (
         <LavrAppShell>
@@ -58,14 +69,69 @@ export default function ProjectShow({ project, commitments = [], process = {}, a
                     {(project?.groups || []).length === 0 && (project?.source_bindings || []).length === 0 ? (
                         <p className="text-slate-500">{t('projects.noSources')}</p>
                     ) : (
-                        <ul className="space-y-1">
+                        <ul className="space-y-2">
                             {(project.groups || []).map((group) => (
-                                <li key={`g-${group.id}`}>{group.title}</li>
+                                <li key={`g-${group.id}`}>💬 {group.title}</li>
                             ))}
                             {(project.source_bindings || []).map((binding) => (
-                                <li key={`s-${binding.id}`}>{binding.source_type}</li>
+                                <li key={`s-${binding.id}`} className="flex items-start justify-between gap-3">
+                                    <span>
+                                        {binding.label || binding.source_type}
+                                        {binding.address ? ` · ${binding.address}` : ''}
+                                        {binding.binding_kind === 'suggested' ? ` · ${t('projects.suggested')}` : ''}
+                                    </span>
+                                    <Link
+                                        href={route('projects.sources.destroy', [project.id, binding.id])}
+                                        method="delete"
+                                        as="button"
+                                        className="shrink-0 text-xs text-slate-400"
+                                    >
+                                        {t('projects.detachSource')}
+                                    </Link>
+                                </li>
                             ))}
                         </ul>
+                    )}
+                    {(available_google_accounts.length > 0 || available_telegram_groups.length > 0) && (
+                        <form
+                            className="mt-3 flex flex-wrap gap-2"
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                sourceForm.post(route('projects.sources.store', project.id), {
+                                    preserveScroll: true,
+                                    onSuccess: () => sourceForm.reset('source_id'),
+                                });
+                            }}
+                        >
+                            <select
+                                value={sourceForm.data.source_type}
+                                onChange={(event) => sourceForm.setData('source_type', event.target.value)}
+                                className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-xs text-slate-100"
+                            >
+                                <option value="google_mailbox">{t('projects.mailbox')}</option>
+                                <option value="google_calendar">{t('projects.calendar')}</option>
+                                <option value="telegram_group">{t('projects.telegramGroup')}</option>
+                            </select>
+                            <select
+                                value={sourceForm.data.source_id}
+                                onChange={(event) => sourceForm.setData('source_id', event.target.value)}
+                                className="min-w-40 flex-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-xs text-slate-100"
+                            >
+                                <option value="">Select…</option>
+                                {sourceOptions.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.label || item.title || item.email}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                type="submit"
+                                disabled={sourceForm.processing || !sourceForm.data.source_id}
+                                className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-200 disabled:opacity-50"
+                            >
+                                {t('projects.attachSource')}
+                            </button>
+                        </form>
                     )}
                 </Section>
 

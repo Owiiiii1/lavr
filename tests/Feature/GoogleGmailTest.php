@@ -34,6 +34,7 @@ use App\Services\Tools\Google\ModifyGmailLabelsTool;
 use App\Services\Tools\Google\SearchGmailTool;
 use App\Services\Tools\Google\SendGmailMessageTool;
 use App\Services\Tools\SearchConversationHistoryTool;
+use App\Services\Tools\Sources\SearchEmailTool;
 use App\Services\Tools\ToolConfirmationService;
 use App\Services\Tools\ToolExecutionContext;
 use App\Services\Tools\ToolRegistry;
@@ -87,7 +88,7 @@ class GoogleGmailTest extends TestCase
 
             $this->assertContains(CreateReminderTool::NAME, $userTools);
             $this->assertContains(SearchConversationHistoryTool::NAME, $userTools);
-            $this->assertSame(2, count($userTools));
+            $this->assertNotContains(SearchEmailTool::NAME, $userTools);
 
             $forged = $registry->execute(
                 new ToolCall('f1', SearchGmailTool::NAME, ['query' => 'from:someone']),
@@ -1008,6 +1009,7 @@ class GoogleGmailTest extends TestCase
     {
         return [
             SearchGmailTool::NAME,
+            SearchEmailTool::NAME,
             ListGmailMessagesTool::NAME,
             GetGmailMessageTool::NAME,
             GetGmailThreadTool::NAME,

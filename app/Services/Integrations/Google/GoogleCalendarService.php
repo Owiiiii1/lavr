@@ -521,6 +521,7 @@ final class GoogleCalendarService
             'organizer' => isset($raw['organizer']['email']) ? (string) $raw['organizer']['email'] : null,
             'status' => isset($raw['status']) ? (string) $raw['status'] : null,
             'html_link' => isset($raw['htmlLink']) ? (string) $raw['htmlLink'] : null,
+            'ical_uid' => isset($raw['iCalUID']) ? (string) $raw['iCalUID'] : null,
             'recurrence' => $recurrence,
             'etag' => $etag,
         ];

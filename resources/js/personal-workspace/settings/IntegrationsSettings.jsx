@@ -93,7 +93,7 @@ function TelegramPairingCard({ telegram }) {
     );
 }
 
-export default function IntegrationsSettings({ integrations = [], telegram, capabilities }) {
+export default function IntegrationsSettings({ integrations = [], googleAccounts = [], telegram, capabilities }) {
     const [openProvider, setOpenProvider] = useState(null);
     const ownerCards = capabilities.integrations ? integrations : [];
 
@@ -151,6 +151,21 @@ export default function IntegrationsSettings({ integrations = [], telegram, capa
             })}
 
             <TelegramPairingCard telegram={telegram} />
+
+            {googleAccounts.length > 0 ? (
+                <div className="space-y-2">
+                    {googleAccounts.map((account) => (
+                        <article key={account.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p className="text-sm font-semibold text-white">{account.label}</p>
+                            <p className="mt-1 text-xs text-slate-400">
+                                {account.email}
+                                {' · '}
+                                {account.health === 'blocked' ? 'Needs attention' : 'Connected'}
+                            </p>
+                        </article>
+                    ))}
+                </div>
+            ) : null}
         </div>
     );
 }

@@ -18,7 +18,7 @@ Pivots (relations only; raw data is not copied into the project):
 - telegram groups (`project_groups`)
 - people (`project_people`)
 - organizations (`project_organizations`)
-- source bindings (`project_source_bindings`) — schema ready; multi-mailbox is still Phase 10
+- source bindings (`project_source_bindings`) — **IMPLEMENTED (Phase 10)** for Gmail / Calendar / Telegram group
 - tasks (`tasks.project_id`)
 
 Knowledge may index a project (`knowledge_entities.project_id`) and optionally `canonical_type`/`canonical_id`. The Project row stays canonical for name/status.

@@ -457,6 +457,7 @@ final class DirectoryService
                 'source_id' => $sourceId,
             ],
             [
+                'binding_kind' => 'explicit',
                 'purpose' => $this->nullableString($purpose),
                 'importance' => $this->nullableString($importance),
                 'monitoring_policy' => $this->nullableString($monitoringPolicy),

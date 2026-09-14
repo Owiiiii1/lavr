@@ -14,11 +14,11 @@ First-class `executive_briefs` (2026-09-10). Reuses the Phase 7 pipeline (COLLEC
 | --- | --- |
 | `executive_briefs` table + morning/evening/weekly types | **IMPLEMENTED** (UI is morning-first) |
 | Owner settings: enabled, local time, Telegram, in-app, weekends | **IMPLEMENTED** (timezone/locale = Owner profile; default recommendation 08:30, weekends off) |
-| Collectors: commitments, meetings + analysis, calendar, Gmail, blocked integrations, repeat automation failures, optional Leadership signal | **IMPLEMENTED** |
+| Collectors: commitments, meetings + analysis, calendar, Gmail, blocked integrations, repeat automation failures, optional Leadership signal | **IMPLEMENTED** (Gmail/Calendar **multi-account**; one blocked mailbox → partial) |
 | Deterministic priority (`critical`/`high`/`normal`/`low`) + Attention Now | **IMPLEMENTED** |
 | Dedupe keys + previous-brief delta | **IMPLEMENTED** |
 | AI phrasing optional; invalid/truncated/JSON/unknown source → deterministic fallback | **IMPLEMENTED** |
-| Partial sources (Gmail/Calendar unavailable) | **IMPLEMENTED** |
+| Partial sources (Gmail/Calendar unavailable) | **IMPLEMENTED** (UNKNOWN ≠ EMPTY; stories are aggregated, not 10 mailbox alerts) |
 | Today `/lavr/today` uses latest morning brief as the layer | **IMPLEMENTED** |
 | Workspace `/lavr/briefs` + detail + Generate now | **IMPLEMENTED** |
 | Telegram one compact message + `brief_{id}` WebApp deep link | **IMPLEMENTED** |

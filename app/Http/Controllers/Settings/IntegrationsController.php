@@ -8,6 +8,7 @@ use App\Models\ToolExecutionLog;
 use App\Services\Integrations\Google\GoogleOAuthSettingsService;
 use App\Services\Integrations\IntegrationAccountService;
 use App\Services\Integrations\IntegrationRegistry;
+use App\Services\Sources\SourceDashboardService;
 use App\Services\Users\UserCapability;
 use App\Services\Zoom\ZoomCredentialService;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +21,7 @@ class IntegrationsController extends Controller
         private readonly IntegrationRegistry $registry,
         private readonly IntegrationAccountService $accounts,
         private readonly GoogleOAuthSettingsService $googleOAuthSettings,
+        private readonly SourceDashboardService $sources,
     ) {}
 
     public function index(Request $request): RedirectResponse
@@ -39,6 +41,9 @@ class IntegrationsController extends Controller
 
         return [
             'providers' => $this->registry->summariesForOwner($owner),
+            'google_accounts' => $this->sources->googleAccounts($owner),
+            'telegram_groups' => $this->sources->telegramGroups($owner),
+            'external_sources' => $this->sources->workspace($owner)['external'],
             'google_oauth' => $this->googleOAuthSettings->adminPayload(),
             'zoom' => app(ZoomCredentialService::class)->adminPayload($owner),
             'recent_executions' => ToolExecutionLog::query()

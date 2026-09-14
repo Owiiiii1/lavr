@@ -53,7 +53,7 @@ final class GetGmailThreadTool extends GoogleGmailTool
         }
 
         return $this->ok($call, $this->gmail->getThread(
-            $this->resolveAccount($context),
+            $this->resolveAccount($context, $call),
             $threadId,
             isset($call->arguments['max_messages']) ? (int) $call->arguments['max_messages'] : null,
         ));

@@ -14,6 +14,7 @@ use App\Services\Integrations\IntegrationRegistry;
 use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Reminders\ReminderService;
 use App\Services\Reports\ScheduledReportService;
+use App\Services\Sources\SourceDashboardService;
 use App\Services\Tasks\TaskService;
 use App\Services\Users\UserCapability;
 use App\Services\Users\UserChannelPreferenceService;
@@ -33,6 +34,7 @@ final class WorkspaceSurfaceStateService
         private readonly IntegrationRegistry $integrations,
         private readonly UserChannelPreferenceService $channelPreferences,
         private readonly WebResearchSettingsService $webResearch,
+        private readonly SourceDashboardService $sources,
     ) {}
 
     /**
@@ -81,6 +83,9 @@ final class WorkspaceSurfaceStateService
         return [
             'memory' => $this->memorySummary($user),
             'integrations' => $this->integrationsForSettings($user),
+            'google_accounts' => $user->isOwner() && $user->canUseCapability(UserCapability::INTEGRATIONS_ADMIN)
+                ? $this->sources->googleAccounts($user)
+                : [],
             'telegram' => $this->telegramSummary($user, includeAccessCode: true),
         ];
     }

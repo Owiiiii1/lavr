@@ -29,7 +29,7 @@ First-class `leadership_reviews` (2026-09-14). Pipeline: COLLECT → METRICS →
 
 Regeneration always creates a **new** historical row. Scheduled key: `leadership_review:{user_id}:weekly:{period_start}`. Manual keys append `:manual:{suffix}`.
 
-Gmail/Calendar absence does not fail the review. Meetings + commitments are enough. Status `partial` if a structured source fails; `insufficient_data` if both meetings and commitments are empty.
+Gmail/Calendar absence does not fail the review. Meetings + commitments are enough. Status `partial` if a structured source fails; `insufficient_data` if both meetings and commitments are empty. Email/message **volume is not a productivity metric**. Cross-source evidence may inform follow-up gaps only.
 
 ### Allowed / forbidden
 
