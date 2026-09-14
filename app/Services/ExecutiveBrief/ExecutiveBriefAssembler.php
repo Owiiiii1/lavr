@@ -199,6 +199,7 @@ final class ExecutiveBriefAssembler
             'integration_blocked',
             'meeting_risk',
             'commitment_detected',
+            'leadership_signal',
         ], true) || ($item->type === 'meeting_today' && $item->score >= 80);
     }
 
@@ -215,6 +216,7 @@ final class ExecutiveBriefAssembler
             'email_important', 'email_actionable' => 'inbox',
             'integration_blocked' => 'attention',
             'automation_failures' => 'risks',
+            'leadership_signal' => 'attention',
             default => $item->section,
         };
     }

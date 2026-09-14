@@ -11,6 +11,8 @@ use App\Models\Person;
 use App\Models\Project;
 use App\Services\Commitments\CommitmentService;
 use App\Services\Commitments\Exceptions\CommitmentException;
+use App\Services\LeadershipReview\LeadershipReviewService;
+use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Meetings\Exceptions\MeetingException;
 use App\Services\Meetings\MeetingConfig;
 use App\Services\Meetings\MeetingService;
@@ -26,6 +28,8 @@ class JarvisWorkspaceMeetingsController extends Controller
     public function __construct(
         private readonly MeetingService $meetings,
         private readonly CommitmentService $commitments,
+        private readonly LeadershipReviewService $leadership,
+        private readonly OwnerLocaleResolver $locales,
     ) {}
 
     public function index(Request $request): Response
@@ -98,6 +102,11 @@ class JarvisWorkspaceMeetingsController extends Controller
             'organizations' => Organization::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
             'people' => Person::query()->where('user_id', $request->user()->id)->orderBy('display_name')->get(['id', 'display_name']),
             'pollSeconds' => (int) config('meetings.poll_seconds', 3),
+            'meeting_quality' => $this->leadership->meetingQuality(
+                $request->user(),
+                $meeting,
+                $this->locales->interfaceLocale($request->user()),
+            ),
         ]);
     }
 

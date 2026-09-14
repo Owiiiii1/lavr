@@ -204,4 +204,4 @@ Phase 6 **IMPLEMENTED.** High-confidence `commitments_detected` become first-cla
 
 ### Leadership Review
 
-Optional analysis of **execution quality** of the meeting (clarity of owners/deadlines/decisions). Not psychology. Foundation in Phase 5A; product slice Phase 9. [LEADERSHIP_REVIEW.md](LEADERSHIP_REVIEW.md).
+Phase 9 **IMPLEMENTED.** Meeting quality (owner/deadline coverage, decisions captured, open questions, follow-up gaps) is a first-class Leadership Review surface, not psychology. [LEADERSHIP_REVIEW.md](LEADERSHIP_REVIEW.md).

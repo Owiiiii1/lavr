@@ -49,7 +49,7 @@ AI does **not** silently create People/Organizations/Projects from chat.
 - Admin: `/people`, `/organizations` (custom admin kit)
 - Workspace: `/lavr/people`, `/lavr/people/{person}`, `/lavr/organizations`, `/lavr/organizations/{organization}`, `/lavr/search`
 
-Person cards show first-class commitments (active, overdue, recently confirmed). Unresolved meeting names are not auto-created People.
+Person cards show first-class commitments (active, overdue, recently confirmed) and **operational patterns** from Leadership Review (counts and follow-up gaps — not a rating). Unresolved meeting names are not auto-created People.
 
 ---
 

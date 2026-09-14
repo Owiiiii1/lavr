@@ -17,6 +17,7 @@ use App\Models\Meeting;
 use App\Models\User;
 use App\Services\Integrations\Exceptions\IntegrationException;
 use App\Services\Integrations\IntegrationAccountService;
+use App\Services\LeadershipReview\LeadershipSignalDetector;
 use App\Services\Users\UserCapability;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
@@ -30,6 +31,7 @@ final class ExecutiveBriefCollector
         private readonly ?IntegrationAccountService $accounts = null,
         private readonly ?object $calendar = null,
         private readonly ?object $gmail = null,
+        private readonly ?LeadershipSignalDetector $leadership = null,
     ) {}
 
     /**
@@ -59,6 +61,7 @@ final class ExecutiveBriefCollector
             },
             'integrations' => fn () => $this->integrations($user),
             'automations' => fn () => $this->automationFailures($user, $windowStart),
+            'leadership' => fn () => ($this->leadership ?? new LeadershipSignalDetector)->items($user),
         ];
 
         foreach ($sources as $name => $loader) {

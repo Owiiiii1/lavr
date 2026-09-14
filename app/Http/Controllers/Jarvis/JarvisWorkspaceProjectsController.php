@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
+use App\Services\LeadershipReview\LeadershipReviewService;
+use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Projects\ProjectService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,6 +19,8 @@ class JarvisWorkspaceProjectsController extends Controller
         private readonly ProjectService $projects,
         private readonly DirectoryService $directory,
         private readonly CommitmentService $commitments,
+        private readonly LeadershipReviewService $leadership,
+        private readonly OwnerLocaleResolver $locales,
     ) {}
 
     public function index(Request $request): Response
@@ -67,6 +71,11 @@ class JarvisWorkspaceProjectsController extends Controller
                 ->map(fn ($commitment): array => $this->commitments->serializeSummary($commitment))
                 ->values()
                 ->all(),
+            'process' => $this->leadership->operationalForProject(
+                $request->user(),
+                $project,
+                $this->locales->interfaceLocale($request->user()),
+            ),
             'admin_href' => route('projects.show', $project),
         ]);
     }

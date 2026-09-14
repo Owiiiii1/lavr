@@ -14,7 +14,7 @@ First-class `executive_briefs` (2026-09-10). Reuses the Phase 7 pipeline (COLLEC
 | --- | --- |
 | `executive_briefs` table + morning/evening/weekly types | **IMPLEMENTED** (UI is morning-first) |
 | Owner settings: enabled, local time, Telegram, in-app, weekends | **IMPLEMENTED** (timezone/locale = Owner profile; default recommendation 08:30, weekends off) |
-| Collectors: commitments, meetings + analysis, calendar, Gmail, blocked integrations, repeat automation failures | **IMPLEMENTED** |
+| Collectors: commitments, meetings + analysis, calendar, Gmail, blocked integrations, repeat automation failures, optional Leadership signal | **IMPLEMENTED** |
 | Deterministic priority (`critical`/`high`/`normal`/`low`) + Attention Now | **IMPLEMENTED** |
 | Dedupe keys + previous-brief delta | **IMPLEMENTED** |
 | AI phrasing optional; invalid/truncated/JSON/unknown source → deterministic fallback | **IMPLEMENTED** |
@@ -58,4 +58,4 @@ Scheduled morning is skipped on weekends unless `morning_brief_weekends`. Manual
 
 ## TARGET (later)
 
-Evening/weekly product surfaces, Leadership Review, first-class Decisions, PDF export — not Phase 8.
+Evening/weekly product surfaces, first-class Decisions, PDF export — not Phase 8. Leadership Review is Phase 9 (**IMPLEMENTED**); Brief may include one actionable process signal only.

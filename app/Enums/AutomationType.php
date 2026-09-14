@@ -11,6 +11,7 @@ enum AutomationType: string
     case Proactive = 'proactive';
     case Brief = 'brief';
     case ExecutiveBrief = 'executive_brief';
+    case LeadershipReview = 'leadership_review';
 
     /**
      * @return list<string>

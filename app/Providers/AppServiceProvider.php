@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\AutomationRun;
 use App\Models\Commitment;
 use App\Models\ExecutiveBrief;
+use App\Models\LeadershipReview;
 use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\Person;
@@ -13,6 +14,7 @@ use App\Models\TelegramGroup;
 use App\Policies\AutomationRunPolicy;
 use App\Policies\CommitmentPolicy;
 use App\Policies\ExecutiveBriefPolicy;
+use App\Policies\LeadershipReviewPolicy;
 use App\Policies\MeetingPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\PersonPolicy;
@@ -32,6 +34,9 @@ use App\Services\Integrations\Providers\GitHubIntegrationProvider;
 use App\Services\Integrations\Providers\GoogleIntegrationProvider;
 use App\Services\Integrations\Providers\TelegramIntegrationProvider;
 use App\Services\Integrations\Providers\ZoomIntegrationProvider;
+use App\Services\LeadershipReview\LeadershipReviewComposer;
+use App\Services\LeadershipReview\LeadershipReviewWordingGuard;
+use App\Services\LeadershipReview\LeadershipSignalDetector;
 use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Notifications\NotificationInbox;
 use App\Services\Notifications\NotificationUrlPolicy;
@@ -346,11 +351,20 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(IntegrationAccountService::class),
                 $app->make(GoogleCalendarService::class),
                 $app->make(GoogleGmailService::class),
+                $app->make(LeadershipSignalDetector::class),
             );
         });
 
         $this->app->singleton(ExecutiveBriefComposer::class, function ($app): ExecutiveBriefComposer {
             return new ExecutiveBriefComposer(
+                new ReportOutputValidator,
+                $app->make(SynthesizesProductivityBrief::class),
+            );
+        });
+
+        $this->app->singleton(LeadershipReviewComposer::class, function ($app): LeadershipReviewComposer {
+            return new LeadershipReviewComposer(
+                new LeadershipReviewWordingGuard,
                 new ReportOutputValidator,
                 $app->make(SynthesizesProductivityBrief::class),
             );
@@ -511,6 +525,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Commitment::class, CommitmentPolicy::class);
         Gate::policy(AutomationRun::class, AutomationRunPolicy::class);
         Gate::policy(ExecutiveBrief::class, ExecutiveBriefPolicy::class);
+        Gate::policy(LeadershipReview::class, LeadershipReviewPolicy::class);
 
         RateLimiter::for('telegram-webapp', function (Request $request) {
             $perMinute = max(5, (int) config('telegram.webapp.rate_limit_per_minute', 20));

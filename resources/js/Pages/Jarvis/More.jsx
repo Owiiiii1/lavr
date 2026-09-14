@@ -9,6 +9,7 @@ export default function More() {
         { href: '/lavr/search', label: t('more.search'), hint: t('more.searchHint') },
         { href: '/lavr/organizations', label: t('more.organizations'), hint: t('more.organizationsHint') },
         { href: '/lavr/briefs', label: t('more.briefs'), hint: t('more.briefsHint') },
+        { href: '/lavr/leadership', label: t('more.leadership'), hint: t('more.leadershipHint') },
         { href: '/lavr/reports', label: t('more.reports'), hint: t('more.reportsHint') },
         { href: '/lavr/meetings', label: t('more.meetings'), hint: t('more.meetingsHint') },
         { href: '/lavr/commitments', label: t('more.commitments'), hint: t('more.commitmentsHint') },

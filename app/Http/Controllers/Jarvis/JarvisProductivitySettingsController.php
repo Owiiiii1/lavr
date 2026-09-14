@@ -36,6 +36,11 @@ class JarvisProductivitySettingsController extends Controller
             'morning_brief_telegram' => ['required', 'boolean'],
             'morning_brief_inbox' => ['required', 'boolean'],
             'morning_brief_weekends' => ['required', 'boolean'],
+            'leadership_review_enabled' => ['required', 'boolean'],
+            'leadership_review_weekday' => ['required', 'integer', 'between:1,7'],
+            'leadership_review_local_time' => ['required', 'date_format:H:i'],
+            'leadership_review_telegram' => ['required', 'boolean'],
+            'leadership_review_inbox' => ['required', 'boolean'],
         ]);
 
         $this->settings->update($user, $validated);

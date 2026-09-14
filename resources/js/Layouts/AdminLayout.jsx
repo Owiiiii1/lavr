@@ -42,6 +42,7 @@ const primaryNavItems = [
     { route: 'meetings.index', icon: Video, activePattern: 'meetings.*' },
     { route: 'commitments.index', icon: ListChecks, activePattern: 'commitments.*' },
     { route: 'executive-briefs.index', icon: FileText, activePattern: 'executive-briefs.*' },
+    { route: 'leadership-reviews.index', icon: ChartColumn, activePattern: 'leadership-reviews.*' },
     { route: 'automation-runs.index', icon: Activity, activePattern: 'automation-runs.*' },
     { route: 'telegram-groups.index', icon: MessagesSquare, activePattern: 'telegram-groups.*' },
     { route: 'calendar.index', icon: CalendarDays },
@@ -61,6 +62,7 @@ function navLabel(routeName, t) {
     if (routeName === 'meetings.index') return t.meetings;
     if (routeName === 'commitments.index') return t.commitments;
     if (routeName === 'executive-briefs.index') return t.executiveBriefs;
+    if (routeName === 'leadership-reviews.index') return t.leadershipReviews;
     if (routeName === 'automation-runs.index') return t.automationRuns;
     if (routeName === 'telegram-groups.index') return t.telegramGroups;
     if (routeName === 'calendar.index') return t.calendar;
@@ -113,6 +115,7 @@ export default function AdminLayout({ title, children }) {
             meetings: 'Meetings',
             commitments: 'Commitments',
             executiveBriefs: 'Executive Briefs',
+            leadershipReviews: 'Leadership Reviews',
             automationRuns: 'Automation Runs',
             telegramGroups: 'Telegram Groups',
             calendar: 'Calendar',
@@ -133,6 +136,7 @@ export default function AdminLayout({ title, children }) {
             meetings: 'Meetings',
             commitments: 'Обязательства',
             executiveBriefs: 'Executive Briefs',
+            leadershipReviews: 'Leadership Reviews',
             automationRuns: 'Automation Runs',
             telegramGroups: 'Telegram Groups',
             calendar: 'Календарь',
@@ -153,6 +157,7 @@ export default function AdminLayout({ title, children }) {
             meetings: 'Meetings',
             commitments: 'Зобов’язання',
             executiveBriefs: 'Executive Briefs',
+            leadershipReviews: 'Leadership Reviews',
             automationRuns: 'Automation Runs',
             telegramGroups: 'Telegram Groups',
             calendar: 'Календар',

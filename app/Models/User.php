@@ -79,6 +79,11 @@ class User extends Authenticatable
         return $this->hasMany(Commitment::class);
     }
 
+    public function leadershipReviews(): HasMany
+    {
+        return $this->hasMany(LeadershipReview::class);
+    }
+
     public function reminders(): HasMany
     {
         return $this->hasMany(Reminder::class);

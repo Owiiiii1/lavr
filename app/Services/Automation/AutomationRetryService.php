@@ -14,6 +14,7 @@ use App\Models\Reminder;
 use App\Models\ScheduledReport;
 use App\Models\User;
 use App\Services\ExecutiveBrief\ExecutiveBriefGenerator;
+use App\Services\LeadershipReview\LeadershipReviewService;
 use App\Services\Reminders\ReminderDeliveryService;
 use App\Services\Reports\ScheduledReportDispatchService;
 use Carbon\CarbonImmutable;
@@ -24,6 +25,7 @@ final class AutomationRetryService
         private readonly ReminderDeliveryService $reminders,
         private readonly ScheduledReportDispatchService $reports,
         private readonly ExecutiveBriefGenerator $briefs,
+        private readonly LeadershipReviewService $reviews,
     ) {}
 
     public function retry(AutomationRun $run): AutomationRun
@@ -51,6 +53,7 @@ final class AutomationRetryService
             AutomationType::Watcher => EvaluateWatcherJob::dispatch((int) $run->automation_id),
             AutomationType::ScheduledReport => $this->retryReport($run),
             AutomationType::ExecutiveBrief => $this->retryBrief($run),
+            AutomationType::LeadershipReview => $this->retryReview($run),
             default => null,
         };
 
@@ -105,5 +108,15 @@ final class AutomationRetryService
             'manual',
             $fromId !== null ? (int) $fromId : null,
         );
+    }
+
+    private function retryReview(AutomationRun $run): void
+    {
+        $user = User::query()->find($run->user_id);
+        if (! $user instanceof User || ! $user->isActive()) {
+            return;
+        }
+
+        $this->reviews->generateNow($user);
     }
 }

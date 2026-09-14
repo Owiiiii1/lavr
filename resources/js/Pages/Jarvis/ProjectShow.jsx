@@ -2,7 +2,9 @@ import LavrAppShell from '@/telegram/LavrAppShell';
 import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link } from '@inertiajs/react';
 
-export default function ProjectShow({ project, commitments = [], admin_href }) {
+import LeadershipInsights from '@/personal-workspace/LeadershipInsights';
+
+export default function ProjectShow({ project, commitments = [], process = {}, admin_href }) {
     const { t } = useTranslation();
 
     return (
@@ -85,6 +87,12 @@ export default function ProjectShow({ project, commitments = [], admin_href }) {
                         </ul>
                     )}
                 </Section>
+                <LeadershipInsights
+                    title={t('leadership.process')}
+                    metrics={process.metrics || {}}
+                    findings={process.findings || []}
+                    emptyLabel={t('leadership.noPatterns')}
+                />
                 <Section title={t('projects.decisionsFuture')}>
                     <p className="text-slate-500">{t('projects.comingLater')}</p>
                 </Section>

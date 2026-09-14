@@ -21,6 +21,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'morning_brief_telegram',
     'morning_brief_inbox',
     'morning_brief_weekends',
+    'leadership_review_enabled',
+    'leadership_review_weekday',
+    'leadership_review_local_time',
+    'leadership_review_telegram',
+    'leadership_review_inbox',
     'last_daily_brief_at',
     'last_evening_review_at',
     'last_weekly_review_at',
@@ -43,11 +48,16 @@ class UserProductivitySetting extends Model
             'morning_brief_telegram' => 'boolean',
             'morning_brief_inbox' => 'boolean',
             'morning_brief_weekends' => 'boolean',
+            'leadership_review_enabled' => 'boolean',
+            'leadership_review_telegram' => 'boolean',
+            'leadership_review_inbox' => 'boolean',
+            'leadership_review_weekday' => 'integer',
             'weekly_review_weekday' => 'integer',
             'last_daily_brief_at' => 'immutable_datetime',
             'last_evening_review_at' => 'immutable_datetime',
             'last_weekly_review_at' => 'immutable_datetime',
             'last_morning_brief_at' => 'immutable_datetime',
+            'last_leadership_review_at' => 'immutable_datetime',
             'metadata' => 'array',
         ];
     }
@@ -69,6 +79,11 @@ class UserProductivitySetting extends Model
         'morning_brief_telegram' => true,
         'morning_brief_inbox' => true,
         'morning_brief_weekends' => false,
+        'leadership_review_enabled' => true,
+        'leadership_review_weekday' => 1,
+        'leadership_review_local_time' => '09:00',
+        'leadership_review_telegram' => true,
+        'leadership_review_inbox' => true,
     ];
 
     public function user(): BelongsTo

@@ -1,8 +1,9 @@
 import LavrAppShell from '@/telegram/LavrAppShell';
 import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link } from '@inertiajs/react';
+import LeadershipInsights from '@/personal-workspace/LeadershipInsights';
 
-export default function PersonShow({ person, commitments = [] }) {
+export default function PersonShow({ person, commitments = [], operational = {} }) {
     const { t } = useTranslation();
 
     return (
@@ -99,6 +100,12 @@ export default function PersonShow({ person, commitments = [] }) {
                         </ul>
                     )}
                 </Section>
+                <LeadershipInsights
+                    title={t('leadership.operational')}
+                    metrics={operational.metrics || {}}
+                    findings={operational.findings || []}
+                    emptyLabel={t('leadership.noPatterns')}
+                />
                 <Section title={t('people.activity')}>
                     <p className="text-slate-500">{t('people.comingLater')}</p>
                 </Section>

@@ -36,6 +36,11 @@ final class ProductivitySettingsService
             'morning_brief_telegram' => true,
             'morning_brief_inbox' => true,
             'morning_brief_weekends' => false,
+            'leadership_review_enabled' => true,
+            'leadership_review_weekday' => (int) config('leadership_review.weekly_weekday', 1),
+            'leadership_review_local_time' => (string) config('leadership_review.weekly_local_time', '09:00'),
+            'leadership_review_telegram' => true,
+            'leadership_review_inbox' => true,
         ]);
 
         return $settings;
@@ -64,6 +69,11 @@ final class ProductivitySettingsService
             'morning_brief_telegram' => (bool) ($attributes['morning_brief_telegram'] ?? $settings->morning_brief_telegram ?? $defaults->morning_brief_telegram),
             'morning_brief_inbox' => (bool) ($attributes['morning_brief_inbox'] ?? $settings->morning_brief_inbox ?? $defaults->morning_brief_inbox),
             'morning_brief_weekends' => (bool) ($attributes['morning_brief_weekends'] ?? $settings->morning_brief_weekends ?? $defaults->morning_brief_weekends),
+            'leadership_review_enabled' => (bool) ($attributes['leadership_review_enabled'] ?? $settings->leadership_review_enabled ?? $defaults->leadership_review_enabled),
+            'leadership_review_weekday' => $this->normalizeWeekday($attributes['leadership_review_weekday'] ?? $settings->leadership_review_weekday ?? $defaults->leadership_review_weekday),
+            'leadership_review_local_time' => $this->normalizeTime($attributes['leadership_review_local_time'] ?? $settings->leadership_review_local_time ?? $defaults->leadership_review_local_time),
+            'leadership_review_telegram' => (bool) ($attributes['leadership_review_telegram'] ?? $settings->leadership_review_telegram ?? $defaults->leadership_review_telegram),
+            'leadership_review_inbox' => (bool) ($attributes['leadership_review_inbox'] ?? $settings->leadership_review_inbox ?? $defaults->leadership_review_inbox),
         ]);
         $settings->save();
 
@@ -91,6 +101,11 @@ final class ProductivitySettingsService
             'morning_brief_telegram' => (bool) $settings->morning_brief_telegram,
             'morning_brief_inbox' => (bool) $settings->morning_brief_inbox,
             'morning_brief_weekends' => (bool) $settings->morning_brief_weekends,
+            'leadership_review_enabled' => (bool) $settings->leadership_review_enabled,
+            'leadership_review_weekday' => (int) ($settings->leadership_review_weekday ?: 1),
+            'leadership_review_local_time' => (string) ($settings->leadership_review_local_time ?: '09:00'),
+            'leadership_review_telegram' => (bool) $settings->leadership_review_telegram,
+            'leadership_review_inbox' => (bool) $settings->leadership_review_inbox,
         ];
     }
 

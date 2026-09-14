@@ -23,6 +23,11 @@ export default function ProductivitySettings({ surface, settings, capabilities }
         morning_brief_telegram: settings.productivity?.morning_brief_telegram !== false,
         morning_brief_inbox: settings.productivity?.morning_brief_inbox !== false,
         morning_brief_weekends: Boolean(settings.productivity?.morning_brief_weekends),
+        leadership_review_enabled: settings.productivity?.leadership_review_enabled !== false,
+        leadership_review_weekday: Number(settings.productivity?.leadership_review_weekday || 1),
+        leadership_review_local_time: settings.productivity?.leadership_review_local_time || '09:00',
+        leadership_review_telegram: settings.productivity?.leadership_review_telegram !== false,
+        leadership_review_inbox: settings.productivity?.leadership_review_inbox !== false,
     });
     const [pushState, setPushState] = useState('disabled');
     const [webPushConfigured, setWebPushConfigured] = useState(false);
@@ -140,6 +145,52 @@ export default function ProductivitySettings({ surface, settings, capabilities }
                                 type="checkbox"
                                 checked={Boolean(productivityForm.data.morning_brief_weekends)}
                                 onChange={(event) => productivityForm.setData('morning_brief_weekends', event.target.checked)}
+                            />
+                        </label>
+                        <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Leadership Review</p>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Увімкнено</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.leadership_review_enabled)}
+                                onChange={(event) => productivityForm.setData('leadership_review_enabled', event.target.checked)}
+                            />
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                            <select
+                                value={productivityForm.data.leadership_review_weekday}
+                                onChange={(event) => productivityForm.setData('leadership_review_weekday', Number(event.target.value))}
+                                className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-slate-100"
+                            >
+                                <option value={1}>Пн</option>
+                                <option value={2}>Вт</option>
+                                <option value={3}>Ср</option>
+                                <option value={4}>Чт</option>
+                                <option value={5}>Пт</option>
+                                <option value={6}>Сб</option>
+                                <option value={7}>Нд</option>
+                            </select>
+                            <input
+                                type="time"
+                                value={productivityForm.data.leadership_review_local_time}
+                                onChange={(event) => productivityForm.setData('leadership_review_local_time', event.target.value)}
+                                className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-slate-100"
+                            />
+                        </div>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Telegram</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.leadership_review_telegram)}
+                                onChange={(event) => productivityForm.setData('leadership_review_telegram', event.target.checked)}
+                            />
+                        </label>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>In-app</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.leadership_review_inbox)}
+                                onChange={(event) => productivityForm.setData('leadership_review_inbox', event.target.checked)}
                             />
                         </label>
                         <label className="flex items-center justify-between gap-3">

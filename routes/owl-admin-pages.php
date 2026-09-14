@@ -9,6 +9,7 @@ use App\Http\Controllers\Jarvis\JarvisAttachmentController;
 use App\Http\Controllers\Jarvis\JarvisConfirmationController;
 use App\Http\Controllers\Jarvis\JarvisExecutiveBriefController;
 use App\Http\Controllers\Jarvis\JarvisKnowledgeController;
+use App\Http\Controllers\Jarvis\JarvisLeadershipReviewController;
 use App\Http\Controllers\Jarvis\JarvisNotificationController;
 use App\Http\Controllers\Jarvis\JarvisProductivitySettingsController;
 use App\Http\Controllers\Jarvis\JarvisPushSubscriptionController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Jarvis\JarvisWorkspacePeopleController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceProjectsController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceSearchController;
 use App\Http\Controllers\Jarvis\JarvisWorkspaceStatusController;
+use App\Http\Controllers\LeadershipReviewController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\OrganizationsController;
 use App\Http\Controllers\PeopleController;
@@ -110,6 +112,9 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
         Route::get('/briefs', [JarvisExecutiveBriefController::class, 'index'])->name('briefs.index');
         Route::post('/briefs/generate', [JarvisExecutiveBriefController::class, 'generate'])->name('briefs.generate');
         Route::get('/briefs/{brief}', [JarvisExecutiveBriefController::class, 'show'])->name('briefs.show');
+        Route::get('/leadership', [JarvisLeadershipReviewController::class, 'index'])->name('leadership.index');
+        Route::post('/leadership/generate', [JarvisLeadershipReviewController::class, 'generate'])->name('leadership.generate');
+        Route::get('/leadership/{review}', [JarvisLeadershipReviewController::class, 'show'])->name('leadership.show');
         Route::get('/people', [JarvisWorkspacePeopleController::class, 'index'])->name('people.index');
         Route::get('/people/{person}', [JarvisWorkspacePeopleController::class, 'show'])->name('people.show');
         Route::get('/organizations', [JarvisWorkspaceOrganizationsController::class, 'index'])->name('organizations.index');
@@ -432,6 +437,9 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
 
     Route::get('/executive-briefs', [ExecutiveBriefController::class, 'index'])->name('executive-briefs.index');
     Route::post('/executive-briefs/{executiveBrief}/regenerate', [ExecutiveBriefController::class, 'regenerate'])->name('executive-briefs.regenerate');
+
+    Route::get('/leadership-reviews', [LeadershipReviewController::class, 'index'])->name('leadership-reviews.index');
+    Route::post('/leadership-reviews/{leadershipReview}/regenerate', [LeadershipReviewController::class, 'regenerate'])->name('leadership-reviews.regenerate');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
 

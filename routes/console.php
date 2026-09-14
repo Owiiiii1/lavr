@@ -36,6 +36,10 @@ Schedule::command('executive-briefs:dispatch')
     ->everyMinute()
     ->withoutOverlapping(10);
 
+Schedule::command('leadership-reviews:dispatch')
+    ->everyMinute()
+    ->withoutOverlapping(20);
+
 Schedule::command('jarvis:attachments:purge-ephemeral')
     ->hourly()
     ->withoutOverlapping(55);

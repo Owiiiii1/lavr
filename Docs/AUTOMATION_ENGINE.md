@@ -60,6 +60,7 @@ ADR-277, ADR-278.
 | **Watcher** | **Condition** in the future: «жди письмо…» | `watchers` | Same, hardened |
 | **Scheduled Report** | Periodic **composed digest** at clock time | `scheduled_reports` | Same |
 | **Executive Brief** | Morning attention layer | `executive_briefs` + `automation_runs` | Evening/weekly UI |
+| **Leadership Review** | Weekly process quality | `leadership_reviews` + `automation_runs` | First-class Decisions |
 | **Event rule** | On operational event → automation | Partial (watcher poll + knowledge events + proactive heuristics) | First-class [EVENT_MODEL.md](EVENT_MODEL.md) |
 | **Follow-up** | Commitment / waiting tracking | In-app commitment notifications + `commitments:refresh-statuses`; Knowledge fallback remains | Policy-gated, commitment-linked (Phase 7/11) |
 

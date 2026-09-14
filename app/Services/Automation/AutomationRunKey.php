@@ -36,6 +36,16 @@ final class AutomationRunKey
         return 'executive_brief:'.$userId.':'.$type.':'.$localDate.':manual:'.$suffix;
     }
 
+    public static function leadershipReviewWeekly(int $userId, string $periodStart): string
+    {
+        return 'leadership_review:'.$userId.':weekly:'.$periodStart;
+    }
+
+    public static function leadershipReviewManual(int $userId, string $type, string $periodStart, string $suffix): string
+    {
+        return 'leadership_review:'.$userId.':'.$type.':'.$periodStart.':manual:'.$suffix;
+    }
+
     public static function brief(int $userId, string $mode, string $localDate): string
     {
         return 'brief:'.$userId.':'.$mode.':'.$localDate;

@@ -2,6 +2,7 @@ import LavrAppShell from '@/telegram/LavrAppShell';
 import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
+import LeadershipInsights from '@/personal-workspace/LeadershipInsights';
 
 function Block({ title, children }) {
     return (
@@ -14,7 +15,7 @@ function Block({ title, children }) {
 
 export default function MeetingShow() {
     const { t } = useTranslation();
-    const { meeting, people = [], pollSeconds = 3 } = usePage().props;
+    const { meeting, people = [], pollSeconds = 3, meeting_quality = {} } = usePage().props;
     const result = meeting.analysis?.result || {};
     const [transcriptOpen, setTranscriptOpen] = useState(false);
     const [transcriptQuery, setTranscriptQuery] = useState('');
@@ -153,6 +154,12 @@ export default function MeetingShow() {
                 <Block title={t('meetings.followUps')}>
                     <List items={result.follow_ups} field="text" />
                 </Block>
+                <LeadershipInsights
+                    title={t('leadership.meetingQuality')}
+                    metrics={meeting_quality.metrics || {}}
+                    findings={meeting_quality.findings || []}
+                    emptyLabel={t('leadership.noPatterns')}
+                />
                 <Block title={t('meetings.transcript')}>
                     <button type="button" className="min-h-11 rounded-2xl border border-white/10 px-4 text-sm" onClick={() => setTranscriptOpen((value) => !value)}>
                         {transcriptOpen ? t('meetings.hideTranscript') : t('meetings.showTranscript')}

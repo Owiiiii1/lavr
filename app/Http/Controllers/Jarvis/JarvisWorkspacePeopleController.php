@@ -8,6 +8,8 @@ use App\Models\Person;
 use App\Models\Project;
 use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
+use App\Services\LeadershipReview\LeadershipReviewService;
+use App\Services\Locale\OwnerLocaleResolver;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,6 +19,8 @@ class JarvisWorkspacePeopleController extends Controller
     public function __construct(
         private readonly DirectoryService $directory,
         private readonly CommitmentService $commitments,
+        private readonly LeadershipReviewService $leadership,
+        private readonly OwnerLocaleResolver $locales,
     ) {}
 
     public function index(Request $request): Response
@@ -60,6 +64,11 @@ class JarvisWorkspacePeopleController extends Controller
                 ->map(fn ($commitment): array => $this->commitments->serializeSummary($commitment))
                 ->values()
                 ->all(),
+            'operational' => $this->leadership->operationalForPerson(
+                $request->user(),
+                $person,
+                $this->locales->interfaceLocale($request->user()),
+            ),
         ]);
     }
 }

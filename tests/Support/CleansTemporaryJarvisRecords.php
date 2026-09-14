@@ -23,6 +23,7 @@ use App\Models\KnowledgeEntityAlias;
 use App\Models\KnowledgeEntitySource;
 use App\Models\KnowledgeEvent;
 use App\Models\KnowledgeRelationship;
+use App\Models\LeadershipReview;
 use App\Models\Meeting;
 use App\Models\MeetingAnalysis;
 use App\Models\MeetingArtifact;
@@ -137,6 +138,9 @@ trait CleansTemporaryJarvisRecords
         }
         if (Schema::hasTable('integration_accounts')) {
             IntegrationAccount::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('leadership_reviews')) {
+            LeadershipReview::query()->where('user_id', $user->id)->delete();
         }
         if (Schema::hasTable('executive_briefs')) {
             ExecutiveBrief::query()->where('user_id', $user->id)->delete();
