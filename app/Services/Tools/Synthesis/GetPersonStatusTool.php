@@ -12,6 +12,7 @@ use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\Directory\Exceptions\DirectoryException;
 use App\Services\Meetings\MeetingService;
+use App\Services\OperationalControl\ProactiveProposalService;
 use App\Services\Sources\CrossSourceStatusService;
 use App\Services\Synthesis\CrossSourceSynthesisService;
 use App\Services\Synthesis\DTO\SynthesisScope;
@@ -142,6 +143,16 @@ final class GetPersonStatusTool implements JarvisTool
                     ...$structured,
                     'commitments' => $activeCommitments,
                     'recent_meetings' => $recentMeetings,
+                    'proposals' => $personIdResolved > 0
+                        ? array_map(
+                            fn ($proposal): array => [
+                                'id' => $proposal->id,
+                                'title' => $proposal->title,
+                                'href' => '/lavr/proactive/'.$proposal->id,
+                            ],
+                            app(ProactiveProposalService::class)->pendingForPerson($context->user, $personIdResolved),
+                        )
+                        : [],
                     'knowledge' => $knowledge,
                     ...$sourceFacts,
                 ]);

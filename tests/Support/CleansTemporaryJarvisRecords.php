@@ -35,8 +35,11 @@ use App\Models\MemorySource;
 use App\Models\Message;
 use App\Models\MessageAttachment;
 use App\Models\MessageTopicRelation;
+use App\Models\OperationalEvent;
 use App\Models\Organization;
 use App\Models\Person;
+use App\Models\ProactiveProposal;
+use App\Models\ProactiveProposalAudit;
 use App\Models\Project;
 use App\Models\ProjectSourceBinding;
 use App\Models\Reminder;
@@ -137,6 +140,15 @@ trait CleansTemporaryJarvisRecords
         }
         if (Schema::hasTable('tool_execution_logs')) {
             ToolExecutionLog::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('proactive_proposal_audits')) {
+            ProactiveProposalAudit::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('proactive_proposals')) {
+            ProactiveProposal::query()->where('user_id', $user->id)->delete();
+        }
+        if (Schema::hasTable('operational_events')) {
+            OperationalEvent::query()->where('user_id', $user->id)->delete();
         }
         if (Schema::hasTable('source_items')) {
             SourceItem::query()->where('user_id', $user->id)->delete();

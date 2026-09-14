@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Ai\DTO\ToolCall;
 use App\Services\Ai\DTO\ToolDefinition;
 use App\Services\Ai\DTO\ToolResult;
+use App\Services\OperationalControl\ProactiveProposalService;
 use App\Services\Sources\CrossSourceStatusService;
 use App\Services\Synthesis\CrossSourceSynthesisService;
 use App\Services\Synthesis\DTO\SynthesisScope;
@@ -90,6 +91,14 @@ final class GetProjectStatusTool implements JarvisTool
         $project = $this->findProject($context->user, $projectId, $name);
         if ($project !== null) {
             $extra = $this->crossSource->project($context->user, $project);
+            $extra['proposals'] = array_map(
+                fn ($proposal): array => [
+                    'id' => $proposal->id,
+                    'title' => $proposal->title,
+                    'href' => '/lavr/proactive/'.$proposal->id,
+                ],
+                app(ProactiveProposalService::class)->pendingForProject($context->user, (int) $project->id),
+            );
         }
 
         return ToolResult::success($call->id, $this->name(), [

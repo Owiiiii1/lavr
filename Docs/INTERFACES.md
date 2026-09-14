@@ -22,7 +22,7 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | Telegram DM | Bot webhook `/telegram/webhook` | Fast chat, pairing via `access_code`, optional voice in/out |
 | Zoom | `POST /webhooks/zoom` | Cloud transcript ingest (Phase 5B; live E2E not validated) |
 | Telegram Groups | Same bot | Source / analysis; not the CEO’s personal UI |
-| Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification centers + Overview + Voice + People / Organizations / Projects / Meetings / Commitments |
+| Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification / Proactive centers + Overview + Voice + People / Organizations / Projects / Meetings / Commitments |
 | Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED (needs token + pairing) |
 | Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/people`, `/organizations`, `/telegram-groups`, …) | Technical management. Settings → Integrations lists **each** Google account (label, health, test/disable/reconnect) without tokens. |
 | Legacy paths | `GET /jarvis`, `GET /chat` | Redirect to `/lavr` |
@@ -92,6 +92,7 @@ Target sections (product UX, not a current route map):
 | Waiting For | What the CEO is waiting on |
 | Decisions | [DOMAIN_MODEL.md](DOMAIN_MODEL.md#decisions) |
 | Reports | Scheduled reports + Executive Brief (`/lavr/briefs`) |
+| Proactive | Operational control (`/lavr/proactive`) — needs attention, suggested actions, waiting approval, recently handled, dismissed |
 | Knowledge | Documents / index — [KNOWLEDGE_LAYER.md](KNOWLEDGE_LAYER.md) |
 | Notifications | Inbox |
 | Settings | Assistant, voice, integrations, policies; **UI language** and **preferred assistant language** (separate; default `uk`) |

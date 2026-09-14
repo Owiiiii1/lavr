@@ -6,6 +6,7 @@ Canonical automation architecture. Current watcher/report/reminder **implementat
 - [TASKS_AND_PRODUCTIVITY.md](TASKS_AND_PRODUCTIVITY.md) (briefs / proactive)
 - [REMINDERS.md](REMINDERS.md)
 - [EVENT_MODEL.md](EVENT_MODEL.md)
+- [PROACTIVE_OPERATIONAL_CONTROL.md](PROACTIVE_OPERATIONAL_CONTROL.md)
 
 Those files describe **CURRENT** code. This file defines the **TARGET** engine and how current objects must be interpreted so they do not semantically collide.
 
@@ -61,8 +62,8 @@ ADR-277, ADR-278.
 | **Scheduled Report** | Periodic **composed digest** at clock time | `scheduled_reports` | Same |
 | **Executive Brief** | Morning attention layer | `executive_briefs` + `automation_runs` | Evening/weekly UI |
 | **Leadership Review** | Weekly process quality | `leadership_reviews` + `automation_runs` | First-class Decisions |
-| **Event rule** | On operational event → automation | Partial (watcher poll + knowledge events + proactive heuristics) | First-class [EVENT_MODEL.md](EVENT_MODEL.md) |
-| **Follow-up** | Commitment / waiting tracking | In-app commitment notifications + `commitments:refresh-statuses`; Knowledge fallback remains | Policy-gated, commitment-linked (Phase 7/11) |
+| **Event rule** | On operational event → automation | First-class `operational_events` + typed rules ([PROACTIVE_OPERATIONAL_CONTROL.md](PROACTIVE_OPERATIONAL_CONTROL.md)); lightweight `AutomationEvent` remains a log line | No generic no-code DSL |
+| **Follow-up** | Commitment / waiting tracking | In-app commitment notifications + `commitments:refresh-statuses` + Phase 11 proposals | Policy-gated; no silent third-party send |
 
 Routing already exists in tools (`CreateReminderTool`, `CreateWatcherTool`, `ScheduledReportIntent`, `AutomationIntentRouter`) and stays strict. Periodic mail digest is only a Scheduled Report. `WatcherDigestRequest` remains for **legacy evaluation tests**, not the create-tool path.
 
@@ -77,7 +78,8 @@ Routing already exists in tools (`CreateReminderTool`, `CreateWatcherTool`, `Sch
 | `jarvis:watchers:dispatch` | 5 min | Claim due watchers → `EvaluateWatcherJob` |
 | `jarvis:reports:dispatch` | 5 min | Scheduled reports |
 | `jarvis:briefs:dispatch` | 1 min | Opt-in productivity briefs |
-| `jarvis:proactive:dispatch` | 5 min | Heuristic suggestions (no external side-effect) |
+| `jarvis:proactive:dispatch` | 5 min | B.2 heuristic suggestions (no external side-effect) |
+| `operational-control:scan` | 10 min | Phase 11 observe → assess → propose (plus event-driven hooks) |
 | `commitments:refresh-statuses` | 15 min | Deterministic `due_soon` / `overdue`; notifies once per status transition |
 | `automation:recover-stale-runs` | 15 min | Processing `automation_runs` older than N minutes → `retryable` / `failed_stale` |
 
@@ -112,13 +114,13 @@ Condition + source + interval + cursor fingerprint + enabled + health. Notify on
 
 ### External actions
 
-`ExternalActionPolicy`: read / suggest / draft / execute. Third-party writes default to **suggest**. Watcher `propose_action` never silent-sends email, Telegram to a person, calendar, or CRM.
+`ExternalActionPolicy`: read / suggest / draft / execute. Third-party writes default to **suggest** (Owner `third_party_execute` default off). Watcher `propose_action` and Phase 11 proposals never silent-send email, Telegram to a person, calendar, or CRM. Stale proposals are revalidated before execute.
 
 ### Health
 
 Computed `healthy` / `degraded` / `blocked` / `disabled` on reminders, watchers, reports. Workspace shows last human result + badge. Admin `/automation-runs` is the technical log.
 
-Lightweight `AutomationEvent` (`commitment.overdue`, `watcher.matched`, `report.completed`) is logged; there is no Phase 11 event bus table.
+Lightweight `AutomationEvent` (`commitment.overdue`, `watcher.matched`, `report.completed`) is still logged. Phase 11 first-class store is `operational_events` + `proactive_proposals`. [EVENT_MODEL.md](EVENT_MODEL.md).
 
 ---
 
@@ -190,6 +192,6 @@ Default third-party contact: ask first. [COMMITMENTS.md](COMMITMENTS.md).
 
 ## Hardening work (Phase 7)
 
-**IMPLEMENTED** 2026-09-10. See [Development/LAVR_PHASE_7_REPORT.md](Development/LAVR_PHASE_7_REPORT.md). Executive Brief (Phase 8) hangs on the same `automation_runs` contract (`AutomationType::ExecutiveBrief`). Remaining TARGET: full event bus, custom rule DSL — not this phase.
+**IMPLEMENTED** 2026-09-10. See [Development/LAVR_PHASE_7_REPORT.md](Development/LAVR_PHASE_7_REPORT.md). Executive Brief (Phase 8) hangs on the same `automation_runs` contract (`AutomationType::ExecutiveBrief`). Phase 11 added typed operational rules and `operational_events` — **not** a custom Zapier DSL.
 
 Watchers and scheduled reports may name `integration_account_id`, `project_id`, or a Telegram group. Omit account id to use all enabled Gmail accounts. Reminders stay unrelated to integrations. [MULTI_SOURCE_INTEGRATION.md](MULTI_SOURCE_INTEGRATION.md).

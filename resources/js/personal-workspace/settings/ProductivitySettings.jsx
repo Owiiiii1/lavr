@@ -18,6 +18,15 @@ export default function ProductivitySettings({ surface, settings, capabilities }
         weekly_review_weekday: Number(settings.productivity?.weekly_review_weekday || 7),
         weekly_review_local_time: settings.productivity?.weekly_review_local_time || '18:00',
         proactive_enabled: Boolean(settings.productivity?.proactive_enabled),
+        operational_alerts_enabled: settings.productivity?.operational_alerts_enabled !== false,
+        operational_min_severity: settings.productivity?.operational_min_severity || 'high',
+        operational_max_alerts_per_day: settings.productivity?.operational_max_alerts_per_day || 6,
+        quiet_hours_start: settings.productivity?.quiet_hours_start || '',
+        quiet_hours_end: settings.productivity?.quiet_hours_end || '',
+        critical_bypass_quiet_hours: settings.productivity?.critical_bypass_quiet_hours !== false,
+        auto_create_reminders: Boolean(settings.productivity?.auto_create_reminders),
+        auto_draft_messages: Boolean(settings.productivity?.auto_draft_messages),
+        third_party_execute: Boolean(settings.productivity?.third_party_execute),
         morning_brief_enabled: settings.productivity?.morning_brief_enabled !== false,
         morning_brief_local_time: settings.productivity?.morning_brief_local_time || '08:30',
         morning_brief_telegram: settings.productivity?.morning_brief_telegram !== false,
@@ -256,6 +265,84 @@ export default function ProductivitySettings({ surface, settings, capabilities }
                                 type="checkbox"
                                 checked={Boolean(productivityForm.data.proactive_enabled)}
                                 onChange={(event) => productivityForm.setData('proactive_enabled', event.target.checked)}
+                            />
+                        </label>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Operational alerts</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.operational_alerts_enabled)}
+                                onChange={(event) => productivityForm.setData('operational_alerts_enabled', event.target.checked)}
+                            />
+                        </label>
+                        <label className="block text-sm">
+                            Minimum severity
+                            <select
+                                value={productivityForm.data.operational_min_severity}
+                                onChange={(event) => productivityForm.setData('operational_min_severity', event.target.value)}
+                                className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-slate-100"
+                            >
+                                <option value="critical">critical</option>
+                                <option value="high">high</option>
+                                <option value="normal">normal</option>
+                                <option value="low">low</option>
+                            </select>
+                        </label>
+                        <label className="block text-sm">
+                            Max alerts / day
+                            <input
+                                type="number"
+                                min="1"
+                                max="20"
+                                value={productivityForm.data.operational_max_alerts_per_day}
+                                onChange={(event) => productivityForm.setData('operational_max_alerts_per_day', Number(event.target.value))}
+                                className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-slate-100"
+                            />
+                        </label>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                            <input
+                                type="time"
+                                value={productivityForm.data.quiet_hours_start}
+                                onChange={(event) => productivityForm.setData('quiet_hours_start', event.target.value)}
+                                className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-slate-100"
+                            />
+                            <input
+                                type="time"
+                                value={productivityForm.data.quiet_hours_end}
+                                onChange={(event) => productivityForm.setData('quiet_hours_end', event.target.value)}
+                                className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-slate-100"
+                            />
+                        </div>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Critical may bypass quiet hours</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.critical_bypass_quiet_hours)}
+                                onChange={(event) => productivityForm.setData('critical_bypass_quiet_hours', event.target.checked)}
+                            />
+                        </label>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Auto-create personal reminders</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.auto_create_reminders)}
+                                onChange={(event) => productivityForm.setData('auto_create_reminders', event.target.checked)}
+                            />
+                        </label>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Auto-draft messages</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.auto_draft_messages)}
+                                onChange={(event) => productivityForm.setData('auto_draft_messages', event.target.checked)}
+                            />
+                        </label>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>Third-party execute (off by default)</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.third_party_execute)}
+                                onChange={(event) => productivityForm.setData('third_party_execute', event.target.checked)}
                             />
                         </label>
                         <button

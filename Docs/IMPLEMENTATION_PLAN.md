@@ -200,15 +200,15 @@ Target: `recording.transcript_completed` webhook → validate → deduplicate �
 
 ## Phase 10 — Multi-source business integration
 
-**IMPLEMENTED** 2026-09-14. Report: [Development/LAVR_PHASE_10_REPORT.md](Development/LAVR_PHASE_10_REPORT.md). Multiple Google accounts, Project source bindings, Telegram groups as sources, commitment candidates, provenance. **REAL MULTI-ACCOUNT LIVE VALIDATION: NOT VALIDATED**. Do not restart this phase. Do not connect developer personal accounts here. Do not build Phase 11 autonomy or Phase 12 purge.
+**IMPLEMENTED** 2026-09-14. Report: [Development/LAVR_PHASE_10_REPORT.md](Development/LAVR_PHASE_10_REPORT.md). Multiple Google accounts, Project source bindings, Telegram groups as sources, commitment candidates, provenance. **REAL MULTI-ACCOUNT LIVE VALIDATION: NOT VALIDATED**. Do not restart this phase. Do not connect developer personal accounts here. Do not run Phase 12 purge from this phase.
 
 ---
 
 ## Phase 11 — Proactive operational control
 
-**Goal.** Once People, Meetings, Commitments, and the Automation Engine exist, LAVR puts agreements on control without a special CEO command, and notifies only when attention is due.
+**IMPLEMENTED** 2026-09-14. Report: [Development/LAVR_PHASE_11_REPORT.md](Development/LAVR_PHASE_11_REPORT.md). Canonical: [PROACTIVE_OPERATIONAL_CONTROL.md](PROACTIVE_OPERATIONAL_CONTROL.md). First-class `operational_events` + `proactive_proposals`, typed rules, assessment, quiet hours/caps/cooldowns, stale revalidation, policy-gated third-party writes, Proactive Center. **LIVE PROACTIVE CAMPAIGN: NOT VALIDATED**. Do not restart this phase. Do not connect developer personal accounts. Do not autonomously message employees.
 
-**Depends on** Phases 4–7 (and 5B for automatic Zoom-sourced commitments).
+**Depends on** Phases 4–10.
 
 ---
 

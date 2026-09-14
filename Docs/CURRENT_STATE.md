@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-14 (Phase 10 multi-source; Phase 9 Leadership Review; Phase 8 Executive Brief)  
+**Date:** 2026-09-14 (Phase 11 proactive operational control; Phase 10 multi-source)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -43,8 +43,9 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Zoom Integration | Server-to-Server OAuth + `POST /webhooks/zoom` + `ProcessZoomTranscriptJob` → existing Meeting Intelligence. **LIVE ZOOM E2E: NOT VALIDATED** | Same; no bulk historical import yet |
 | Commitments | First-class `commitments` + evidence; email/Telegram extractors promote `detected` (not `open`). Knowledge fallback only when the table is empty | Same; Owner confirms operational facts |
 | Decisions | Group knowledge / events | First-class `decisions` |
-| Automation | Watchers + scheduled reports + briefs + proactive + `automation_runs` + morning Executive Brief + weekly Leadership Review; watcher/report source can name account/project | Same |
-| Executive Brief | First-class `executive_briefs` (morning); Today + `/lavr/briefs`; Telegram compact; optional Leadership signal; multi-account Gmail/Calendar; timeout → partial; **Owner live synthetic: NOT VALIDATED** | Evening/weekly UI not expanded |
+| Automation | Watchers + scheduled reports + briefs + B.2 proactive + `automation_runs` + morning Executive Brief + weekly Leadership Review + Phase 11 operational scan; watcher/report source can name account/project | Same |
+| Proactive control | First-class `operational_events` + `proactive_proposals`; typed rules; policy-gated execute; Proactive Center `/lavr/proactive`; **LIVE CAMPAIGN: NOT VALIDATED** | Live Owner campaign later |
+| Executive Brief | First-class `executive_briefs` (morning); Today + `/lavr/briefs`; Telegram compact; optional Leadership signal; multi-account Gmail/Calendar; unresolved high/critical non-commitment proactive items; timeout → partial; **Owner live synthetic: NOT VALIDATED** | Evening/weekly UI not expanded |
 | Multi-source | Multiple Google accounts, Project bindings, `source_items`, Telegram group sources; **LIVE MULTI-ACCOUNT: NOT VALIDATED** | Bitrix/API connectors later |
 | Leadership Review | First-class `leadership_reviews`; `/lavr/leadership`; process metrics/findings (not personality); **Owner live synthetic: NOT VALIDATED** | First-class Decisions remain later |
 | Onboarding | Owner profile `completed` (legacy skip) | Business-map onboarding |
@@ -99,7 +100,7 @@ Detail: [Development/LAVR_PHASE_1_REPORT.md](Development/LAVR_PHASE_1_REPORT.md)
 | Domain | `lavr.youngfashionshow.com` |
 | Document root | `/var/www/lavr/public` |
 | TLS | Installed (webroot certbot) for this hostname only |
-| Scheduler (app) | `jarvis:reminders:dispatch` 1m; `jarvis:tasks:dispatch` / `jarvis:watchers:dispatch` / `jarvis:reports:dispatch` / `jarvis:proactive:dispatch` 5m; `jarvis:briefs:dispatch` 1m; `commitments:refresh-statuses` 15m; plus reliability/voice/purge as in `routes/console.php` |
+| Scheduler (app) | `jarvis:reminders:dispatch` 1m; `jarvis:tasks:dispatch` / `jarvis:watchers:dispatch` / `jarvis:reports:dispatch` / `jarvis:proactive:dispatch` 5m; `jarvis:briefs:dispatch` 1m; `operational-control:scan` 10m; `commitments:refresh-statuses` 15m; plus reliability/voice/purge as in `routes/console.php` |
 | Telegram queue | host-specific flock worker (deploy crontab) |
 
 Vite production build on deploy (`public/build` gitignored).
@@ -110,9 +111,9 @@ Vite production build on deploy (`public/build` gitignored).
 
 Engine: **MySQL**, database `lavr`. CRM tables dropped historically (M0). App migrations Ran.
 
-**Present:** users, conversations, messages, memories, knowledge_*, tasks, reminders, watchers, scheduled_reports, projects, people, person_roles, person_identities, employee_profiles, organizations, directory_relationships, project_people, project_organizations, project_source_bindings, source_items, meetings, meeting_participants, meeting_artifacts, meeting_analyses, commitments, commitment_evidence, commitment_status_history, telegram_groups, integration_accounts, notifications, voice, storage, etc.
+**Present:** users, conversations, messages, memories, knowledge_*, tasks, reminders, watchers, scheduled_reports, projects, people, person_roles, person_identities, employee_profiles, organizations, directory_relationships, project_people, project_organizations, project_source_bindings, source_items, meetings, meeting_participants, meeting_artifacts, meeting_analyses, commitments, commitment_evidence, commitment_status_history, telegram_groups, integration_accounts, operational_events, proactive_proposals, proactive_proposal_audits, notifications, voice, storage, etc.
 
-**Absent:** first-class `decisions`, operational `events` bus.
+**Absent:** first-class `decisions`.
 
 See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names — code wins).
 
@@ -134,6 +135,7 @@ See [DATABASE.md](DATABASE.md) for schema commentary (may still use JARVIS names
 | Projects | `/projects` admin + `/lavr/projects` | IMPLEMENTED (business context + source bindings) |
 | Meetings | `/meetings` admin + `/lavr/meetings` | IMPLEMENTED (manual + Zoom ingest; live Zoom E2E NOT VALIDATED) |
 | Commitments | `/commitments` admin + `/lavr/commitments` | IMPLEMENTED / Owner live workflow NOT VALIDATED |
+| Proactive Center | `/lavr/proactive` | IMPLEMENTED / LIVE CAMPAIGN NOT VALIDATED |
 | People | `/people` admin + `/lavr/people` | IMPLEMENTED |
 | Organizations | `/organizations` admin + `/lavr/organizations` | IMPLEMENTED |
 | Telegram Groups | `/telegram-groups` | IMPLEMENTED / NOT VALIDATED as campaign |
@@ -168,6 +170,7 @@ Condensed. Layer docs hold detail.
 | Commitments | First-class rows + evidence + Meeting + email/Telegram promotion | IMPLEMENTED / NOT VALIDATED (Owner live) |
 | Google Gmail/Calendar | Multi-account tools + OAuth; no mailbox mirror | Read/send used live historically; **multi-account LIVE NOT VALIDATED**; confirmation UX not MANUAL PASS; no Drive |
 | Multi-source | Bindings, `source_items`, correlation, health | **IMPLEMENTED / LIVE MULTI-ACCOUNT NOT VALIDATED** |
+| Proactive operational control | `operational_events` + proposals + rules + policy gates | **IMPLEMENTED / LIVE CAMPAIGN NOT VALIDATED** |
 | GitHub | Tools + OAuth | NOT VALIDATED campaign |
 | Telegram DM | Pairing, text, voice reply MANUAL PASS; voice input NOT VALIDATED |
 | Telegram Groups | IMPLEMENTED | NOT VALIDATED campaign |
@@ -196,13 +199,13 @@ Preferred interface language and preferred assistant language are **IMPLEMENTED*
 
 - Full Telegram Mini App E2E on a real client (needs existing bot token + Owner pairing in MySQL `lavr`; see [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md))
 - first-class `decisions` (Meeting Intelligence still stores decisions as analysis JSON)
-- Email / Telegram commitment extractors (Meeting promotion + manual create are CURRENT)
 - Owner live commitments workflow (code **IMPLEMENTED**, not Owner-confirmed)
 - Zoom Integration: **IMPLEMENTED / LIVE ZOOM E2E NOT VALIDATED** (S2S OAuth, webhook, transcript ingest; no live Owner Zoom credentials on this host)
 - Owner live automation synthetic scenarios A–E (code **IMPLEMENTED**, not Owner-confirmed)
 - Owner live Executive Brief synthetic morning scenario (code **IMPLEMENTED**, not Owner-confirmed)
 - Owner live Leadership Review synthetic dataset (code **IMPLEMENTED**, not Owner-confirmed)
-- Multi-mailbox Google (one active account MVP)
+- Live multi-account Google campaign (**IMPLEMENTED** / **NOT VALIDATED**)
+- Live proactive campaign (**IMPLEMENTED** / **NOT VALIDATED**; [PROACTIVE_OPERATIONAL_CONTROL.md](PROACTIVE_OPERATIONAL_CONTROL.md))
 - Owner UI localization and preferred assistant language (**IMPLEMENTED** for current Owner Workspace surfaces). Admin technical UI is not fully translated. Do not treat Admin `locale` `en`/`ru` fragments as the product locale system.
 - Desktop, Mobile, public registration, Neo4j, wake word, SSE for scheduler events
 
@@ -212,6 +215,6 @@ Live campaigns still open: [DEFERRED_VALIDATION.md](DEFERRED_VALIDATION.md).
 
 ## 9. TARGET (pointer only)
 
-Do not implement from this section. Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phases 3A–12.
+Do not implement from this section. Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 12 polish. Phase 11 is **IMPLEMENTED**.
 
 Architecture sketch: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Decisions: ADR-266+ in [DECISIONS.md](DECISIONS.md). Localization: Phase **3C** in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) — **IMPLEMENTED** (Owner Workspace). Admin kit copy remains untranslated.

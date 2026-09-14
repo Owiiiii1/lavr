@@ -10,6 +10,7 @@ use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\LeadershipReview\LeadershipReviewService;
 use App\Services\Locale\OwnerLocaleResolver;
+use App\Services\OperationalControl\ProactiveProposalService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,6 +22,7 @@ class JarvisWorkspacePeopleController extends Controller
         private readonly CommitmentService $commitments,
         private readonly LeadershipReviewService $leadership,
         private readonly OwnerLocaleResolver $locales,
+        private readonly ProactiveProposalService $proposals,
     ) {}
 
     public function index(Request $request): Response
@@ -68,6 +70,10 @@ class JarvisWorkspacePeopleController extends Controller
                 $request->user(),
                 $person,
                 $this->locales->interfaceLocale($request->user()),
+            ),
+            'proposals' => array_map(
+                fn ($proposal): array => $this->proposals->serialize($proposal),
+                $this->proposals->pendingForPerson($request->user(), (int) $person->id),
             ),
         ]);
     }

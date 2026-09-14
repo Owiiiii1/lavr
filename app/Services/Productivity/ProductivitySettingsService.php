@@ -31,6 +31,17 @@ final class ProductivitySettingsService
             'weekly_review_weekday' => (int) config('productivity.briefs.weekly_weekday', 7),
             'weekly_review_local_time' => (string) config('productivity.briefs.weekly_local_time', '18:00'),
             'proactive_enabled' => false,
+            'operational_alerts_enabled' => true,
+            'operational_min_severity' => (string) config('operational_control.default_min_severity', 'high'),
+            'operational_max_alerts_per_day' => (int) config('operational_control.default_max_alerts_per_day', 6),
+            'quiet_hours_start' => null,
+            'quiet_hours_end' => null,
+            'critical_bypass_quiet_hours' => true,
+            'auto_create_reminders' => false,
+            'auto_draft_messages' => false,
+            'third_party_execute' => false,
+            'disabled_operational_rules' => [],
+            'operational_rule_prefs' => [],
             'morning_brief_enabled' => true,
             'morning_brief_local_time' => (string) config('executive_brief.morning_local_time', '08:30'),
             'morning_brief_telegram' => true,
@@ -64,6 +75,16 @@ final class ProductivitySettingsService
             'weekly_review_weekday' => $this->normalizeWeekday($attributes['weekly_review_weekday'] ?? $settings->weekly_review_weekday ?? $defaults->weekly_review_weekday),
             'weekly_review_local_time' => $this->normalizeTime($attributes['weekly_review_local_time'] ?? $settings->weekly_review_local_time ?? $defaults->weekly_review_local_time),
             'proactive_enabled' => (bool) ($attributes['proactive_enabled'] ?? $settings->proactive_enabled ?? $defaults->proactive_enabled),
+            'operational_alerts_enabled' => (bool) ($attributes['operational_alerts_enabled'] ?? $settings->operational_alerts_enabled ?? $defaults->operational_alerts_enabled),
+            'operational_min_severity' => $this->normalizeSeverity($attributes['operational_min_severity'] ?? $settings->operational_min_severity ?? $defaults->operational_min_severity),
+            'operational_max_alerts_per_day' => $this->normalizeCap($attributes['operational_max_alerts_per_day'] ?? $settings->operational_max_alerts_per_day ?? $defaults->operational_max_alerts_per_day),
+            'quiet_hours_start' => $this->normalizeOptionalTime($attributes['quiet_hours_start'] ?? $settings->quiet_hours_start ?? $defaults->quiet_hours_start),
+            'quiet_hours_end' => $this->normalizeOptionalTime($attributes['quiet_hours_end'] ?? $settings->quiet_hours_end ?? $defaults->quiet_hours_end),
+            'critical_bypass_quiet_hours' => (bool) ($attributes['critical_bypass_quiet_hours'] ?? $settings->critical_bypass_quiet_hours ?? $defaults->critical_bypass_quiet_hours),
+            'auto_create_reminders' => (bool) ($attributes['auto_create_reminders'] ?? $settings->auto_create_reminders ?? $defaults->auto_create_reminders),
+            'auto_draft_messages' => (bool) ($attributes['auto_draft_messages'] ?? $settings->auto_draft_messages ?? $defaults->auto_draft_messages),
+            'third_party_execute' => (bool) ($attributes['third_party_execute'] ?? $settings->third_party_execute ?? $defaults->third_party_execute),
+            'disabled_operational_rules' => $this->normalizeRuleList($attributes['disabled_operational_rules'] ?? $settings->disabled_operational_rules ?? $defaults->disabled_operational_rules),
             'morning_brief_enabled' => (bool) ($attributes['morning_brief_enabled'] ?? $settings->morning_brief_enabled ?? $defaults->morning_brief_enabled),
             'morning_brief_local_time' => $this->normalizeTime($attributes['morning_brief_local_time'] ?? $settings->morning_brief_local_time ?? $defaults->morning_brief_local_time),
             'morning_brief_telegram' => (bool) ($attributes['morning_brief_telegram'] ?? $settings->morning_brief_telegram ?? $defaults->morning_brief_telegram),
@@ -96,6 +117,16 @@ final class ProductivitySettingsService
             'weekly_review_weekday' => (int) $settings->weekly_review_weekday,
             'weekly_review_local_time' => (string) $settings->weekly_review_local_time,
             'proactive_enabled' => (bool) $settings->proactive_enabled,
+            'operational_alerts_enabled' => (bool) ($settings->operational_alerts_enabled ?? true),
+            'operational_min_severity' => (string) ($settings->operational_min_severity ?: 'high'),
+            'operational_max_alerts_per_day' => (int) ($settings->operational_max_alerts_per_day ?: 6),
+            'quiet_hours_start' => $settings->quiet_hours_start,
+            'quiet_hours_end' => $settings->quiet_hours_end,
+            'critical_bypass_quiet_hours' => (bool) ($settings->critical_bypass_quiet_hours ?? true),
+            'auto_create_reminders' => (bool) ($settings->auto_create_reminders ?? false),
+            'auto_draft_messages' => (bool) ($settings->auto_draft_messages ?? false),
+            'third_party_execute' => (bool) ($settings->third_party_execute ?? false),
+            'disabled_operational_rules' => is_array($settings->disabled_operational_rules) ? $settings->disabled_operational_rules : [],
             'morning_brief_enabled' => (bool) $settings->morning_brief_enabled,
             'morning_brief_local_time' => (string) ($settings->morning_brief_local_time ?: '08:30'),
             'morning_brief_telegram' => (bool) $settings->morning_brief_telegram,
@@ -205,5 +236,44 @@ final class ProductivitySettingsService
         }
 
         return $day;
+    }
+
+    private function normalizeOptionalTime(mixed $value): ?string
+    {
+        $raw = is_string($value) ? trim($value) : '';
+        if ($raw === '') {
+            return null;
+        }
+
+        return preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $raw) === 1 ? $raw : null;
+    }
+
+    private function normalizeSeverity(mixed $value): string
+    {
+        $raw = is_string($value) ? mb_strtolower(trim($value)) : '';
+
+        return in_array($raw, ['critical', 'high', 'normal', 'low'], true) ? $raw : 'high';
+    }
+
+    private function normalizeCap(mixed $value): int
+    {
+        $cap = (int) $value;
+
+        return max(1, min(20, $cap));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function normalizeRuleList(mixed $value): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(
+            static fn (mixed $item): string => is_string($item) ? $item : '',
+            $value,
+        )));
     }
 }

@@ -84,7 +84,7 @@ Remove Google/Telegram source: revoke credentials where applicable, disable proc
 
 ## External connectors
 
-`BusinessSourceConnector`: `health`, `collect`, `normalize`, `resolveIdentities`, `sourceReference`. Reference: `MockExternalConnector`. Bitrix24 / dashboards / custom REST are Phase 11+ via APIs, not browser scraping.
+`BusinessSourceConnector`: `health`, `collect`, `normalize`, `resolveIdentities`, `sourceReference`. Reference: `MockExternalConnector`. Bitrix24 / dashboards / custom REST remain later via APIs, not browser scraping. Phase 11 consumes source health and `source_items` for operational events; it does not add new connectors.
 
 ## TEST DATA PROVENANCE / HANDOVER
 
@@ -103,6 +103,7 @@ Phase 12 will implement destructive cleanup. Dependency graph:
 | Commitments `detected` never confirmed | mixed | keep | Owner decision: dismiss vs keep |
 | Commitments `open` / `confirmed` | canonical | **keep** | keep |
 | Meetings / Zoom artifacts | Zoom/meeting source | Zoom webhook unchanged | separate Zoom test data policy |
+| `operational_events` / `proactive_proposals` | source_type / source_id / evidence_pointer | keep (facts still tracked) | purge rows derived from test integrations; keep confirmed canonical entities |
 
 Do not copy JARVIS tokens or databases. Do not connect developer personal accounts from this phase.
 

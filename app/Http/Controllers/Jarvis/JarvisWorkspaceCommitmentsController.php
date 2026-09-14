@@ -8,6 +8,7 @@ use App\Models\Person;
 use App\Models\Project;
 use App\Services\Commitments\CommitmentService;
 use App\Services\Commitments\Exceptions\CommitmentException;
+use App\Services\OperationalControl\ProactiveProposalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,6 +18,7 @@ class JarvisWorkspaceCommitmentsController extends Controller
 {
     public function __construct(
         private readonly CommitmentService $commitments,
+        private readonly ProactiveProposalService $proposals,
     ) {}
 
     public function index(Request $request): Response
@@ -63,6 +65,10 @@ class JarvisWorkspaceCommitmentsController extends Controller
             'commitment' => $this->commitments->serialize($commitment),
             'people' => Person::query()->where('user_id', $request->user()->id)->orderBy('display_name')->get(['id', 'display_name']),
             'projects' => Project::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
+            'proposals' => array_map(
+                fn ($proposal): array => $this->proposals->serialize($proposal),
+                $this->proposals->pendingForCommitment($request->user(), (int) $commitment->id),
+            ),
         ]);
     }
 

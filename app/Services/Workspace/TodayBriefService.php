@@ -10,6 +10,7 @@ use App\Services\Integrations\Google\GoogleCalendarService;
 use App\Services\Integrations\IntegrationAccountService;
 use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Notifications\JarvisNotificationService;
+use App\Services\OperationalControl\ProactiveProposalService;
 use App\Services\Reminders\ReminderService;
 use App\Services\Reports\ScheduledReportService;
 use App\Services\Sources\MultiAccountCalendarAggregator;
@@ -30,6 +31,7 @@ final class TodayBriefService
         private readonly OwnerLocaleResolver $locales,
         private readonly CommitmentService $commitments,
         private readonly ExecutiveBriefService $briefs,
+        private readonly ProactiveProposalService $proposals,
     ) {}
 
     /**
@@ -56,12 +58,18 @@ final class TodayBriefService
             $commitments = $this->safeCommitments($user);
         }
 
+        $proactive = $this->topProactive($user);
+        $attention = $sections['attention'] ?? [];
+        if ($proactive !== []) {
+            $attention = array_slice(array_merge($proactive, $attention), 0, 5);
+        }
+
         return [
             'brand' => 'LAVR',
             'date_label' => $now->locale($locale->value)->isoFormat('dddd, D MMMM'),
             'summary' => $serialized['summary'] ?? $this->summary($locale, 0, 0, 0, count($sections['meetings'] ?? [])),
             'executive_brief' => $serialized,
-            'attention' => $sections['attention'] ?? [],
+            'attention' => $attention,
             'today_items' => array_merge($sections['today'] ?? [], $sections['meetings'] ?? []),
             'tasks' => [],
             'reminders' => [],
@@ -71,6 +79,7 @@ final class TodayBriefService
             'calendar_hint' => null,
             'calendar_error' => $this->briefError($serialized, $locale),
             'commitments' => $commitments !== [] ? $commitments : $this->safeCommitments($user),
+            'proactive' => $proactive,
             'ask_href' => '/lavr',
             'brief_href' => $serialized['href'] ?? '/lavr/briefs',
         ];
@@ -110,6 +119,34 @@ final class TodayBriefService
         } catch (\Throwable) {
             return ['unread_count' => 0, 'items' => []];
         }
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function topProactive(User $user): array
+    {
+        try {
+            $rows = $this->proposals->pendingForUser($user, 3);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $items = [];
+        foreach ($rows as $proposal) {
+            if (! in_array($proposal->severity?->value, ['critical', 'high'], true)) {
+                continue;
+            }
+            $items[] = [
+                'id' => $proposal->id,
+                'title' => $proposal->title,
+                'summary' => $proposal->rationale,
+                'href' => '/lavr/proactive/'.$proposal->id,
+                'dedupe_key' => 'proactive:'.$proposal->id,
+            ];
+        }
+
+        return $items;
     }
 
     /**

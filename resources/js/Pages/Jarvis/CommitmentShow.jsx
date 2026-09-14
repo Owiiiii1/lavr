@@ -11,7 +11,7 @@ function Block({ title, children }) {
     );
 }
 
-export default function CommitmentShow({ commitment, people = [], projects = [] }) {
+export default function CommitmentShow({ commitment, people = [], projects = [], proposals = [] }) {
     const { t } = useTranslation();
     const form = useForm({
         title: commitment.title || '',
@@ -90,6 +90,20 @@ export default function CommitmentShow({ commitment, people = [], projects = [] 
                     {commitment.meeting ? (
                         <Link href={`/lavr/meetings/${commitment.meeting.id}`} className="text-sky-300">{commitment.meeting.title}</Link>
                     ) : commitment.source_type}
+                </Block>
+
+                <Block title={t('proactive.title')}>
+                    {(proposals || []).length === 0 ? (
+                        <p>{t('proactive.empty')}</p>
+                    ) : (
+                        <ul className="space-y-2">
+                            {proposals.map((item) => (
+                                <li key={item.id}>
+                                    <Link href={`/lavr/proactive/${item.id}`} className="text-sky-300">{item.title}</Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </Block>
 
                 <Block title={t('commitments.history')}>

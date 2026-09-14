@@ -13,4 +13,9 @@ enum ExternalActionLevel: string
     {
         return $this === self::Execute;
     }
+
+    public function allowsDraft(): bool
+    {
+        return in_array($this, [self::Draft, self::Execute], true);
+    }
 }

@@ -1,6 +1,6 @@
 # Database (actual schema)
 
-> **CURRENT tables.** See `database/migrations/` and [CURRENT_STATE.md](CURRENT_STATE.md). People/organizations (Phase 4), meetings (Phase 5A), and first-class `commitments` (Phase 6) are in MySQL. First-class `decisions` remain TARGET.
+> **CURRENT tables.** See `database/migrations/` and [CURRENT_STATE.md](CURRENT_STATE.md). People/organizations (Phase 4), meetings (Phase 5A), first-class `commitments` (Phase 6), and Phase 11 `operational_events` / `proactive_proposals` are in MySQL. First-class `decisions` remain TARGET.
 
 **Status.** Snapshot 2026-09-05 (plus later migrations in git). Source of truth: `database/migrations/`. This file lists **what exists**; it may omit post-snapshot tables (watchers, scheduled_reports). Code wins.
 

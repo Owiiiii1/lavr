@@ -6,6 +6,7 @@ use App\Enums\AutomationRunOutcome;
 use App\Enums\AutomationType;
 use App\Models\AutomationRun;
 use App\Models\User;
+use App\Services\OperationalControl\OperationalControlHooks;
 use App\Services\Reliability\AsyncFailureClassifier;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
@@ -78,6 +79,11 @@ final class AutomationExecutor
             } catch (Throwable $exception) {
                 $classified = $this->failures->classify($exception);
                 $this->recorder->fail($run, $exception, $classified->retryable);
+
+                try {
+                    app(OperationalControlHooks::class)->onUser($user);
+                } catch (Throwable) {
+                }
 
                 if ($classified->retryable && $rethrowRetryable) {
                     throw $exception;

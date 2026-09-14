@@ -40,6 +40,10 @@ Schedule::command('leadership-reviews:dispatch')
     ->everyMinute()
     ->withoutOverlapping(20);
 
+Schedule::command('operational-control:scan')
+    ->everyTenMinutes()
+    ->withoutOverlapping(15);
+
 Schedule::command('jarvis:attachments:purge-ephemeral')
     ->hourly()
     ->withoutOverlapping(55);

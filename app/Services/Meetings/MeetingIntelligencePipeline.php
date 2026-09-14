@@ -17,6 +17,7 @@ use App\Services\Ai\DTO\AiChatRequest;
 use App\Services\Commitments\CommitmentPromotionService;
 use App\Services\Meetings\Exceptions\MeetingIntelligenceException;
 use App\Services\Memory\StructuredJsonParser;
+use App\Services\OperationalControl\OperationalControlHooks;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -129,6 +130,11 @@ final class MeetingIntelligencePipeline
                     'analysis_id' => $analysis->id,
                     'error' => $exception->getMessage(),
                 ]);
+            }
+
+            try {
+                app(OperationalControlHooks::class)->onMeeting($meeting->fresh() ?? $meeting);
+            } catch (Throwable) {
             }
 
             return $analysis->fresh() ?? $analysis;

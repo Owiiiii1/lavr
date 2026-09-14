@@ -30,6 +30,7 @@ First-class `commitments` exist (2026-09-10). Knowledge `commitment_made` and `C
 | `commitments:refresh-statuses` every 15 min | **IMPLEMENTED** |
 | In-app notifications on open / due_soon / overdue / likely_done (deduped once per status) | **IMPLEMENTED** |
 | Overdue follow-up is a **suggestion** (“нагадати?”); no auto-message to the person | **IMPLEMENTED** (Phase 7) |
+| Phase 11 overdue / likely_done / detected proposals (`remind_person`, `confirm_commitment`, `review_detected_commitment`) | **IMPLEMENTED** (no third-party send until approval/policy) |
 | Commitment transitions recorded on `automation_runs` | **IMPLEMENTED** (Phase 7) |
 | Telegram outbound commitment alerts to Owner (optional linked channel) | **IMPLEMENTED** (Owner channel only; not to third parties) |
 | Email / Telegram extraction pipelines | **IMPLEMENTED (Phase 10)** — `detected`; Owner confirms. Live multi-source **NOT VALIDATED** |
@@ -101,7 +102,5 @@ Logs: `commitment_id`, `person_id`, status transition, source type/id, outcome. 
 
 ## TARGET (later)
 
-- Email / Telegram extractors on the same `CommitmentCandidate` interface (Phase 10 / 11)
-- Follow-up that asks before writing to third parties ([AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md), ADR-280)
-- Automatic likely_done from mail attachments / next meeting (generic `CommitmentEvidenceService` hook exists)
 - Fuzzy merge remains Owner/Admin explicit; no AI auto-merge
+- Live Owner campaign for overdue remind → likely_done confirm (code **IMPLEMENTED**; campaign **NOT VALIDATED**)

@@ -3,7 +3,7 @@ import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link } from '@inertiajs/react';
 import LeadershipInsights from '@/personal-workspace/LeadershipInsights';
 
-export default function PersonShow({ person, commitments = [], operational = {} }) {
+export default function PersonShow({ person, commitments = [], operational = {}, proposals = [] }) {
     const { t } = useTranslation();
 
     return (
@@ -94,6 +94,21 @@ export default function PersonShow({ person, commitments = [], operational = {} 
                                 <li key={item.id}>
                                     <Link href={`/lavr/commitments/${item.id}`} className="text-sky-300">
                                         {item.title} · {item.status}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </Section>
+                <Section title={t('proactive.title')}>
+                    {(proposals || []).length === 0 ? (
+                        <p className="text-slate-500">{t('proactive.empty')}</p>
+                    ) : (
+                        <ul className="space-y-2">
+                            {proposals.map((item) => (
+                                <li key={item.id}>
+                                    <Link href={`/lavr/proactive/${item.id}`} className="text-sky-300">
+                                        {item.title}
                                     </Link>
                                 </li>
                             ))}

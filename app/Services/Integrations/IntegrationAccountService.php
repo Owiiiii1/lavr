@@ -9,6 +9,7 @@ use App\Models\IntegrationAccount;
 use App\Models\User;
 use App\Services\Integrations\Contracts\IntegrationProvider;
 use App\Services\Integrations\Exceptions\IntegrationException;
+use App\Services\OperationalControl\OperationalControlHooks;
 use App\Services\Users\UserCapability;
 use Illuminate\Support\Collection;
 
@@ -175,6 +176,10 @@ final class IntegrationAccountService
             'last_error_code' => $code,
             'last_error_message' => $this->safeError($safeMessage ?? $code),
         ])->save();
+        try {
+            app(OperationalControlHooks::class)->onIntegration($account->fresh() ?? $account);
+        } catch (\Throwable) {
+        }
     }
 
     public function markRevoked(IntegrationAccount $account): void

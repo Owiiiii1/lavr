@@ -4,6 +4,7 @@ namespace App\Services\Automation;
 
 use App\Enums\ExternalActionLevel;
 use App\Models\User;
+use App\Services\Productivity\ProductivitySettingsService;
 
 final class ExternalActionPolicy
 {
@@ -12,15 +13,29 @@ final class ExternalActionPolicy
      */
     public function levelFor(User $user, string $action): ExternalActionLevel
     {
-        unset($user);
         $action = mb_strtolower(trim($action));
+        $settings = app(ProductivitySettingsService::class)->for($user);
 
-        if (in_array($action, ['read', 'search_gmail', 'list_calendar', 'get_commitment'], true)) {
+        if (in_array($action, ['read', 'search_gmail', 'list_calendar', 'get_commitment', 'open_source', 'reconnect_integration'], true)) {
             return ExternalActionLevel::Read;
         }
 
+        if (in_array($action, ['create_reminder', 'create_watcher', 'schedule_followup'], true)) {
+            return ($settings->auto_create_reminders ?? false) === true
+                ? ExternalActionLevel::Execute
+                : ExternalActionLevel::Suggest;
+        }
+
+        if (in_array($action, ['draft_email', 'draft_telegram_message'], true)) {
+            return ($settings->auto_draft_messages ?? false) === true
+                ? ExternalActionLevel::Draft
+                : ExternalActionLevel::Suggest;
+        }
+
         if ($this->isThirdPartyWrite($action)) {
-            return ExternalActionLevel::Suggest;
+            return ($settings->third_party_execute ?? false) === true
+                ? ExternalActionLevel::Execute
+                : ExternalActionLevel::Suggest;
         }
 
         return ExternalActionLevel::Suggest;

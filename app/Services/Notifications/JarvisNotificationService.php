@@ -213,7 +213,7 @@ final class JarvisNotificationService
     private function severityFor(JarvisNotificationType $type): JarvisNotificationSeverity
     {
         return match ($type) {
-            JarvisNotificationType::TaskOverdue, JarvisNotificationType::ProactiveSuggestion, JarvisNotificationType::CommitmentOverdue => JarvisNotificationSeverity::Urgent,
+            JarvisNotificationType::TaskOverdue, JarvisNotificationType::ProactiveSuggestion, JarvisNotificationType::CommitmentOverdue, JarvisNotificationType::OperationalAlert => JarvisNotificationSeverity::Urgent,
             JarvisNotificationType::TaskDue, JarvisNotificationType::WatcherTriggered, JarvisNotificationType::CommitmentDueSoon => JarvisNotificationSeverity::Warning,
             default => JarvisNotificationSeverity::Info,
         };

@@ -13,6 +13,7 @@ use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Services\Commitments\CommitmentPromotionService;
 use App\Services\Integrations\IntegrationAccountService;
+use App\Services\OperationalControl\OperationalControlHooks;
 use Carbon\CarbonImmutable;
 
 final class SourceIngestService
@@ -72,7 +73,13 @@ final class SourceIngestService
         $this->accounts->recordEvent($account);
         $this->applyOperationalFacts($user, $item, $text.' '.$subject, CommitmentSourceType::Email, (bool) ($identity['unresolved'] ?? false));
 
-        return $this->items->markProcessed($item);
+        $processed = $this->items->markProcessed($item);
+        try {
+            app(OperationalControlHooks::class)->onSourceItem($processed);
+        } catch (\Throwable) {
+        }
+
+        return $processed;
     }
 
     public function ingestTelegramMessage(User $user, TelegramGroup $group, Message $message, bool $fromOwner = false): ?SourceItem
@@ -120,7 +127,13 @@ final class SourceIngestService
         $ownerCommand = $fromOwner || $this->isOwnerCommand($message, $fromOwner);
         $this->applyOperationalFacts($user, $item, $text, CommitmentSourceType::Telegram, $ownerCommand || ($identity['person_id'] ?? null) === null);
 
-        return $this->items->markProcessed($item);
+        $processed = $this->items->markProcessed($item);
+        try {
+            app(OperationalControlHooks::class)->onSourceItem($processed);
+        } catch (\Throwable) {
+        }
+
+        return $processed;
     }
 
     private function applyOperationalFacts(

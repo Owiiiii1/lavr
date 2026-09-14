@@ -8,6 +8,7 @@ export default function ProjectShow({
     project,
     commitments = [],
     process = {},
+    proposals = [],
     admin_href,
     available_google_accounts = [],
     available_telegram_groups = [],
@@ -159,6 +160,21 @@ export default function ProjectShow({
                     findings={process.findings || []}
                     emptyLabel={t('leadership.noPatterns')}
                 />
+                <Section title={t('proactive.title')}>
+                    {(proposals || []).length === 0 ? (
+                        <p className="text-slate-500">{t('proactive.empty')}</p>
+                    ) : (
+                        <ul className="space-y-2">
+                            {proposals.map((item) => (
+                                <li key={item.id}>
+                                    <Link href={`/lavr/proactive/${item.id}`} className="text-sky-300">
+                                        {item.title}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </Section>
                 <Section title={t('projects.decisionsFuture')}>
                     <p className="text-slate-500">{t('projects.comingLater')}</p>
                 </Section>

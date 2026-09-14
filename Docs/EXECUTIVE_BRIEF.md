@@ -14,7 +14,7 @@ First-class `executive_briefs` (2026-09-10). Reuses the Phase 7 pipeline (COLLEC
 | --- | --- |
 | `executive_briefs` table + morning/evening/weekly types | **IMPLEMENTED** (UI is morning-first) |
 | Owner settings: enabled, local time, Telegram, in-app, weekends | **IMPLEMENTED** (timezone/locale = Owner profile; default recommendation 08:30, weekends off) |
-| Collectors: commitments, meetings + analysis, calendar, Gmail, blocked integrations, repeat automation failures, optional Leadership signal | **IMPLEMENTED** (Gmail/Calendar **multi-account**; one blocked mailbox → partial) |
+| Collectors: commitments, meetings + analysis, calendar, Gmail, blocked integrations, repeat automation failures, optional Leadership signal, unresolved high/critical proactive items (non-commitment, to avoid duplicate stories) | **IMPLEMENTED** (Gmail/Calendar **multi-account**; one blocked mailbox → partial) |
 | Deterministic priority (`critical`/`high`/`normal`/`low`) + Attention Now | **IMPLEMENTED** |
 | Dedupe keys + previous-brief delta | **IMPLEMENTED** |
 | AI phrasing optional; invalid/truncated/JSON/unknown source → deterministic fallback | **IMPLEMENTED** |
@@ -32,7 +32,7 @@ Empty sections are omitted. Empty morning: short “no critical issues” copy, 
 
 Decisions are aggregated as brief items from Meeting Intelligence / detected commitments / blocked automations. No first-class `decisions` table.
 
-LAVR does not write third parties. Follow-ups are suggestions (“Нагадати?”).
+LAVR does not write third parties. Follow-ups are suggestions (“Нагадати?”). Morning Brief reads current unresolved high/critical proactive items without duplicating commitment overdue/likely_done/detected stories already collected as commitments. [PROACTIVE_OPERATIONAL_CONTROL.md](PROACTIVE_OPERATIONAL_CONTROL.md).
 
 ---
 

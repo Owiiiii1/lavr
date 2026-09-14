@@ -9,6 +9,7 @@ use App\Models\LeadershipReview;
 use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\Person;
+use App\Models\ProactiveProposal;
 use App\Models\Project;
 use App\Models\TelegramGroup;
 use App\Policies\AutomationRunPolicy;
@@ -18,6 +19,7 @@ use App\Policies\LeadershipReviewPolicy;
 use App\Policies\MeetingPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\PersonPolicy;
+use App\Policies\ProactiveProposalPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TelegramGroupPolicy;
 use App\Services\Ai\Contracts\AiChatGateway;
@@ -40,6 +42,18 @@ use App\Services\LeadershipReview\LeadershipSignalDetector;
 use App\Services\Notifications\JarvisNotificationService;
 use App\Services\Notifications\NotificationInbox;
 use App\Services\Notifications\NotificationUrlPolicy;
+use App\Services\OperationalControl\OperationalRuleRegistry;
+use App\Services\OperationalControl\Rules\BlockedIntegrationRule;
+use App\Services\OperationalControl\Rules\DecisionLikeUnresolvedRule;
+use App\Services\OperationalControl\Rules\DetectedCommitmentReviewRule;
+use App\Services\OperationalControl\Rules\ImportantUnansweredEmailRule;
+use App\Services\OperationalControl\Rules\LikelyDoneRule;
+use App\Services\OperationalControl\Rules\MissingFollowUpRule;
+use App\Services\OperationalControl\Rules\OverdueCommitmentRule;
+use App\Services\OperationalControl\Rules\ProjectStaleRule;
+use App\Services\OperationalControl\Rules\RepeatedAutomationFailureRule;
+use App\Services\OperationalControl\Rules\TelegramBlockerRule;
+use App\Services\OperationalControl\Rules\UnresolvedMeetingActionRule;
 use App\Services\Productivity\ProactiveDispatchService;
 use App\Services\Productivity\ProactivePolicy;
 use App\Services\Productivity\ProactiveTriggerDetector;
@@ -47,6 +61,7 @@ use App\Services\Productivity\ProductivityBriefAiSynthesizer;
 use App\Services\Productivity\ProductivityBriefCollector;
 use App\Services\Productivity\ProductivityBriefRenderer;
 use App\Services\Productivity\ProductivityBriefService;
+use App\Services\Productivity\ProductivitySettingsService;
 use App\Services\Productivity\SynthesizesProductivityBrief;
 use App\Services\Reminders\Contracts\SendsReminderTelegram;
 use App\Services\Reminders\Contracts\SendsWebPush;
@@ -145,6 +160,10 @@ use App\Services\Tools\Meetings\FindMeetingTool;
 use App\Services\Tools\Meetings\GetMeetingAnalysisTool;
 use App\Services\Tools\Meetings\GetMeetingTool;
 use App\Services\Tools\Meetings\ListMeetingsTool;
+use App\Services\Tools\OperationalControl\ApproveProactiveProposalTool;
+use App\Services\Tools\OperationalControl\DismissProactiveProposalTool;
+use App\Services\Tools\OperationalControl\ListProactiveProposalsTool;
+use App\Services\Tools\OperationalControl\SnoozeProactiveProposalTool;
 use App\Services\Tools\Reports\CancelScheduledReportTool;
 use App\Services\Tools\Reports\CreateScheduledReportTool;
 use App\Services\Tools\Reports\GetScheduledReportTool;
@@ -390,6 +409,22 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        $this->app->singleton(OperationalRuleRegistry::class, function ($app): OperationalRuleRegistry {
+            return new OperationalRuleRegistry([
+                $app->make(OverdueCommitmentRule::class),
+                $app->make(LikelyDoneRule::class),
+                $app->make(DetectedCommitmentReviewRule::class),
+                $app->make(MissingFollowUpRule::class),
+                $app->make(BlockedIntegrationRule::class),
+                $app->make(RepeatedAutomationFailureRule::class),
+                $app->make(ProjectStaleRule::class),
+                $app->make(UnresolvedMeetingActionRule::class),
+                $app->make(ImportantUnansweredEmailRule::class),
+                $app->make(TelegramBlockerRule::class),
+                $app->make(DecisionLikeUnresolvedRule::class),
+            ], $app->make(ProductivitySettingsService::class));
+        });
+
         $this->app->singleton(ToolRegistry::class, function ($app): ToolRegistry {
             return new ToolRegistry([
                 $app->make(CreateReminderTool::class),
@@ -514,6 +549,10 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(DeleteStorageFileTool::class),
                 $app->make(SearchWebTool::class),
                 $app->make(FetchWebPageTool::class),
+                $app->make(ListProactiveProposalsTool::class),
+                $app->make(ApproveProactiveProposalTool::class),
+                $app->make(DismissProactiveProposalTool::class),
+                $app->make(SnoozeProactiveProposalTool::class),
                 $app->make(ConfirmToolActionTool::class),
                 $app->make(CancelToolActionTool::class),
             ]);
@@ -544,6 +583,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(AutomationRun::class, AutomationRunPolicy::class);
         Gate::policy(ExecutiveBrief::class, ExecutiveBriefPolicy::class);
         Gate::policy(LeadershipReview::class, LeadershipReviewPolicy::class);
+        Gate::policy(ProactiveProposal::class, ProactiveProposalPolicy::class);
 
         RateLimiter::for('telegram-webapp', function (Request $request) {
             $perMinute = max(5, (int) config('telegram.webapp.rate_limit_per_minute', 20));

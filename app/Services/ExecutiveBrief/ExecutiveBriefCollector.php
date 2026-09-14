@@ -10,10 +10,14 @@ use App\Enums\ExecutiveBriefType;
 use App\Enums\IntegrationAccountStatus;
 use App\Enums\MeetingAnalysisStatus;
 use App\Enums\MeetingStatus;
+use App\Enums\OperationalEventType;
+use App\Enums\OperationalSeverity;
+use App\Enums\ProactiveProposalStatus;
 use App\Models\AutomationRun;
 use App\Models\Commitment;
 use App\Models\IntegrationAccount;
 use App\Models\Meeting;
+use App\Models\ProactiveProposal;
 use App\Models\User;
 use App\Services\Integrations\Exceptions\IntegrationException;
 use App\Services\Integrations\Google\GoogleOAuthService;
@@ -63,6 +67,7 @@ final class ExecutiveBriefCollector
             'integrations' => fn () => $this->integrations($user),
             'automations' => fn () => $this->automationFailures($user, $windowStart),
             'leadership' => fn () => ($this->leadership ?? new LeadershipSignalDetector)->items($user),
+            'proactive' => fn () => $this->proactive($user),
         ];
 
         foreach ($sources as $name => $loader) {
@@ -666,6 +671,69 @@ final class ExecutiveBriefCollector
             'gmail' => 'Пошта тимчасово недоступна.',
             default => '',
         };
+    }
+
+    /**
+     * High/critical proactive items that are not already a commitment story.
+     *
+     * @return list<ExecutiveBriefItem>
+     */
+    private function proactive(User $user): array
+    {
+        if (! Schema::hasTable('proactive_proposals')) {
+            return [];
+        }
+
+        $skip = [
+            OperationalEventType::CommitmentOverdue->value,
+            OperationalEventType::CommitmentLikelyDone->value,
+            OperationalEventType::CommitmentDetected->value,
+            OperationalEventType::CommitmentDueSoon->value,
+        ];
+
+        $rows = ProactiveProposal::query()
+            ->with('event')
+            ->where('user_id', $user->id)
+            ->where('status', ProactiveProposalStatus::Pending)
+            ->whereIn('severity', [OperationalSeverity::Critical, OperationalSeverity::High])
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get();
+
+        $items = [];
+        foreach ($rows as $proposal) {
+            $eventType = $proposal->event?->event_type instanceof OperationalEventType
+                ? $proposal->event->event_type->value
+                : null;
+            if (in_array($eventType, $skip, true)) {
+                continue;
+            }
+
+            $priority = $proposal->severity === OperationalSeverity::Critical
+                ? ExecutiveBriefPriority::Critical
+                : ExecutiveBriefPriority::High;
+
+            $items[] = new ExecutiveBriefItem(
+                type: 'proactive_proposal',
+                priority: $priority,
+                title: $proposal->title,
+                summary: $proposal->rationale,
+                section: 'attention',
+                dedupeKey: 'proactive:'.$proposal->id,
+                confidence: 'high',
+                score: $priority === ExecutiveBriefPriority::Critical ? 90 : 70,
+                actionLabel: 'Open',
+                sourceType: 'proactive_proposal',
+                sourceId: (int) $proposal->id,
+                personId: $proposal->person_id ? (int) $proposal->person_id : null,
+                projectId: $proposal->project_id ? (int) $proposal->project_id : null,
+                meetingId: $proposal->meeting_id ? (int) $proposal->meeting_id : null,
+                commitmentId: $proposal->commitment_id ? (int) $proposal->commitment_id : null,
+                deepLink: '/lavr/proactive/'.$proposal->id,
+            );
+        }
+
+        return $items;
     }
 
     private function asUtc(mixed $value): ?CarbonImmutable

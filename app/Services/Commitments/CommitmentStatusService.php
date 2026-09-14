@@ -7,6 +7,7 @@ use App\Enums\CommitmentLifecycleStatus;
 use App\Models\Commitment;
 use App\Models\CommitmentStatusHistory;
 use App\Models\User;
+use App\Services\OperationalControl\OperationalControlHooks;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 
@@ -69,6 +70,11 @@ final class CommitmentStatusService
             'source_type' => $commitment->source_type instanceof \BackedEnum ? $commitment->source_type->value : (string) $commitment->source_type,
             'source_id' => $commitment->source_id,
         ]);
+
+        try {
+            app(OperationalControlHooks::class)->onCommitment($commitment->fresh() ?? $commitment);
+        } catch (\Throwable) {
+        }
 
         return $next;
     }

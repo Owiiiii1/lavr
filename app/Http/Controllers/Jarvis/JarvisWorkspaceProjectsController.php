@@ -10,6 +10,7 @@ use App\Services\Commitments\CommitmentService;
 use App\Services\Directory\DirectoryService;
 use App\Services\LeadershipReview\LeadershipReviewService;
 use App\Services\Locale\OwnerLocaleResolver;
+use App\Services\OperationalControl\ProactiveProposalService;
 use App\Services\Projects\ProjectService;
 use App\Services\Sources\ProjectSourceBindingService;
 use Illuminate\Http\Request;
@@ -25,6 +26,7 @@ class JarvisWorkspaceProjectsController extends Controller
         private readonly LeadershipReviewService $leadership,
         private readonly OwnerLocaleResolver $locales,
         private readonly ProjectSourceBindingService $sourceBindings,
+        private readonly ProactiveProposalService $proposals,
     ) {}
 
     public function index(Request $request): Response
@@ -75,6 +77,10 @@ class JarvisWorkspaceProjectsController extends Controller
                 $request->user(),
                 $project,
                 $this->locales->interfaceLocale($request->user()),
+            ),
+            'proposals' => array_map(
+                fn ($proposal): array => $this->proposals->serialize($proposal),
+                $this->proposals->pendingForProject($request->user(), (int) $project->id),
             ),
             'admin_href' => route('projects.show', $project),
             'available_google_accounts' => IntegrationAccount::query()

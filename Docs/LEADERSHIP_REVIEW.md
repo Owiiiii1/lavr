@@ -27,6 +27,8 @@ First-class `leadership_reviews` (2026-09-14). Pipeline: COLLECT → METRICS →
 | Admin `/leadership-reviews` (counts, regenerate, no transcripts) | **IMPLEMENTED** |
 | Owner live synthetic dataset | **NOT VALIDATED** |
 
+Phase 11 does not add notification-volume metrics. Repeated overdue / unresolved ownership still come from commitments and meeting follow-up gaps. Proposal history is available for a later collector if needed. [PROACTIVE_OPERATIONAL_CONTROL.md](PROACTIVE_OPERATIONAL_CONTROL.md).
+
 Regeneration always creates a **new** historical row. Scheduled key: `leadership_review:{user_id}:weekly:{period_start}`. Manual keys append `:manual:{suffix}`.
 
 Gmail/Calendar absence does not fail the review. Meetings + commitments are enough. Status `partial` if a structured source fails; `insufficient_data` if both meetings and commitments are empty. Email/message **volume is not a productivity metric**. Cross-source evidence may inform follow-up gaps only.

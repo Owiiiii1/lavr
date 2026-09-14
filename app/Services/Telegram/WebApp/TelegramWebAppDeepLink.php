@@ -50,6 +50,10 @@ final class TelegramWebAppDeepLink
             return $this->assertAllowlisted('/lavr/leadership/'.$matches[1]);
         }
 
+        if (preg_match('/^proactive_(\d+)$/', $token, $matches) === 1) {
+            return $this->assertAllowlisted('/lavr/proactive/'.$matches[1]);
+        }
+
         $mapped = match ($token) {
             'today' => '/lavr/today',
             'chat', 'chats' => '/lavr',
@@ -64,6 +68,7 @@ final class TelegramWebAppDeepLink
             'commitments' => '/lavr/commitments',
             'brief', 'briefs' => '/lavr/briefs',
             'leadership' => '/lavr/leadership',
+            'proactive' => '/lavr/proactive',
             default => null,
         };
 
@@ -131,6 +136,7 @@ final class TelegramWebAppDeepLink
             '/lavr/commitments',
             '/lavr/briefs',
             '/lavr/leadership',
+            '/lavr/proactive',
         ];
 
         if (in_array($path, $exact, true)) {
@@ -138,7 +144,7 @@ final class TelegramWebAppDeepLink
         }
 
         return (bool) preg_match(
-            '#^/lavr/(chats|projects|commitments|meetings|briefs|leadership)/\d+$#',
+            '#^/lavr/(chats|projects|commitments|meetings|briefs|leadership|proactive)/\d+$#',
             $path,
         );
     }
