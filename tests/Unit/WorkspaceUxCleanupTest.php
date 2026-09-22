@@ -6,6 +6,17 @@ use Tests\TestCase;
 
 class WorkspaceUxCleanupTest extends TestCase
 {
+    public function test_ai_settings_keep_save_labels_visible_and_explain_disabled_roles(): void
+    {
+        $panel = (string) file_get_contents(base_path('resources/js/Pages/Settings/AiPanel.jsx'));
+
+        $this->assertStringContainsString("saveRole: 'Сохранить конфигурацию'", $panel);
+        $this->assertStringContainsString("saveRole: 'Зберегти конфігурацію'", $panel);
+        $this->assertStringContainsString('aria-label={t.saveRole}', $panel);
+        $this->assertStringContainsString('<span className="whitespace-nowrap">{t.saveRole}</span>', $panel);
+        $this->assertStringContainsString('{t.disabledNotice}', $panel);
+    }
+
     public function test_successful_chat_turn_triggers_productivity_refresh_without_reload_or_polling(): void
     {
         $workspace = (string) file_get_contents(base_path('resources/js/personal-workspace/PersonalWorkspace.jsx'));

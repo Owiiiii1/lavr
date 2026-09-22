@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AiRoleKey;
 use App\Enums\CommitmentConfidence;
 use App\Enums\CommitmentEffectiveStatus;
 use App\Enums\CommitmentEvidenceType;
@@ -11,6 +12,8 @@ use App\Enums\IntegrationAccountStatus;
 use App\Enums\OnboardingStatus;
 use App\Enums\SourceItemType;
 use App\Enums\UserRole;
+use App\Models\AiProviderSetting;
+use App\Models\AiRoleSetting;
 use App\Models\Commitment;
 use App\Models\CommitmentEvidence;
 use App\Models\IntegrationAccount;
@@ -75,6 +78,35 @@ class ProductionReadinessTest extends TestCase
         app(HeartbeatRecorder::class)->recordQueue();
         $snapshot = app(LavrDiagnosticsService::class)->snapshot();
         $this->assertSame('healthy', $snapshot['checks']['queue']['status']);
+    }
+
+    public function test_ai_health_uses_enabled_owner_role_instead_of_legacy_active_provider_flag(): void
+    {
+        $provider = AiProviderSetting::query()->where('provider', 'gemini')->firstOrFail();
+        $role = AiRoleSetting::query()->where('role_key', AiRoleKey::OwnerConversation->value)->firstOrFail();
+        $providerSnapshot = $provider->only(['api_key', 'is_connected', 'is_active']);
+        $roleSnapshot = $role->only(['provider', 'model', 'is_enabled']);
+
+        try {
+            $provider->forceFill([
+                'api_key' => 'synthetic-readiness-key',
+                'is_connected' => true,
+                'is_active' => false,
+            ])->save();
+            $role->forceFill([
+                'provider' => 'gemini',
+                'model' => 'gemini-3.7-flash',
+                'is_enabled' => true,
+            ])->save();
+
+            $snapshot = app(LavrDiagnosticsService::class)->snapshot();
+
+            $this->assertSame('healthy', $snapshot['checks']['ai']['status']);
+            $this->assertSame('gemini-3.7-flash', $snapshot['checks']['ai']['model']);
+        } finally {
+            $provider->forceFill($providerSnapshot)->save();
+            $role->forceFill($roleSnapshot)->save();
+        }
     }
 
     public function test_handover_cleanup_without_selector_refuses(): void

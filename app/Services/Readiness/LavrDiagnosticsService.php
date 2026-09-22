@@ -3,12 +3,14 @@
 namespace App\Services\Readiness;
 
 use App\Enums\AcceptanceState;
+use App\Enums\AiRoleKey;
 use App\Enums\IntegrationAccountStatus;
 use App\Enums\IntegrationHealth;
 use App\Enums\ReadinessState;
 use App\Enums\SystemHealthStatus;
 use App\Enums\UserRole;
 use App\Models\AiProviderSetting;
+use App\Models\AiRoleSetting;
 use App\Models\ChannelIdentity;
 use App\Models\ExecutiveBrief;
 use App\Models\IntegrationAccount;
@@ -477,17 +479,31 @@ final class LavrDiagnosticsService
      */
     private function ai(): array
     {
-        if (! Schema::hasTable('ai_provider_settings')) {
-            return $this->check(SystemHealthStatus::NotConfigured, ReadinessState::NotConfigured, AcceptanceState::Warn, 'AI provider table missing.');
+        if (! Schema::hasTable('ai_provider_settings') || ! Schema::hasTable('ai_role_settings')) {
+            return $this->check(SystemHealthStatus::NotConfigured, ReadinessState::NotConfigured, AcceptanceState::Warn, 'AI configuration tables missing.');
         }
 
-        $active = AiProviderSetting::query()->where('is_active', true)->where('is_connected', true)->first();
-        if ($active === null) {
-            return $this->check(SystemHealthStatus::NotConfigured, ReadinessState::NotConfigured, AcceptanceState::Warn, 'AI provider is not connected.');
+        $role = AiRoleSetting::query()
+            ->where('role_key', AiRoleKey::OwnerConversation->value)
+            ->where('is_enabled', true)
+            ->first();
+
+        if ($role === null || ! filled($role->provider) || ! filled($role->model)) {
+            return $this->check(SystemHealthStatus::Disabled, ReadinessState::NeedsAttention, AcceptanceState::Warn, 'Owner Conversation AI is disabled.');
+        }
+
+        $credential = AiProviderSetting::query()
+            ->where('provider', $role->provider)
+            ->where('is_connected', true)
+            ->first();
+
+        if ($credential === null || ! filled($credential->api_key)) {
+            return $this->check(SystemHealthStatus::Blocked, ReadinessState::NeedsAttention, AcceptanceState::Warn, 'AI provider needs reconnect.');
         }
 
         return $this->check(SystemHealthStatus::Healthy, ReadinessState::Ready, AcceptanceState::Pass, 'AI provider connected.', [
-            'provider' => $active->provider,
+            'provider' => $role->provider,
+            'model' => $role->model,
         ]);
     }
 

@@ -40,60 +40,63 @@ export default function AiPanel() {
             saveRole: 'Save configuration',
             selectProvider: 'Select provider',
             selectModel: 'Select model',
+            disabledNotice: 'A model is selected, but this AI configuration is disabled. Turn on “Enabled” and save it.',
         },
         ru: {
-            credentialsTitle: 'Provider credentials',
+            credentialsTitle: 'Ключи провайдеров',
             credentialsSubtitle:
-                'API keys and model discovery only. Conversation runtime uses the three AI configurations below, not the legacy “one active model” flag.',
-            rolesTitle: 'AI configurations',
+                'Здесь хранятся API-ключи и загружается список моделей. Рабочие модели включаются отдельно в конфигурациях ниже.',
+            rolesTitle: 'Конфигурации AI',
             rolesSubtitle:
-                'Owner Conversation, Owner Analysis, and Default User Conversation are independent. Analysis is not used in Telegram DMs.',
-            apiKey: 'API key',
-            saveKey: 'Save key',
-            check: 'Check connection',
-            modelCatalog: 'Discovered models',
-            noModels: 'No models loaded yet',
-            notConnected: 'Not connected',
-            connected: 'Connected',
-            error: 'Error',
-            savedMask: 'Saved key',
-            enabled: 'Enabled',
-            provider: 'Provider',
-            model: 'Model',
-            systemPrompt: 'System prompt',
-            temperature: 'Temperature',
-            maxTokens: 'Max tokens',
-            recentLimit: 'Recent messages',
-            saveRole: 'Save configuration',
-            selectProvider: 'Select provider',
-            selectModel: 'Select model',
+                'Owner Conversation, Owner Analysis и Default User Conversation независимы. Выбор модели сам по себе не включает конфигурацию.',
+            apiKey: 'API-ключ',
+            saveKey: 'Сохранить ключ',
+            check: 'Проверить подключение',
+            modelCatalog: 'Доступные модели',
+            noModels: 'Модели ещё не загружены',
+            notConnected: 'Не подключено',
+            connected: 'Подключено',
+            error: 'Ошибка',
+            savedMask: 'Сохранённый ключ',
+            enabled: 'Включено',
+            provider: 'Провайдер',
+            model: 'Модель',
+            systemPrompt: 'Системный промпт',
+            temperature: 'Температура',
+            maxTokens: 'Максимум токенов',
+            recentLimit: 'Последние сообщения',
+            saveRole: 'Сохранить конфигурацию',
+            selectProvider: 'Выберите провайдера',
+            selectModel: 'Выберите модель',
+            disabledNotice: 'Модель выбрана, но эта конфигурация AI выключена. Включите переключатель «Включено» и сохраните.',
         },
         uk: {
-            credentialsTitle: 'Provider credentials',
+            credentialsTitle: 'Ключі провайдерів',
             credentialsSubtitle:
-                'API keys and model discovery only. Conversation runtime uses the three AI configurations below, not the legacy “one active model” flag.',
-            rolesTitle: 'AI configurations',
+                'Тут зберігаються API-ключі та завантажується список моделей. Робочі моделі вмикаються окремо в конфігураціях нижче.',
+            rolesTitle: 'Конфігурації AI',
             rolesSubtitle:
-                'Owner Conversation, Owner Analysis, and Default User Conversation are independent. Analysis is not used in Telegram DMs.',
-            apiKey: 'API key',
-            saveKey: 'Save key',
-            check: 'Check connection',
-            modelCatalog: 'Discovered models',
-            noModels: 'No models loaded yet',
-            notConnected: 'Not connected',
-            connected: 'Connected',
-            error: 'Error',
-            savedMask: 'Saved key',
-            enabled: 'Enabled',
-            provider: 'Provider',
-            model: 'Model',
-            systemPrompt: 'System prompt',
-            temperature: 'Temperature',
-            maxTokens: 'Max tokens',
-            recentLimit: 'Recent messages',
-            saveRole: 'Save configuration',
-            selectProvider: 'Select provider',
-            selectModel: 'Select model',
+                'Owner Conversation, Owner Analysis і Default User Conversation незалежні. Вибір моделі сам по собі не вмикає конфігурацію.',
+            apiKey: 'API-ключ',
+            saveKey: 'Зберегти ключ',
+            check: 'Перевірити підключення',
+            modelCatalog: 'Доступні моделі',
+            noModels: 'Моделі ще не завантажені',
+            notConnected: 'Не підключено',
+            connected: 'Підключено',
+            error: 'Помилка',
+            savedMask: 'Збережений ключ',
+            enabled: 'Увімкнено',
+            provider: 'Провайдер',
+            model: 'Модель',
+            systemPrompt: 'Системний промпт',
+            temperature: 'Температура',
+            maxTokens: 'Максимум токенів',
+            recentLimit: 'Останні повідомлення',
+            saveRole: 'Зберегти конфігурацію',
+            selectProvider: 'Оберіть провайдера',
+            selectModel: 'Оберіть модель',
+            disabledNotice: 'Модель обрана, але ця конфігурація AI вимкнена. Увімкніть перемикач «Увімкнено» та збережіть.',
         },
     };
     const t = text[locale] ?? text.en;
@@ -191,7 +194,7 @@ export default function AiPanel() {
                                             className="inline-flex h-9 items-center gap-2 rounded-lg bg-indigo-600 px-3 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
                                         >
                                             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
-                                            {t.saveKey}
+                                            <span className="whitespace-nowrap">{t.saveKey}</span>
                                         </button>
                                         <button
                                             type="button"
@@ -208,7 +211,7 @@ export default function AiPanel() {
                                             className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
                                         >
                                             <PlugZap className="h-4 w-4" />
-                                            {t.check}
+                                            <span className="whitespace-nowrap">{t.check}</span>
                                         </button>
                                     </div>
 
@@ -306,6 +309,12 @@ function RoleConfigCard({ role, connectedProviders, providerMap, t }) {
                 </label>
             </div>
 
+            {!form.data.is_enabled && form.data.provider && form.data.model ? (
+                <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                    {t.disabledNotice}
+                </p>
+            ) : null}
+
             <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">{t.provider}</label>
                 <select
@@ -383,10 +392,12 @@ function RoleConfigCard({ role, connectedProviders, providerMap, t }) {
             <button
                 type="submit"
                 disabled={form.processing}
-                className="inline-flex h-9 items-center gap-2 rounded-lg bg-emerald-600 px-3 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                aria-label={t.saveRole}
+                title={t.saveRole}
+                className="inline-flex h-10 min-w-48 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:opacity-60"
             >
                 {form.processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {t.saveRole}
+                <span className="whitespace-nowrap">{t.saveRole}</span>
             </button>
         </form>
     );
