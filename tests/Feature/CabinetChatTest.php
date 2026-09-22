@@ -36,9 +36,16 @@ class CabinetChatTest extends TestCase
             $own = $service->createPersonal($userA, 'Mine');
             $foreign = $service->createPersonal($userB, 'Secret');
 
-            $this->actingAs($userA)->get('/cabinet')->assertRedirect(route('cabinet.chats.show', $service->getOrCreateDefault($userA)));
-            $this->actingAs($userA)->get('/cabinet/chats/'.$own->id)->assertOk()->assertSee('Mine');
-            $this->actingAs($userA)->get('/cabinet/chats/'.$foreign->id)->assertNotFound();
+            $service->getOrCreateDefault($userA);
+
+            $this->actingAs($userA)->get('/cabinet')->assertRedirect(route('jarvis.index'));
+            $this->actingAs($userA)->get('/cabinet/chats/'.$own->id)
+                ->assertRedirect(route('jarvis.chats.show', $own->id));
+
+            $this->actingAs($userA)->get(route('jarvis.chats.show', $own->id))->assertOk()->assertSee('Mine');
+            $this->actingAs($userA)->get(route('jarvis.chats.show', $foreign->id))->assertNotFound();
+            $this->actingAs($userA)->getJson('/cabinet/chats/'.$own->id.'/messages')->assertOk();
+            $this->actingAs($userA)->getJson('/cabinet/chats/'.$foreign->id.'/messages')->assertNotFound();
         } finally {
             $this->deleteTemporaryUser($userA);
             $this->deleteTemporaryUser($userB);
@@ -58,6 +65,8 @@ class CabinetChatTest extends TestCase
             $this->actingAs($userA)->post('/cabinet/chats')->assertRedirect();
             $created = Conversation::query()->where('user_id', $userA->id)->where('title', ConversationService::NEW_CHAT_TITLE)->first();
             $this->assertNotNull($created);
+            $this->actingAs($userA)->post('/cabinet/chats')
+                ->assertRedirect(route('jarvis.chats.show', Conversation::query()->where('user_id', $userA->id)->latest('id')->value('id')));
 
             $this->actingAs($userA)->patch('/cabinet/chats/'.$created->id, ['title' => 'Работа'])->assertRedirect();
             $this->assertSame('Работа', $created->fresh()->title);
@@ -198,10 +207,9 @@ class CabinetChatTest extends TestCase
                 ->all();
             $this->assertSame(['telegram', 'web'], $channels);
 
-            $this->actingAs($user)->get('/cabinet/chats/'.$conversation->id)
-                ->assertOk()
-                ->assertSee('From Telegram')
-                ->assertSee('From Web');
+            $shared = $this->actingAs($user)->getJson('/cabinet/chats/'.$conversation->id.'/messages')->assertOk();
+            $this->assertStringContainsString('From Telegram', $shared->getContent());
+            $this->assertStringContainsString('From Web', $shared->getContent());
 
             $conversationCalls = $fake->conversationCalls();
             $this->assertGreaterThanOrEqual(2, count($conversationCalls));

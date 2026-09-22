@@ -32,7 +32,6 @@ final class KnowledgeToolResultIngestor
             match ($result->name) {
                 'get_gmail_message', 'search_gmail' => $this->gmail($context->user, $context->conversation->id, $result),
                 'get_calendar_event', 'list_calendar_events', 'search_calendar_events' => $this->calendar($context->user, $context->conversation->id, $result),
-                'get_github_commit', 'list_github_commits' => $this->github($context->user, $context->conversation->id, $result),
                 default => null,
             };
         } catch (Throwable) {
@@ -89,42 +88,6 @@ final class KnowledgeToolResultIngestor
         }
 
         $this->ingestion->recordEvent($user, KnowledgeEventType::CalendarEvent, $title, $source, $entities);
-    }
-
-    private function github(User $user, int $conversationId, ToolResult $result): void
-    {
-        $sha = $this->stringAt($result->payload, ['sha', 'commit_sha']);
-        $message = $this->stringAt($result->payload, ['message', 'title', 'commit_message']);
-        $repo = $this->stringAt($result->payload, ['repository', 'repo']);
-
-        if ($sha === null && $message === null) {
-            $commits = $result->payload['commits'] ?? [];
-
-            if (is_array($commits) && isset($commits[0]) && is_array($commits[0])) {
-                $sha = $this->stringAt($commits[0], ['sha']);
-                $message = $this->stringAt($commits[0], ['message', 'title']);
-                $repo = $repo ?? $this->stringAt($commits[0], ['repository']);
-            }
-        }
-
-        if ($sha === null && $message === null) {
-            return;
-        }
-
-        $title = $message ?? ('Commit '.$sha);
-        $source = new KnowledgeSourceRef(
-            type: KnowledgeSourceType::Github,
-            fingerprint: KnowledgeSourceRef::hash('github_commit', (string) $user->id, (string) ($sha ?? $title)),
-            confidence: KnowledgeConfidence::deterministic(),
-            conversationId: $conversationId,
-        );
-        $entities = [];
-
-        if ($repo !== null) {
-            $entities[] = $this->ingestion->upsertEntity($user, KnowledgeEntityType::System, $repo, $source);
-        }
-
-        $this->ingestion->recordEvent($user, KnowledgeEventType::GithubCommitSeen, $title, $source, $entities);
     }
 
     /**

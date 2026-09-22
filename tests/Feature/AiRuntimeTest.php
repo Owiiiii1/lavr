@@ -355,7 +355,7 @@ class AiRuntimeTest extends TestCase
                 'system_prompt' => 'hijack',
                 'is_enabled' => false,
             ])->assertForbidden();
-            $this->actingAs($userA)->get('/cabinet/ai-settings')->assertOk();
+            $this->actingAs($userA)->get('/cabinet/ai-settings')->assertRedirect(route('jarvis.index'));
         } finally {
             $this->deleteTemporaryUser($userA);
             $this->deleteTemporaryUser($userB);

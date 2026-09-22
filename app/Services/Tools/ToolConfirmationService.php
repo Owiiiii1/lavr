@@ -258,10 +258,6 @@ final class ToolConfirmationService
             'create_gmail_draft' => 'Create a Gmail draft. It will not be sent.',
             'modify_gmail_labels' => 'Change Gmail labels on the identified mail.',
             'send_gmail_message' => $this->gmailSendSummary($confirmation),
-            'create_github_issue' => 'Create a GitHub issue.',
-            'comment_github_issue' => 'Add a GitHub issue or pull request comment.',
-            'create_github_branch' => 'Create a GitHub branch.',
-            'create_github_pull_request' => 'Create a GitHub pull request. It will not be merged.',
             'delete_storage_file' => 'Delete this file from LAVR Storage. This cannot be undone.',
             default => 'Run the pending tool action '.$confirmation->tool_name.'.',
         };
@@ -321,10 +317,6 @@ final class ToolConfirmationService
             'delete_calendar_event' => ['calendar_id', 'event_id', 'title', 'summary'],
             'create_calendar_event' => ['calendar_id', 'title', 'start', 'end'],
             'update_calendar_event' => ['calendar_id', 'event_id', 'title', 'start', 'end'],
-            'create_github_issue' => ['repository', 'title', 'body'],
-            'comment_github_issue' => ['repository', 'issue_number', 'body'],
-            'create_github_branch' => ['repository', 'branch_name', 'from_ref'],
-            'create_github_pull_request' => ['repository', 'title', 'head', 'base', 'body'],
             'delete_storage_file' => ['file_id'],
             default => [],
         };

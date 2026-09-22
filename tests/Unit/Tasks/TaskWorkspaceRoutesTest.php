@@ -22,9 +22,12 @@ class TaskWorkspaceRoutesTest extends TestCase
 
         $this->assertStringContainsString('capabilities.tasks', $workspace);
         $this->assertStringContainsString('capabilities.notifications', $workspace);
-        $this->assertStringContainsString('aria-label="Задачи"', $workspace);
-        $this->assertStringContainsString('aria-label="Уведомления"', $workspace);
-        $this->assertStringContainsString('aria-label="Напоминания"', $workspace);
+        $this->assertStringContainsString("aria-label={t('chat.tasks')}", $workspace);
+        $this->assertStringContainsString("aria-label={t('chat.notifications')}", $workspace);
+        $this->assertStringContainsString("aria-label={t('chat.reminders')}", $workspace);
+        $ru = (string) file_get_contents(base_path('resources/js/locales/ru.js'));
+        $this->assertStringContainsString("tasks: 'Задачи'", $ru);
+        $this->assertStringContainsString("notifications: 'Уведомления'", $ru);
         $this->assertStringContainsString('canUseProjects', $tasks);
         $this->assertStringContainsString('Сегодня', $tasks);
         $this->assertStringContainsString('Просрочено', $tasks);

@@ -207,17 +207,14 @@ use App\Services\Voice\VoiceMetricsLogger;
 use App\Services\Voice\VoiceSettingsService;
 use App\Services\Voice\VoiceTempAudioStore;
 use App\Services\Watchers\Adapters\CalendarWatcherSource;
-use App\Services\Watchers\Adapters\GitHubWatcherSource;
 use App\Services\Watchers\Adapters\GmailWatcherSource;
 use App\Services\Watchers\Adapters\KnowledgeWatcherSource;
 use App\Services\Watchers\Adapters\ReminderWatcherSource;
 use App\Services\Watchers\Adapters\TaskWatcherSource;
 use App\Services\Watchers\Adapters\TimeWatcherSource;
 use App\Services\Watchers\Clients\LiveCalendarWatcherClient;
-use App\Services\Watchers\Clients\LiveGitHubWatcherClient;
 use App\Services\Watchers\Clients\LiveGmailWatcherClient;
 use App\Services\Watchers\Contracts\CalendarWatcherClient;
-use App\Services\Watchers\Contracts\GitHubWatcherClient;
 use App\Services\Watchers\Contracts\GmailWatcherClient;
 use App\Services\Watchers\WatcherSourceRegistry;
 use App\Services\WebResearch\Contracts\WebSearchProvider;
@@ -301,7 +298,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SynthesizesProductivityBrief::class, ProductivityBriefAiSynthesizer::class);
         $this->app->bind(GmailWatcherClient::class, LiveGmailWatcherClient::class);
         $this->app->bind(CalendarWatcherClient::class, LiveCalendarWatcherClient::class);
-        $this->app->bind(GitHubWatcherClient::class, LiveGitHubWatcherClient::class);
 
         $this->app->singleton(WatcherSourceRegistry::class, function ($app): WatcherSourceRegistry {
             return new WatcherSourceRegistry([
@@ -311,7 +307,6 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(TimeWatcherSource::class),
                 $app->make(GmailWatcherSource::class),
                 $app->make(CalendarWatcherSource::class),
-                $app->make(GitHubWatcherSource::class),
             ]);
         });
 

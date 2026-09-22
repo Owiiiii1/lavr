@@ -30,7 +30,6 @@ use App\Services\Tools\ToolExecutionContext;
 use App\Services\Tools\ToolRegistry;
 use App\Services\Tools\Watchers\CreateWatcherTool;
 use App\Services\Watchers\Contracts\CalendarWatcherClient;
-use App\Services\Watchers\Contracts\GitHubWatcherClient;
 use App\Services\Watchers\Contracts\GmailWatcherClient;
 use App\Services\Watchers\Exceptions\WatcherException;
 use App\Services\Watchers\WatcherDispatchService;
@@ -45,7 +44,6 @@ use Illuminate\Support\Facades\Schema;
 use Tests\Support\CleansTemporaryJarvisRecords;
 use Tests\Support\FakeAiChatGateway;
 use Tests\Support\FakeCalendarWatcherClient;
-use Tests\Support\FakeGitHubWatcherClient;
 use Tests\Support\FakeGmailWatcherClient;
 use Tests\TestCase;
 
@@ -57,18 +55,14 @@ class WatchersTest extends TestCase
 
     private FakeCalendarWatcherClient $calendar;
 
-    private FakeGitHubWatcherClient $github;
-
     protected function setUp(): void
     {
         parent::setUp();
         Http::preventStrayRequests();
         $this->gmail = new FakeGmailWatcherClient;
         $this->calendar = new FakeCalendarWatcherClient;
-        $this->github = new FakeGitHubWatcherClient;
         $this->app->instance(GmailWatcherClient::class, $this->gmail);
         $this->app->instance(CalendarWatcherClient::class, $this->calendar);
-        $this->app->instance(GitHubWatcherClient::class, $this->github);
         $this->app->instance(AiChatGateway::class, new FakeAiChatGateway);
     }
 
@@ -172,27 +166,11 @@ class WatchersTest extends TestCase
         }
     }
 
-    public function test_github_and_calendar_fakes(): void
+    public function test_calendar_fake_detects_changed_events(): void
     {
         $user = null;
         try {
             $user = $this->owner();
-            $this->github->commits = [['sha' => 'aaa', 'message' => 'old', 'timestamp' => now()->toIso8601String()]];
-            $commits = app(WatcherService::class)->create($user, [
-                'name' => 'YFS commits',
-                'trigger_type' => 'github_event',
-                'condition_type' => 'github_new_commit',
-                'mode' => 'recurring',
-                'source' => ['repository' => 'Owiiiii1/YFS'],
-                'cooldown_seconds' => 0,
-                'aggregation_window_seconds' => 0,
-            ]);
-            $this->assertSame(0, WatcherOccurrence::query()->where('watcher_id', $commits->id)->count());
-            $this->github->commits[] = ['sha' => 'bbb', 'message' => 'feat', 'timestamp' => now()->toIso8601String()];
-            app(WatcherEvaluationService::class)->evaluate($commits->fresh());
-            $this->assertSame(1, WatcherOccurrence::query()->where('watcher_id', $commits->id)->count());
-            $this->assertSame(WatcherStatus::Active, $commits->fresh()->status);
-
             $this->calendar->events = [['id' => 'evt-1', 'title' => 'Marco', 'etag' => 'v1', 'start' => now()->toIso8601String(), 'status' => 'confirmed']];
             $cal = app(WatcherService::class)->create($user, [
                 'name' => 'Marco moved',
@@ -341,21 +319,21 @@ class WatchersTest extends TestCase
             $this->assertSame(1, JarvisNotification::query()->where('user_id', $user->id)->where('dedupe_key', 'watcher-blocked:'.$watcher->id)->count());
 
             $this->gmail->exception = new IntegrationException('timeout', 'timed out', retryable: true);
-            $this->github->commits = [];
-            $git = app(WatcherService::class)->create($user, [
-                'name' => 'Repo',
-                'trigger_type' => 'github_event',
-                'condition_type' => 'github_new_commit',
-                'source' => ['repository' => 'Owiiiii1/JARVIS'],
+            $this->calendar->events = [];
+            $cal = app(WatcherService::class)->create($user, [
+                'name' => 'Calendar',
+                'trigger_type' => 'calendar_event',
+                'condition_type' => 'calendar_changed',
+                'source' => ['event_id' => 'evt-backoff'],
                 'cooldown_seconds' => 0,
                 'aggregation_window_seconds' => 0,
             ]);
-            $this->github->exception = new IntegrationException('timeout', 'timed out', retryable: true);
-            app(WatcherEvaluationService::class)->evaluate($git->fresh());
-            $calls = $this->github->commitCalls;
-            app(WatcherEvaluationService::class)->evaluate($git->fresh());
-            $this->assertSame($calls, $this->github->commitCalls);
-            $this->assertSame(WatcherHealth::Waiting, $git->fresh()->health);
+            $this->calendar->exception = new IntegrationException('timeout', 'timed out', retryable: true);
+            app(WatcherEvaluationService::class)->evaluate($cal->fresh());
+            $calls = $this->calendar->calls;
+            app(WatcherEvaluationService::class)->evaluate($cal->fresh());
+            $this->assertSame($calls, $this->calendar->calls);
+            $this->assertSame(WatcherHealth::Waiting, $cal->fresh()->health);
         } finally {
             $this->deleteTemporaryUser($user);
         }

@@ -20,8 +20,11 @@ class ReminderRoutesTest extends TestCase
         $panel = file_get_contents(base_path('resources/js/personal-workspace/RemindersPanel.jsx'));
 
         $this->assertStringContainsString('capabilities.reminders', $workspace);
-        $this->assertStringContainsString('Напоминания', $workspace);
-        $this->assertStringContainsString('aria-label="Напоминания"', $workspace);
+        $this->assertStringContainsString("aria-label={t('chat.reminders')}", $workspace);
+        $this->assertStringContainsString(
+            "reminders: 'Напоминания'",
+            (string) file_get_contents(base_path('resources/js/locales/ru.js')),
+        );
         $this->assertStringContainsString('open-reminder', $workspace);
         $this->assertStringNotContainsString('telegram_connected && capabilities.reminders', $workspace);
         $this->assertStringNotContainsString('Доставка сейчас только в Telegram', $panel);

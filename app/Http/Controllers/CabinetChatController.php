@@ -18,9 +18,9 @@ class CabinetChatController extends Controller
         private readonly PersonalChatSurfaceService $chats,
     ) {}
 
-    public function index(Request $request): RedirectResponse
+    public function index(): RedirectResponse
     {
-        return redirect()->route($request->user()->isOwner() ? 'jarvis.index' : 'chat.index');
+        return redirect()->route('jarvis.index');
     }
 
     public function show(Request $request, int $conversation): Response
@@ -45,9 +45,8 @@ class CabinetChatController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $conversation = $this->chats->createChat($request->user());
-        $route = $request->user()->isOwner() ? 'jarvis.chats.show' : 'chat.chats.show';
 
-        return redirect()->route($route, $conversation);
+        return redirect()->route('jarvis.chats.show', $conversation);
     }
 
     public function update(Request $request, int $conversation): RedirectResponse
