@@ -49,16 +49,16 @@ class GoogleOAuthSettingsTest extends TestCase
             $this->assertIsString($raw);
             $this->assertStringNotContainsString($secret, (string) $raw);
 
-            $page = $this->actingAs($owner)->get(route('settings.index', ['tab' => 'integrations']));
+            $page = $this->actingAs($owner)->get(route('settings.index', ['tab' => 'google']));
             $page->assertOk();
             $html = $page->getContent();
-            $this->assertStringContainsString('Configured', $html);
-            $this->assertStringContainsString('OAuth client: Configured', $html);
-            $this->assertStringContainsString('Account: Not connected', $html);
-            $this->assertStringContainsString(route('integrations.google.connect'), $html);
+            $this->assertStringContainsString('"tab":"google"', $html);
+            $this->assertStringContainsString('"oauth_client_label":"Configured"', $html);
+            $this->assertStringContainsString('"account_status_label":"Not connected"', $html);
+            $this->assertStringContainsString('"has_client_secret":true', $html);
+            $this->assertStringContainsString('"client_secret_source":"admin"', $html);
             $this->assertStringNotContainsString($secret, $html);
             $this->assertStringNotContainsString('"client_secret"', $html);
-            $this->assertStringContainsString('Secret saved', $html);
         } finally {
             $this->restoreGoogleOAuthSettings();
             $this->deleteTemporaryUser($owner);
@@ -190,9 +190,10 @@ class GoogleOAuthSettingsTest extends TestCase
             ]);
             $owner = $this->temporaryOwner();
 
-            $page = $this->actingAs($owner)->get(route('settings.index', ['tab' => 'integrations']));
+            $page = $this->actingAs($owner)->get(route('settings.index', ['tab' => 'google']));
             $page->assertOk();
-            $this->assertStringContainsString('Using deployment configuration', $page->getContent());
+            $this->assertStringContainsString('"client_id_source":"env"', $page->getContent());
+            $this->assertStringContainsString('"client_secret_source":"env"', $page->getContent());
             $this->assertStringNotContainsString('env-only-client-secret', $page->getContent());
             $this->assertSame(0, GoogleOAuthSetting::query()->count());
         } finally {

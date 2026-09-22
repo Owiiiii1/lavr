@@ -41,7 +41,18 @@ final class UpdateScheduledReportTool implements JarvisTool
                     'name' => ['type' => 'STRING'],
                     'local_time' => ['type' => 'STRING'],
                     'period_mode' => ['type' => 'STRING'],
-                    'sources' => ['type' => 'ARRAY'],
+                    'sources' => [
+                        'type' => 'ARRAY',
+                        'items' => [
+                            'type' => 'OBJECT',
+                            'properties' => [
+                                'type' => ['type' => 'STRING', 'description' => 'tasks, reminders, projects, synthesis, google_calendar, gmail, telegram_groups, notifications, or commitments.'],
+                                'calendar_scope' => ['type' => 'STRING'],
+                                'calendar_names' => ['type' => 'ARRAY', 'items' => ['type' => 'STRING']],
+                                'mode' => ['type' => 'STRING'],
+                            ],
+                        ],
+                    ],
                     'add_source' => ['type' => 'OBJECT', 'description' => 'Merge one source, e.g. {type: google_calendar, calendar_scope: all_relevant, calendar_names: [Семья]}.'],
                 ],
             ],

@@ -32,7 +32,6 @@ use App\Services\Integrations\Google\GoogleGmailService;
 use App\Services\Integrations\IntegrationAccountService;
 use App\Services\Integrations\IntegrationRegistry;
 use App\Services\Integrations\Providers\ElevenLabsIntegrationProvider;
-use App\Services\Integrations\Providers\GitHubIntegrationProvider;
 use App\Services\Integrations\Providers\GoogleIntegrationProvider;
 use App\Services\Integrations\Providers\TelegramIntegrationProvider;
 use App\Services\Integrations\Providers\ZoomIntegrationProvider;
@@ -110,25 +109,6 @@ use App\Services\Tools\GetAssistantProfileTool;
 use App\Services\Tools\GetProjectContextTool;
 use App\Services\Tools\GetTaskTool;
 use App\Services\Tools\GetTelegramResponseModeTool;
-use App\Services\Tools\GitHub\CommentGitHubIssueTool;
-use App\Services\Tools\GitHub\CompareGitHubRefsTool;
-use App\Services\Tools\GitHub\CreateGitHubBranchTool;
-use App\Services\Tools\GitHub\CreateGitHubIssueTool;
-use App\Services\Tools\GitHub\CreateGitHubPullRequestTool;
-use App\Services\Tools\GitHub\GetGitHubCommitTool;
-use App\Services\Tools\GitHub\GetGitHubFileTool;
-use App\Services\Tools\GitHub\GetGitHubIssueTool;
-use App\Services\Tools\GitHub\GetGitHubPullRequestDiffTool;
-use App\Services\Tools\GitHub\GetGitHubPullRequestTool;
-use App\Services\Tools\GitHub\GetGitHubRepositoryTool;
-use App\Services\Tools\GitHub\GetGitHubWorkflowRunTool;
-use App\Services\Tools\GitHub\ListGitHubBranchesTool;
-use App\Services\Tools\GitHub\ListGitHubCommitsTool;
-use App\Services\Tools\GitHub\ListGitHubIssuesTool;
-use App\Services\Tools\GitHub\ListGitHubPullRequestsTool;
-use App\Services\Tools\GitHub\ListGitHubRepositoriesTool;
-use App\Services\Tools\GitHub\ListGitHubWorkflowRunsTool;
-use App\Services\Tools\GitHub\SearchGitHubCodeTool;
 use App\Services\Tools\Google\CreateCalendarEventTool;
 use App\Services\Tools\Google\CreateGmailDraftTool;
 use App\Services\Tools\Google\DeleteCalendarEventTool;
@@ -522,25 +502,6 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(CreateGmailDraftTool::class),
                 $app->make(SendGmailMessageTool::class),
                 $app->make(ModifyGmailLabelsTool::class),
-                $app->make(ListGitHubRepositoriesTool::class),
-                $app->make(GetGitHubRepositoryTool::class),
-                $app->make(ListGitHubBranchesTool::class),
-                $app->make(ListGitHubCommitsTool::class),
-                $app->make(GetGitHubCommitTool::class),
-                $app->make(CompareGitHubRefsTool::class),
-                $app->make(GetGitHubFileTool::class),
-                $app->make(SearchGitHubCodeTool::class),
-                $app->make(ListGitHubIssuesTool::class),
-                $app->make(GetGitHubIssueTool::class),
-                $app->make(ListGitHubPullRequestsTool::class),
-                $app->make(GetGitHubPullRequestTool::class),
-                $app->make(GetGitHubPullRequestDiffTool::class),
-                $app->make(ListGitHubWorkflowRunsTool::class),
-                $app->make(GetGitHubWorkflowRunTool::class),
-                $app->make(CreateGitHubIssueTool::class),
-                $app->make(CommentGitHubIssueTool::class),
-                $app->make(CreateGitHubBranchTool::class),
-                $app->make(CreateGitHubPullRequestTool::class),
                 $app->make(ListStorageFilesTool::class),
                 $app->make(SearchStorageFilesTool::class),
                 $app->make(GetStorageFileTool::class),
@@ -563,7 +524,6 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(GoogleIntegrationProvider::class),
                 $app->make(TelegramIntegrationProvider::class),
                 $app->make(ElevenLabsIntegrationProvider::class),
-                $app->make(GitHubIntegrationProvider::class),
                 $app->make(ZoomIntegrationProvider::class),
             ]);
         });

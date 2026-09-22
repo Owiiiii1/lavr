@@ -56,7 +56,7 @@ class IntegrationFrameworkTest extends TestCase
             static fn ($provider): string => $provider->key(),
             app(IntegrationRegistry::class)->all(),
         );
-        $this->assertSame(['google', 'telegram', 'elevenlabs', 'github', 'zoom'], $keys);
+        $this->assertSame(['google', 'telegram', 'elevenlabs', 'zoom'], $keys);
     }
 
     public function test_owner_integrations_page_and_user_denied(): void
@@ -74,7 +74,7 @@ class IntegrationFrameworkTest extends TestCase
             $this->assertStringContainsString('Google', $html);
             $this->assertStringContainsString('Telegram', $html);
             $this->assertStringContainsString('ElevenLabs', $html);
-            $this->assertStringContainsString('GitHub', $html);
+            $this->assertStringNotContainsString('"provider":"github"', $html);
             $this->assertStringContainsString('Not configured', $html);
             $this->assertStringContainsString('has_bot_token', $html);
             $this->assertStringNotContainsString('Open Telegram settings', $html);
@@ -89,7 +89,7 @@ class IntegrationFrameworkTest extends TestCase
 
             $legacyTelegramTab = $this->actingAs($owner)->get(route('settings.index', ['tab' => 'telegram']));
             $legacyTelegramTab->assertOk();
-            $this->assertStringContainsString('"tab":"integrations"', $legacyTelegramTab->getContent());
+            $this->assertStringContainsString('"tab":"telegram"', $legacyTelegramTab->getContent());
             $this->assertStringContainsString('has_bot_token', $legacyTelegramTab->getContent());
 
             $this->actingAs($owner)
@@ -201,7 +201,8 @@ class IntegrationFrameworkTest extends TestCase
             }
 
             $this->assertSame('disconnected', $byKey['google']['state']);
-            $this->assertSame('disconnected', $byKey['elevenlabs']['state']);
+            $this->assertArrayHasKey('elevenlabs', $byKey);
+            $this->assertSame(0, IntegrationAccount::query()->where('provider', 'elevenlabs')->count());
             $this->assertArrayHasKey('telegram', $byKey);
             $this->assertSame(0, IntegrationAccount::query()->where('user_id', $owner->id)->count());
             $this->assertSame(0, IntegrationAccount::query()->where('provider', 'telegram')->count());

@@ -1,15 +1,10 @@
 import { router, usePage } from '@inertiajs/react';
+import { translateKnown } from './integrationCopy';
+import { badgeClass, normalizeState } from './settingsStatus';
 import { useState } from 'react';
 
 function statusClass(status) {
-    if (status === 'ready') {
-        return 'bg-emerald-100 text-emerald-700';
-    }
-    if (status === 'not_configured') {
-        return 'bg-amber-100 text-amber-800';
-    }
-
-    return 'bg-slate-100 text-slate-700';
+    return badgeClass(normalizeState(status));
 }
 
 export default function WebResearchPanel() {
@@ -66,74 +61,74 @@ export default function WebResearchPanel() {
             limits: 'Effective limits',
         },
         ru: {
-            title: 'Web Research',
-            hint: 'Технические настройки поиска для Owner Conversation. Не preference Workspace. SSRF и private-network правила здесь не отключаются. Test Connection в этом milestone нет.',
-            status: 'Status',
-            enabled: 'Enable Web Research',
-            provider: 'Provider',
+            title: 'Веб-поиск',
+            hint: 'Технические настройки поиска для разговора владельца. Правила доступа к внутренним сетям здесь не отключаются. Проверки подключения на этом экране нет.',
+            status: 'Статус',
+            enabled: 'Включить веб-поиск',
+            provider: 'Провайдер',
             gemini: 'Gemini Google Search',
             tavily: 'Tavily',
-            disabled: 'Disabled',
-            fetch: 'Fetch web pages',
-            results: 'Search results per search',
-            searches: 'Max searches per turn',
-            fetches: 'Max page fetches per turn',
-            pageChars: 'Max page chars',
-            totalChars: 'Max total web chars',
-            timeout: 'Timeout (seconds)',
-            recency: 'Default recency (days, optional)',
-            save: 'Save settings',
+            disabled: 'Выключено',
+            fetch: 'Загружать страницы',
+            results: 'Результатов на один поиск',
+            searches: 'Поисков за один ход',
+            fetches: 'Загрузок страниц за один ход',
+            pageChars: 'Символов на страницу',
+            totalChars: 'Символов из веба всего',
+            timeout: 'Таймаут (секунды)',
+            recency: 'Свежесть по умолчанию (дни, необязательно)',
+            save: 'Сохранить',
             geminiSection: 'Gemini Google Search',
-            geminiUses: 'Uses the existing Gemini API key from AI provider settings. No second secret is stored here.',
-            geminiConfigured: 'Gemini configured',
-            googleAvailable: 'Google Search provider available',
-            yes: 'yes',
-            no: 'no',
+            geminiUses: 'Используется ключ Gemini из настроек AI. Второй секрет здесь не хранится.',
+            geminiConfigured: 'Gemini настроен',
+            googleAvailable: 'Провайдер Google Search доступен',
+            yes: 'да',
+            no: 'нет',
             tavilySection: 'Tavily',
-            tavilyKey: 'API key (set or replace)',
-            tavilySave: 'Save Tavily key',
-            tavilyClear: 'Remove stored key',
-            tavilyConfigured: 'Tavily configured',
-            tavilyEnv: 'Using env WEB_SEARCH_API_KEY fallback. Saving a key here takes precedence.',
-            tavilyAdmin: 'Configured from Admin.',
-            fetchEnabled: 'fetch_web_page',
-            activeProvider: 'Active provider',
-            limits: 'Effective limits',
+            tavilyKey: 'API-ключ (задать или заменить)',
+            tavilySave: 'Сохранить ключ Tavily',
+            tavilyClear: 'Удалить сохранённый ключ',
+            tavilyConfigured: 'Tavily настроен',
+            tavilyEnv: 'Используется WEB_SEARCH_API_KEY из окружения. Ключ, сохранённый здесь, имеет приоритет.',
+            tavilyAdmin: 'Задано в админке.',
+            fetchEnabled: 'Загрузка страниц',
+            activeProvider: 'Активный провайдер',
+            limits: 'Действующие лимиты',
         },
         uk: {
-            title: 'Web Research',
-            hint: 'Технічні налаштування пошуку для Owner Conversation. Не preference Workspace. SSRF і private-network правила тут не вимикаються. Test Connection у цьому milestone немає.',
-            status: 'Status',
-            enabled: 'Enable Web Research',
-            provider: 'Provider',
+            title: 'Веб-пошук',
+            hint: 'Технічні налаштування пошуку для розмови власника. Правила доступу до внутрішніх мереж тут не вимикаються. Перевірки підключення на цьому екрані немає.',
+            status: 'Статус',
+            enabled: 'Увімкнути веб-пошук',
+            provider: 'Провайдер',
             gemini: 'Gemini Google Search',
             tavily: 'Tavily',
-            disabled: 'Disabled',
-            fetch: 'Fetch web pages',
-            results: 'Search results per search',
-            searches: 'Max searches per turn',
-            fetches: 'Max page fetches per turn',
-            pageChars: 'Max page chars',
-            totalChars: 'Max total web chars',
-            timeout: 'Timeout (seconds)',
-            recency: 'Default recency (days, optional)',
-            save: 'Save settings',
+            disabled: 'Вимкнено',
+            fetch: 'Завантажувати сторінки',
+            results: 'Результатів на один пошук',
+            searches: 'Пошуків за один хід',
+            fetches: 'Завантажень сторінок за один хід',
+            pageChars: 'Символів на сторінку',
+            totalChars: 'Символів з вебу загалом',
+            timeout: 'Таймаут (секунди)',
+            recency: 'Свіжість за замовчуванням (дні, необов’язково)',
+            save: 'Зберегти',
             geminiSection: 'Gemini Google Search',
-            geminiUses: 'Uses the existing Gemini API key from AI provider settings. No second secret is stored here.',
-            geminiConfigured: 'Gemini configured',
-            googleAvailable: 'Google Search provider available',
-            yes: 'yes',
-            no: 'no',
+            geminiUses: 'Використовується ключ Gemini з налаштувань AI. Другий секрет тут не зберігається.',
+            geminiConfigured: 'Gemini налаштовано',
+            googleAvailable: 'Провайдер Google Search доступний',
+            yes: 'так',
+            no: 'ні',
             tavilySection: 'Tavily',
-            tavilyKey: 'API key (set or replace)',
-            tavilySave: 'Save Tavily key',
-            tavilyClear: 'Remove stored key',
-            tavilyConfigured: 'Tavily configured',
-            tavilyEnv: 'Using env WEB_SEARCH_API_KEY fallback. Saving a key here takes precedence.',
-            tavilyAdmin: 'Configured from Admin.',
-            fetchEnabled: 'fetch_web_page',
-            activeProvider: 'Active provider',
-            limits: 'Effective limits',
+            tavilyKey: 'API-ключ (задати або замінити)',
+            tavilySave: 'Зберегти ключ Tavily',
+            tavilyClear: 'Видалити збережений ключ',
+            tavilyConfigured: 'Tavily налаштовано',
+            tavilyEnv: 'Використовується WEB_SEARCH_API_KEY з оточення. Ключ, збережений тут, має пріоритет.',
+            tavilyAdmin: 'Задано в адмінці.',
+            fetchEnabled: 'Завантаження сторінок',
+            activeProvider: 'Активний провайдер',
+            limits: 'Дійсні ліміти',
         },
     };
     const t = text[locale] ?? text.en;
@@ -148,7 +143,7 @@ export default function WebResearchPanel() {
         onChange: (event) => setForm((current) => ({ ...current, [key]: event.target.value })),
     });
 
-    const statusLabel = webResearch.status_label ?? 'Disabled';
+    const statusLabel = translateKnown(locale, webResearch.status_label) ?? t.disabled;
 
     const saveSettings = (event) => {
         event.preventDefault();

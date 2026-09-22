@@ -2,7 +2,49 @@ import { router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 export default function ZoomConfigForm() {
-    const { integrations = {}, errors = {} } = usePage().props;
+    const { integrations = {}, errors = {}, locale = 'en' } = usePage().props;
+    const text = {
+        en: {
+            title: 'Zoom Configuration',
+            intro: 'Server-to-Server OAuth. Webhook URL:',
+            accountId: 'Account ID',
+            clientId: 'Client ID',
+            clientSecret: 'Client Secret',
+            keepSecret: 'Leave blank to keep the current secret.',
+            webhookSecret: 'Webhook secret token',
+            enabled: 'Enabled',
+            save: 'Save Zoom configuration',
+            test: 'Test Zoom Connection',
+            disconnect: 'Disconnect',
+        },
+        ru: {
+            title: 'Настройки Zoom',
+            intro: 'Server-to-Server OAuth. URL webhook:',
+            accountId: 'Account ID',
+            clientId: 'Client ID',
+            clientSecret: 'Client Secret',
+            keepSecret: 'Оставьте пустым, чтобы сохранить текущий секрет.',
+            webhookSecret: 'Секрет webhook',
+            enabled: 'Включено',
+            save: 'Сохранить настройки Zoom',
+            test: 'Проверить подключение Zoom',
+            disconnect: 'Отключить',
+        },
+        uk: {
+            title: 'Налаштування Zoom',
+            intro: 'Server-to-Server OAuth. URL webhook:',
+            accountId: 'Account ID',
+            clientId: 'Client ID',
+            clientSecret: 'Client Secret',
+            keepSecret: 'Залиште порожнім, щоб зберегти поточний секрет.',
+            webhookSecret: 'Секрет webhook',
+            enabled: 'Увімкнено',
+            save: 'Зберегти налаштування Zoom',
+            test: 'Перевірити підключення Zoom',
+            disconnect: 'Відключити',
+        },
+    };
+    const t = text[locale] ?? text.en;
     const zoom = integrations.zoom ?? {};
     const [accountId, setAccountId] = useState(zoom.account_id ?? '');
     const [clientId, setClientId] = useState(zoom.client_id ?? '');
@@ -49,12 +91,12 @@ export default function ZoomConfigForm() {
             }}
             className="mt-4 space-y-3 border-t border-[#E6DCC8] pt-4"
         >
-            <h3 className="text-sm font-semibold text-slate-900">Zoom Configuration</h3>
+            <h3 className="text-sm font-semibold text-slate-900">{t.title}</h3>
             <p className="text-xs text-slate-500">
-                Server-to-Server OAuth. Webhook URL: {zoom.webhook_url}
+                {t.intro} {zoom.webhook_url}
             </p>
             <label className="block text-sm text-slate-700">
-                Account ID
+                {t.accountId}
                 <input
                     type="text"
                     autoComplete="off"
@@ -65,7 +107,7 @@ export default function ZoomConfigForm() {
             </label>
             {errors.account_id ? <p className="text-sm text-red-700">{errors.account_id}</p> : null}
             <label className="block text-sm text-slate-700">
-                Client ID
+                {t.clientId}
                 <input
                     type="text"
                     autoComplete="off"
@@ -75,7 +117,7 @@ export default function ZoomConfigForm() {
                 />
             </label>
             <label className="block text-sm text-slate-700">
-                Client Secret
+                {t.clientSecret}
                 <input
                     type="password"
                     autoComplete="new-password"
@@ -85,9 +127,9 @@ export default function ZoomConfigForm() {
                     className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
                 />
             </label>
-            <p className="text-xs text-slate-500">Leave blank to keep the current secret.</p>
+            <p className="text-xs text-slate-500">{t.keepSecret}</p>
             <label className="block text-sm text-slate-700">
-                Webhook secret token
+                {t.webhookSecret}
                 <input
                     type="password"
                     autoComplete="new-password"
@@ -99,7 +141,7 @@ export default function ZoomConfigForm() {
             </label>
             <label className="flex items-center gap-2 text-sm text-slate-700">
                 <input type="checkbox" checked={enabled} onChange={(event) => setEnabled(event.target.checked)} />
-                Enabled
+                {t.enabled}
             </label>
             <div className="flex flex-wrap gap-2">
                 <button
@@ -107,7 +149,7 @@ export default function ZoomConfigForm() {
                     disabled={busy !== null}
                     className="inline-flex h-9 items-center rounded-lg bg-indigo-600 px-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
                 >
-                    Save Zoom configuration
+                    {t.save}
                 </button>
                 <button
                     type="button"
@@ -115,7 +157,7 @@ export default function ZoomConfigForm() {
                     onClick={() => post('settings.integrations.zoom.test', {})}
                     className="inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
                 >
-                    Test Zoom Connection
+                    {t.test}
                 </button>
                 <button
                     type="button"
@@ -123,7 +165,7 @@ export default function ZoomConfigForm() {
                     onClick={() => post('settings.integrations.zoom.disconnect', {})}
                     className="inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
                 >
-                    Disconnect
+                    {t.disconnect}
                 </button>
             </div>
         </form>

@@ -40,7 +40,19 @@ final class CreateScheduledReportTool implements JarvisTool
                     'report_type' => ['type' => 'STRING', 'description' => 'daily_plan, tomorrow_plan, mail_groups_digest, or custom_composite.'],
                     'period_mode' => ['type' => 'STRING', 'description' => 'today, tomorrow, since_previous_report, last_24h.'],
                     'local_time' => ['type' => 'STRING', 'description' => 'HH:MM in the user timezone.'],
-                    'sources' => ['type' => 'ARRAY', 'description' => 'Semantic sources: {type: tasks|reminders|synthesis|google_calendar|gmail|telegram_groups}.'],
+                    'sources' => [
+                        'type' => 'ARRAY',
+                        'description' => 'Semantic sources: {type: tasks|reminders|synthesis|google_calendar|gmail|telegram_groups}.',
+                        'items' => [
+                            'type' => 'OBJECT',
+                            'properties' => [
+                                'type' => ['type' => 'STRING', 'description' => 'tasks, reminders, projects, synthesis, google_calendar, gmail, telegram_groups, notifications, or commitments.'],
+                                'calendar_scope' => ['type' => 'STRING'],
+                                'calendar_names' => ['type' => 'ARRAY', 'items' => ['type' => 'STRING']],
+                                'mode' => ['type' => 'STRING'],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         );

@@ -53,7 +53,7 @@ final class CreateWatcherTool implements JarvisTool
                 'type' => 'OBJECT',
                 'properties' => [
                     'name' => ['type' => 'STRING', 'description' => 'Short watcher name.'],
-                    'trigger_type' => ['type' => 'STRING', 'description' => 'knowledge_event, task_state, reminder_state, time_condition, calendar_event, gmail_message, github_event.'],
+                    'trigger_type' => ['type' => 'STRING', 'description' => 'knowledge_event, task_state, reminder_state, time_condition, calendar_event, gmail_message.'],
                     'source_type' => ['type' => 'STRING', 'description' => 'knowledge_entity, project, task, reminder, gmail, calendar, github, time.'],
                     'condition_type' => ['type' => 'STRING', 'description' => 'Controlled condition, e.g. thread_received_reply, github_new_commit, overdue_by, entity_event_type, new_item.'],
                     'reaction_type' => ['type' => 'STRING', 'description' => 'notify, create_notification, create_reminder, create_task, run_internal_analysis, propose_action.'],

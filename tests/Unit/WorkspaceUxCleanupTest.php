@@ -17,6 +17,31 @@ class WorkspaceUxCleanupTest extends TestCase
         $this->assertStringContainsString('{t.disabledNotice}', $panel);
     }
 
+    public function test_settings_use_one_flat_tab_per_element_with_status_overview(): void
+    {
+        $index = (string) file_get_contents(base_path('resources/js/Pages/Settings/Index.jsx'));
+        $copy = (string) file_get_contents(base_path('resources/js/Pages/Settings/settingsCopy.js'));
+        $overview = (string) file_get_contents(base_path('resources/js/Pages/Settings/OverviewPanel.jsx'));
+
+        $this->assertStringContainsString(
+            "export const SETTINGS_TABS = ['overview', 'ai', 'telegram', 'google', 'zoom', 'voice', 'web-research', 'activity'];",
+            $copy,
+        );
+        $this->assertStringContainsString("open: 'Открыть'", $copy);
+        $this->assertStringContainsString("open: 'Відкрити'", $copy);
+        $this->assertStringContainsString("tabActivity: 'Журнал'", $copy);
+
+        $this->assertStringContainsString('deriveSettingsStatus', $index);
+        $this->assertStringContainsString('dotClass(statuses[id]?.state)', $index);
+        $this->assertStringContainsString('<GooglePanel t={t} status={statuses.google} />', $index);
+        $this->assertStringContainsString('<ZoomPanel t={t} status={statuses.zoom} />', $index);
+        $this->assertFileDoesNotExist(base_path('resources/js/Pages/Settings/IntegrationsPanel.jsx'));
+        $this->assertFileDoesNotExist(base_path('resources/js/Pages/Settings/GeneralPanel.jsx'));
+
+        $this->assertStringContainsString('SettingsStatusCard', $overview);
+        $this->assertStringContainsString('CONNECTION_ELEMENTS', $overview);
+    }
+
     public function test_successful_chat_turn_triggers_productivity_refresh_without_reload_or_polling(): void
     {
         $workspace = (string) file_get_contents(base_path('resources/js/personal-workspace/PersonalWorkspace.jsx'));
@@ -70,8 +95,11 @@ class WorkspaceUxCleanupTest extends TestCase
         $this->assertStringContainsString('Голос ассистента', $voice);
         $this->assertStringContainsString('md:flex md:w-56', $settings);
         $this->assertStringContainsString('mobileDetail', $settings);
-        $this->assertStringContainsString('aria-label="Настройки"', $workspace);
-        $this->assertStringContainsString('Настройки', $workspace);
+        $this->assertStringContainsString("aria-label={t('chat.settings')}", $workspace);
+        $this->assertStringContainsString(
+            "settings: 'Настройки'",
+            (string) file_get_contents(base_path('resources/js/locales/ru.js')),
+        );
     }
 
     public function test_settings_query_is_allowlisted(): void

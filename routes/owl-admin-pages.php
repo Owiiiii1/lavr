@@ -42,7 +42,6 @@ use App\Http\Controllers\ProductionReadinessController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Settings\AiSettingsController;
-use App\Http\Controllers\Settings\GitHubOAuthController;
 use App\Http\Controllers\Settings\GoogleOAuthController;
 use App\Http\Controllers\Settings\GoogleOAuthSettingsController;
 use App\Http\Controllers\Settings\IntegrationsController;
@@ -487,13 +486,6 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
         ->name('integrations.google.test');
     Route::get('/integrations/google/callback', [GoogleOAuthController::class, 'callback'])
         ->name('integrations.google.callback');
-    Route::get('/settings/integrations/github/connect', [GitHubOAuthController::class, 'connect'])
-        ->middleware('throttle:10,1')
-        ->name('integrations.github.connect');
-    Route::post('/settings/integrations/github/disconnect', [GitHubOAuthController::class, 'disconnect'])
-        ->name('integrations.github.disconnect');
-    Route::get('/integrations/github/callback', [GitHubOAuthController::class, 'callback'])
-        ->name('integrations.github.callback');
     Route::post('/settings/language', [SettingsController::class, 'updateLanguage'])->name('settings.language.update');
 
     Route::post('/settings/web-research', [WebResearchSettingsController::class, 'update'])
@@ -519,7 +511,7 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
         ->name('settings.telegram.remove-webhook');
 
     Route::get('/app-settings', function () {
-        return redirect()->route('settings.index', ['tab' => 'app']);
+        return redirect()->route('settings.index');
     })->name('app-settings.index');
 
     Route::get('/ai-settings', [AiSettingsController::class, 'index'])->name('ai-settings.index');

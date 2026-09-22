@@ -116,8 +116,6 @@ export default function WatchersPanel({ open, surface, refreshToken = 0, onClose
         if (sourceFilter.trim()) {
             if (triggerType === 'gmail_message') {
                 source.query = sourceFilter.trim();
-            } else if (triggerType === 'github_event') {
-                source.repository = sourceFilter.trim();
             } else if (triggerType === 'calendar_event') {
                 source.event_id = sourceFilter.trim();
             }
@@ -229,7 +227,6 @@ export default function WatchersPanel({ open, surface, refreshToken = 0, onClose
                             <option value="time_condition">Срок / время</option>
                             <option value="knowledge_event">Событие знания</option>
                             <option value="gmail_message">Gmail</option>
-                            <option value="github_event">GitHub</option>
                             <option value="calendar_event">Календарь</option>
                         </select>
                         <select value={conditionType} onChange={(event) => setConditionType(event.target.value)} className="w-full rounded-lg border border-white/10 bg-black/30 px-2 py-1 text-xs">
@@ -237,7 +234,6 @@ export default function WatchersPanel({ open, surface, refreshToken = 0, onClose
                             <option value="deadline_within">До дедлайна</option>
                             <option value="new_item">Новый элемент</option>
                             <option value="thread_received_reply">Ответ в треде</option>
-                            <option value="github_new_commit">Новый commit</option>
                             <option value="calendar_changed">Календарь изменился</option>
                             <option value="entity_event_type">Событие сущности</option>
                         </select>

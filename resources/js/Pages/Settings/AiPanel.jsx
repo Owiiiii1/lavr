@@ -1,6 +1,7 @@
 import { router, useForm, usePage } from '@inertiajs/react';
 import { KeyRound, Loader2, PlugZap, Save } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { ERROR, OFF, READY, badgeClass } from './settingsStatus';
 
 const PROVIDERS = [
     { provider: 'openai', title: 'ChatGPT / OpenAI' },
@@ -41,6 +42,7 @@ export default function AiPanel() {
             selectProvider: 'Select provider',
             selectModel: 'Select model',
             disabledNotice: 'A model is selected, but this AI configuration is disabled. Turn on “Enabled” and save it.',
+            roleLabels: {},
         },
         ru: {
             credentialsTitle: 'Ключи провайдеров',
@@ -48,7 +50,12 @@ export default function AiPanel() {
                 'Здесь хранятся API-ключи и загружается список моделей. Рабочие модели включаются отдельно в конфигурациях ниже.',
             rolesTitle: 'Конфигурации AI',
             rolesSubtitle:
-                'Owner Conversation, Owner Analysis и Default User Conversation независимы. Выбор модели сам по себе не включает конфигурацию.',
+                'Разговор владельца, анализ владельца и разговор пользователя независимы. Выбор модели сам по себе не включает конфигурацию.',
+            roleLabels: {
+                'Owner Conversation AI': 'Разговор владельца',
+                'Owner Analysis AI': 'Анализ владельца',
+                'Default User Conversation AI': 'Разговор пользователя',
+            },
             apiKey: 'API-ключ',
             saveKey: 'Сохранить ключ',
             check: 'Проверить подключение',
@@ -76,7 +83,12 @@ export default function AiPanel() {
                 'Тут зберігаються API-ключі та завантажується список моделей. Робочі моделі вмикаються окремо в конфігураціях нижче.',
             rolesTitle: 'Конфігурації AI',
             rolesSubtitle:
-                'Owner Conversation, Owner Analysis і Default User Conversation незалежні. Вибір моделі сам по собі не вмикає конфігурацію.',
+                'Розмова власника, аналіз власника і розмова користувача незалежні. Вибір моделі сам по собі не вмикає конфігурацію.',
+            roleLabels: {
+                'Owner Conversation AI': 'Розмова власника',
+                'Owner Analysis AI': 'Аналіз власника',
+                'Default User Conversation AI': 'Розмова користувача',
+            },
             apiKey: 'API-ключ',
             saveKey: 'Зберегти ключ',
             check: 'Перевірити підключення',
@@ -110,13 +122,13 @@ export default function AiPanel() {
 
     const statusChip = (item) => {
         if (item?.is_connected) {
-            return { label: t.connected, className: 'bg-indigo-100 text-indigo-700' };
+            return { label: t.connected, className: badgeClass(READY) };
         }
         if (item?.last_error) {
-            return { label: t.error, className: 'bg-red-100 text-red-700' };
+            return { label: t.error, className: badgeClass(ERROR) };
         }
 
-        return { label: t.notConnected, className: 'bg-slate-100 text-slate-700' };
+        return { label: t.notConnected, className: badgeClass(OFF) };
     };
 
     const submitWithLock = (provider, callback) => {
@@ -130,9 +142,11 @@ export default function AiPanel() {
     return (
         <div className="space-y-8">
             <section className="space-y-4">
-                <div className="app-widget p-4">
-                    <h2 className="text-base font-semibold text-slate-900">{t.credentialsTitle}</h2>
-                    <p className="mt-1 text-sm text-slate-600">{t.credentialsSubtitle}</p>
+                <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {t.credentialsTitle}
+                    </h3>
+                    <p className="mt-1 max-w-3xl text-sm text-slate-600">{t.credentialsSubtitle}</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -143,7 +157,7 @@ export default function AiPanel() {
                         const busy = processingProvider === provider;
 
                         return (
-                            <div key={provider} className="app-widget p-4">
+                            <div key={provider} className="rounded-xl border border-[#E6DCC8] bg-[#FBF8F1] p-4">
                                 <div className="flex items-start justify-between gap-2">
                                     <h3 className="text-base font-semibold text-slate-900">{title}</h3>
                                     <span className={`rounded-full px-2 py-1 text-xs font-semibold ${chip.className}`}>
@@ -215,20 +229,21 @@ export default function AiPanel() {
                                         </button>
                                     </div>
 
-                                    <div className="space-y-2 pt-1">
-                                        <label className="block text-sm font-medium text-slate-700">{t.modelCatalog}</label>
-                                        <select
-                                            defaultValue=""
-                                            className="block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm shadow-sm"
-                                            disabled={models.length === 0}
-                                        >
-                                            <option value="">{models.length === 0 ? t.noModels : `${models.length} models`}</option>
-                                            {models.map((model) => (
-                                                <option key={model.id} value={model.id}>
-                                                    {model.name ?? model.id}
-                                                </option>
-                                            ))}
-                                        </select>
+                                    <div className="pt-1">
+                                        {models.length === 0 ? (
+                                            <p className="text-sm text-slate-500">{t.noModels}</p>
+                                        ) : (
+                                            <details className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                                                <summary className="cursor-pointer text-sm font-medium text-slate-700">
+                                                    {t.modelCatalog}: {models.length}
+                                                </summary>
+                                                <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs text-slate-600">
+                                                    {models.map((model) => (
+                                                        <li key={model.id}>{model.name ?? model.id}</li>
+                                                    ))}
+                                                </ul>
+                                            </details>
+                                        )}
                                     </div>
 
                                     {item.last_error && (
@@ -244,9 +259,9 @@ export default function AiPanel() {
             </section>
 
             <section className="space-y-4">
-                <div className="app-widget p-4">
-                    <h2 className="text-base font-semibold text-slate-900">{t.rolesTitle}</h2>
-                    <p className="mt-1 text-sm text-slate-600">{t.rolesSubtitle}</p>
+                <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t.rolesTitle}</h3>
+                    <p className="mt-1 max-w-3xl text-sm text-slate-600">{t.rolesSubtitle}</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -290,14 +305,14 @@ function RoleConfigCard({ role, connectedProviders, providerMap, t }) {
 
     return (
         <form
-            className="app-widget space-y-3 p-4"
+            className="space-y-3 rounded-xl border border-[#E6DCC8] bg-[#FBF8F1] p-4"
             onSubmit={(e) => {
                 e.preventDefault();
                 form.patch(route('ai-settings.roles.update', role.role_key), { preserveScroll: true });
             }}
         >
             <div className="flex items-start justify-between gap-2">
-                <h3 className="text-base font-semibold text-slate-900">{role.label}</h3>
+                <h3 className="text-base font-semibold text-slate-900">{t.roleLabels[role.label] ?? role.label}</h3>
                 <label className="flex items-center gap-2 text-sm text-slate-700">
                     <input
                         type="checkbox"

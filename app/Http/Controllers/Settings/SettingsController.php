@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\TelegramBotSetting;
+use App\Services\Assistant\AssistantProfileService;
+use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Voice\VoiceSettingsService;
 use App\Services\WebResearch\WebResearchSettingsService;
 use App\Support\Timezones;
@@ -17,20 +19,7 @@ class SettingsController extends Controller
 {
     public function index(Request $request): Response
     {
-        $allowedTabs = ['general', 'ai', 'app', 'integrations'];
-        $allowedSections = ['overview', 'web-research', 'voice', 'telegram', 'activity'];
-        $tab = (string) $request->query('tab', 'general');
-        $section = (string) $request->query('section', 'overview');
-        if ($tab === 'telegram') {
-            $tab = 'integrations';
-            $section = 'telegram';
-        }
-        if (! in_array($tab, $allowedTabs, true)) {
-            $tab = 'general';
-        }
-        if ($tab !== 'integrations' || ! in_array($section, $allowedSections, true)) {
-            $section = 'overview';
-        }
+        $tab = $this->resolveTab($request);
 
         /** @var AiSettingsController $aiSettings */
         $aiSettings = app(AiSettingsController::class);
@@ -44,17 +33,37 @@ class SettingsController extends Controller
             'voice' => app(VoiceSettingsService::class)->adminPayload(),
             'integrations' => app(IntegrationsController::class)->payload($request),
             'tab' => $tab,
-            'section' => $section,
         ]);
     }
 
-    public function updateLanguage(Request $request): RedirectResponse
+    /**
+     * Settings has one flat tab per element. Legacy links used an `integrations`
+     * container tab with a `section` query parameter, so they are mapped here.
+     */
+    private function resolveTab(Request $request): string
+    {
+        $allowedTabs = ['overview', 'ai', 'telegram', 'google', 'zoom', 'voice', 'web-research', 'activity'];
+        $tab = (string) $request->query('tab', 'overview');
+
+        if ($tab === 'integrations' || $tab === 'general') {
+            $tab = (string) $request->query('section', 'overview');
+        }
+
+        return in_array($tab, $allowedTabs, true) ? $tab : 'overview';
+    }
+
+    public function updateLanguage(Request $request, AssistantProfileService $profiles, OwnerLocaleResolver $locales): RedirectResponse
     {
         $validated = $request->validate([
             'locale' => ['required', 'in:en,ru,uk'],
         ]);
 
-        $request->session()->put('locale', $validated['locale']);
+        $user = $request->user();
+        $profiles->updateLocales(
+            $user,
+            $validated['locale'],
+            $locales->assistantLocale($user)->value,
+        );
 
         return back();
     }

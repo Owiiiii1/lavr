@@ -1,18 +1,11 @@
-function statusClass(state, configured) {
-    if (state === 'connected') {
-        return 'bg-emerald-100 text-emerald-700';
-    }
-    if (state === 'error' || state === 'revoked') {
-        return 'bg-red-100 text-red-700';
-    }
-    if (state === 'connecting') {
-        return 'bg-amber-100 text-amber-800';
-    }
-    if (configured) {
-        return 'bg-amber-100 text-amber-800';
-    }
+import { usePage } from '@inertiajs/react';
+import { translateKnown } from './integrationCopy';
+import { ATTENTION, OFF, badgeClass, normalizeState } from './settingsStatus';
 
-    return 'bg-slate-100 text-slate-700';
+function statusClass(state, configured) {
+    const normalized = normalizeState(state);
+
+    return badgeClass(normalized === OFF && configured ? ATTENTION : normalized);
 }
 
 function actionAvailable(provider, key) {
@@ -20,21 +13,24 @@ function actionAvailable(provider, key) {
 }
 
 export default function IntegrationProviderCard({ provider, t, disconnecting, onDisconnect, children, className = '' }) {
+    const { locale = 'en' } = usePage().props;
+    const tr = (value) => translateKnown(locale, value);
+
     return (
         <section className={`rounded-xl border border-[#E6DCC8] bg-[#FBF8F1] p-4 ${className}`.trim()}>
             <div className="flex items-start justify-between gap-3">
                 <h2 className="text-base font-semibold text-slate-900">{provider.display_name}</h2>
                 <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(provider.state, provider.provider === 'google' && provider.configured)}`}>
-                    {provider.label}
+                    {tr(provider.label)}
                 </span>
             </div>
             {(provider.oauth_client_label || provider.account_status_label) && (
                 <ul className="mt-2 space-y-1 text-sm text-slate-600">
                     {provider.oauth_client_label && (
-                        <li>OAuth client: {provider.oauth_client_label}</li>
+                        <li>{t.oauthClient}: {tr(provider.oauth_client_label)}</li>
                     )}
                     {provider.account_status_label && (
-                        <li>Account: {provider.account_status_label}</li>
+                        <li>{t.account}: {tr(provider.account_status_label)}</li>
                     )}
                 </ul>
             )}
@@ -45,7 +41,7 @@ export default function IntegrationProviderCard({ provider, t, disconnecting, on
                 <ul className="mt-2 space-y-1 text-sm text-slate-600">
                     {provider.capability_states.map((item) => (
                         <li key={item.key}>
-                            {item.label}: {item.state.replaceAll('_', ' ')}
+                            {tr(item.label)}: {tr(item.state)}
                         </li>
                     ))}
                 </ul>
@@ -62,11 +58,11 @@ export default function IntegrationProviderCard({ provider, t, disconnecting, on
             )}
             {provider.token_health && (
                 <p className="mt-1 text-sm text-slate-600">
-                    {t.tokenHealth}: {provider.token_health}
+                    {t.tokenHealth}: {tr(provider.token_health)}
                 </p>
             )}
             {provider.diagnostic_message && (
-                <p className="mt-2 text-sm text-slate-600">{provider.diagnostic_message}</p>
+                <p className="mt-2 text-sm text-slate-600">{tr(provider.diagnostic_message)}</p>
             )}
             {provider.provider === 'google' && (
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -115,45 +111,6 @@ export default function IntegrationProviderCard({ provider, t, disconnecting, on
                         <button
                             type="button"
                             onClick={() => onDisconnect('google')}
-                            disabled={disconnecting !== null}
-                            className="inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
-                        >
-                            {t.disconnect}
-                        </button>
-                    )}
-                </div>
-            )}
-            {provider.provider === 'github' && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                    {actionAvailable(provider, 'connect') && (
-                        <a
-                            href={route('integrations.github.connect')}
-                            className="inline-flex h-9 items-center rounded-lg bg-indigo-600 px-3 text-sm font-semibold text-white hover:bg-indigo-700"
-                        >
-                            {t.connectGitHub}
-                        </a>
-                    )}
-                    {actionAvailable(provider, 'reconnect') && (
-                        <a
-                            href={route('integrations.github.connect')}
-                            className="inline-flex h-9 items-center rounded-lg bg-indigo-600 px-3 text-sm font-semibold text-white hover:bg-indigo-700"
-                        >
-                            {t.reconnect}
-                        </a>
-                    )}
-                    {!provider.configured && (
-                        <button
-                            type="button"
-                            disabled
-                            className="inline-flex h-9 items-center rounded-lg bg-slate-200 px-3 text-sm font-medium text-slate-500"
-                        >
-                            {t.connectGitHub}
-                        </button>
-                    )}
-                    {actionAvailable(provider, 'disconnect') && (
-                        <button
-                            type="button"
-                            onClick={() => onDisconnect('github')}
                             disabled={disconnecting !== null}
                             className="inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
                         >

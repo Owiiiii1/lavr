@@ -62,6 +62,28 @@ class OwnerLocalePreferenceTest extends TestCase
         });
     }
 
+    public function test_admin_language_switch_updates_interface_locale_only(): void
+    {
+        $owner = $this->existingOwner();
+
+        $this->withRestoredLocales($owner, function (User $owner): void {
+            app(AssistantProfileService::class)->updateLocales($owner, 'uk', 'en');
+
+            $this->actingAs($owner)
+                ->from(route('settings.index'))
+                ->post(route('settings.language.update'), ['locale' => 'ru'])
+                ->assertRedirect(route('settings.index'));
+
+            $profile = UserAssistantProfile::query()->where('user_id', $owner->id)->first();
+            $this->assertSame('ru', $profile?->interface_locale);
+            $this->assertSame('en', $profile?->assistant_locale);
+
+            $settings = $this->inertiaProps($this->actingAs($owner)->get(route('settings.index')));
+            $this->assertSame('ru', $settings['locale']);
+            $this->assertSame('en', $settings['assistantLocale']);
+        });
+    }
+
     public function test_unsupported_locale_is_stored_as_uk(): void
     {
         $owner = $this->existingOwner();

@@ -78,25 +78,15 @@ export default function AdminLayout({ title, children }) {
 
     const ai = owlAdmin?.ai ?? {};
     const aiConnected = !!ai.connected;
-    const aiBadgeText = ai?.status_label
-        ?? (aiConnected
-            ? `AI: connected — ${ai.provider_label ?? ai.provider ?? 'Unknown'} / ${ai.model ?? 'unknown'}`
-            : 'AI: not connected');
 
     const telegram = owlAdmin?.telegram ?? {};
     const telegramStatus = telegram.status;
-    let telegramBadgeText = 'Bot: not connected';
     let telegramBadgeClass = 'bg-red-100 text-red-700';
 
     if (telegramStatus === 'connected') {
-        telegramBadgeText = telegram.status_label
-            ?? `Bot: connected — @${telegram.bot_username ?? ''}`;
         telegramBadgeClass = 'bg-emerald-100 text-emerald-700';
     } else if (telegramStatus === 'incomplete') {
-        telegramBadgeText = telegram.status_label ?? 'Bot: incomplete';
         telegramBadgeClass = 'bg-amber-100 text-amber-800';
-    } else if (telegram.status_label) {
-        telegramBadgeText = telegram.status_label;
     }
 
     const [statisticsOpen, setStatisticsOpen] = useState(route().current('statistics.*'));
@@ -127,46 +117,61 @@ export default function AdminLayout({ title, children }) {
             openWorkspace: 'Open LAVR',
             profile: 'Profile',
             language: 'Language',
+            aiOff: 'AI: not connected',
+            aiOn: 'AI: Owner Conversation — {provider} / {model}',
+            botOff: 'Bot: not connected',
+            botOn: 'Bot: connected — @{name}',
+            botIncomplete: 'Bot: incomplete',
         },
         ru: {
             home: 'Главная',
-            projects: 'Projects',
-            people: 'People',
-            organizations: 'Organizations',
-            meetings: 'Meetings',
+            projects: 'Проекты',
+            people: 'Люди',
+            organizations: 'Организации',
+            meetings: 'Встречи',
             commitments: 'Обязательства',
-            executiveBriefs: 'Executive Briefs',
-            leadershipReviews: 'Leadership Reviews',
-            automationRuns: 'Automation Runs',
-            telegramGroups: 'Telegram Groups',
+            executiveBriefs: 'Сводки',
+            leadershipReviews: 'Обзоры руководства',
+            automationRuns: 'Автоматизации',
+            telegramGroups: 'Группы Telegram',
             calendar: 'Календарь',
             settings: 'Настройки',
             logout: 'Выход',
             statistics: 'Статистика',
             logs: 'Логи',
             adminPanel: 'Админ-панель',
-            openWorkspace: 'Open LAVR',
+            openWorkspace: 'Открыть LAVR',
+            aiOff: 'AI: не подключено',
+            aiOn: 'AI: разговор владельца — {provider} / {model}',
+            botOff: 'Бот: не подключён',
+            botOn: 'Бот: подключён — @{name}',
+            botIncomplete: 'Бот: не завершено',
             profile: 'Профиль',
             language: 'Язык',
         },
         uk: {
             home: 'Головна',
-            projects: 'Projects',
-            people: 'People',
-            organizations: 'Organizations',
-            meetings: 'Meetings',
+            projects: 'Проєкти',
+            people: 'Люди',
+            organizations: 'Організації',
+            meetings: 'Зустрічі',
             commitments: 'Зобов’язання',
-            executiveBriefs: 'Executive Briefs',
-            leadershipReviews: 'Leadership Reviews',
-            automationRuns: 'Automation Runs',
-            telegramGroups: 'Telegram Groups',
+            executiveBriefs: 'Зведення',
+            leadershipReviews: 'Огляди керівництва',
+            automationRuns: 'Автоматизації',
+            telegramGroups: 'Групи Telegram',
             calendar: 'Календар',
             settings: 'Налаштування',
             logout: 'Вийти',
             statistics: 'Статистика',
             logs: 'Логи',
             adminPanel: 'Адмін-панель',
-            openWorkspace: 'Open LAVR',
+            openWorkspace: 'Відкрити LAVR',
+            aiOff: 'AI: не підключено',
+            aiOn: 'AI: розмова власника — {provider} / {model}',
+            botOff: 'Бот: не підключено',
+            botOn: 'Бот: підключено — @{name}',
+            botIncomplete: 'Бот: не завершено',
             profile: 'Профіль',
             language: 'Мова',
         },
@@ -174,6 +179,16 @@ export default function AdminLayout({ title, children }) {
 
     const t = uiText[locale] ?? uiText.en;
     const currentLanguageLabel = languageLabels[locale] ?? languageLabels.en;
+    const aiBadgeText = aiConnected
+        ? t.aiOn
+            .replace('{provider}', ai.provider_label ?? ai.provider ?? '')
+            .replace('{model}', ai.model ?? '')
+        : t.aiOff;
+    const telegramBadgeText = telegramStatus === 'connected'
+        ? t.botOn.replace('{name}', telegram.bot_username ?? '')
+        : telegramStatus === 'incomplete'
+            ? t.botIncomplete
+            : t.botOff;
 
     const settingsActive =
         route().current('settings.*')
