@@ -227,6 +227,29 @@ Ukrainian-first localization remains Phase **3C**.
 
 ---
 
+## Post-Phase-12 product evolution candidates
+
+**Status: TARGET / PRODUCT DISCOVERY.** Not an approved phase. Not Phase 13. Do not schedule work from this list until a CURRENT-versus-TARGET gap review says the item is next.
+
+Candidates:
+
+- Structured CEO Profile
+- Owner context tiers
+- CEO pattern tracking
+- 1:1 meeting mode
+- Pre-Meeting Brief
+- Manager operational review
+- First-class Decisions
+- Weekly outcomes
+- KPI and Definition of Done support
+- Evening executive brief
+- Lessons learned ledger
+- CEO longitudinal development
+
+Canonical write-up: [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md), [OWNER_CONTEXT_AND_MEMORY.md](OWNER_CONTEXT_AND_MEMORY.md). Report: [Development/LAVR_CEO_OS_DOCUMENTATION_REPORT.md](Development/LAVR_CEO_OS_DOCUMENTATION_REPORT.md).
+
+---
+
 ## Out of scope until explicitly scheduled
 
 - Desktop (CANCELLED)

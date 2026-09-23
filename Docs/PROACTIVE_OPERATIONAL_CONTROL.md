@@ -82,3 +82,27 @@ Proactive events/proposals carry `source_type` / `source_id` / `source_external_
 ## Not in Phase 11
 
 Autonomous employee messaging; unrestricted Gmail/Telegram send; generic no-code rules; ML personalization; surveillance / personality; first-class Decisions; SaaS; multi-user; connecting real developer accounts.
+
+---
+
+## TARGET — CEO operating patterns
+
+Not implemented rules. Do not add them to the scanner from this list. Each future rule must cite evidence. The model must not invent a failure.
+
+Candidates:
+
+- missing owner
+- missing deadline
+- missing KPI
+- missing Definition of Done
+- repeated miss
+- decision without a next action (the current decision-like rule is the only one of these that exists)
+- unresolved decision
+- CEO doing work that already has a manager owner
+- too many priorities
+- activity with no measurable output
+- role ambiguity
+- data contradiction across sources
+- a project topic reopened without a new decision
+
+Still forbidden: surveillance, personality labels, employee ranking, autonomous messages to staff.

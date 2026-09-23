@@ -100,7 +100,34 @@ Store at least: decision text, date, participants, project, source, rationale, c
 
 Query: «Почему мы приняли это решение?» must cite a meeting or other source, not a free-floating model opinion.
 
-**CURRENT:** group knowledge type `decision` and Knowledge events exist; there is no `decisions` table.
+**CURRENT:** group knowledge type `decision` and Knowledge events exist; Meeting Intelligence stores decisions inside analysis JSON; Executive Brief may surface decision-like items; Proactive Control can flag a decision-like item with no next action. There is no `decisions` table.
+
+**TARGET:** a decision ledger with status, owner, date, rationale, source, execution status, and superseded history. Not a schema. Protocol: [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md).
+
+---
+
+## TARGET concepts (not in code)
+
+These names are product language. Do not add models from this section. CURRENT column is what already covers part of the job.
+
+| Concept | CURRENT substitute | TARGET |
+| --- | --- | --- |
+| CEO Profile | Timezone, locales, assistant `about_user` (how the assistant speaks, not an operating profile) | Stable goals and operating principles. [OWNER_CONTEXT_AND_MEMORY.md](OWNER_CONTEXT_AND_MEMORY.md) |
+| CEO Pattern | Weekly review ratios; per-meeting indicators on one transcript | Isolated → repeated → improving → resolved, with evidence counts. Not a table today |
+| Weekly Outcome | Morning brief and open commitments | 3–5 company outcomes and 1–3 per manager: owner, result, measure, review period, status, blocker, source, next review. Seven “top” items are not top priorities |
+| Decision | Analysis JSON, brief items, proactive “decision-like” rule | Ledger above |
+| KPI Definition | Numbers inside notes, mail, or meeting text | A named definition that is not silently overwritten |
+| Definition of Done | Commitment `expected_result` when the Owner or analysis filled it | Explicit acceptance criteria on the promise |
+| Lesson Learned | Leadership findings for one period | Context, source, observed outcome, reusable rule, date, related project or person. No motivational slogans |
+| Meeting type / purpose | One meeting pipeline for every transcript | Labels such as general, 1:1, project review, strategy, sales, finance. Not modes today |
+| 1:1 review context | Per-meeting review of a selected person | Pre-meeting brief plus a manager operational review that is not an HR score |
+
+Weekly Outcome ≠ Commitment ≠ Task ≠ Decision.
+
+- Task: something to do.
+- Commitment: an explicit promise.
+- Weekly Outcome: a business result that matters this period.
+- Decision: a choice that changes later execution.
 
 ---
 

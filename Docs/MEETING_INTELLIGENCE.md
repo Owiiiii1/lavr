@@ -220,3 +220,64 @@ Temporal rule: a later decision supersedes an earlier hypothesis, question, or r
 Old analyses stay readable. Reanalyze builds `review` without deleting the previous row. Changing the review person recomposes `review` and does not re-upload the transcript.
 
 Report: [Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md](Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md).
+
+---
+
+## TARGET — CEO operating layer on meetings
+
+Not implemented. Does not replace review v2. Loop: [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md).
+
+### Meeting types
+
+Labels only, not modes and not routes:
+
+- general meeting
+- 1:1
+- project review
+- strategy
+- sales review
+- finance review
+
+### Pre-Meeting Brief
+
+For a selected Person or Project, before the Owner walks in:
+
+- previous commitments
+- overdue commitments
+- latest KPI or stated result
+- unresolved blockers
+- repeated misses
+- unresolved decisions
+- items waiting on the CEO
+- suggested questions
+- decisions the Owner must make
+
+**CURRENT substitute:** the Owner opens the last meeting card and the commitment list by hand.
+
+### 1:1 flow (TARGET)
+
+Before: the Pre-Meeting Brief above.
+
+After analysis:
+
+- manager result versus what was expected
+- questions the CEO asked
+- follow-ups
+- root cause (manager gap, CEO clarity gap, process gap, or external dependency)
+- decisions
+- commitments with owner, deadline, expected result, and Definition of Done
+- next review
+
+Two layers:
+
+**A. CEO coaching** — how the selected person (often the Owner) ran the meeting. Review v2 is the current, single-meeting version: indicators, strengths, improvements, at most three recommendations. No overall score.
+
+**B. Manager operational review** — what result was expected, what happened, KPI evidence, preparation, blockers, quality of the diagnosis, options offered, ownership, and the next commitment. This is not HR scoring and not a ranking.
+
+Allowed process language: preparation, ownership, KPI fluency, diagnosis, execution reliability, initiative, clarity, result delivery.
+
+Forbidden: lazy, toxic, stupid, disloyal, weak personality, psychological diagnosis.
+
+### After any meeting (TARGET fields)
+
+Decisions, commitments, owner, deadline, expected result, Definition of Done, blockers, next review. CEO coaching and, where the meeting is a 1:1, the manager operational review. Superseded hypotheses stay out of the executive lists, as review v2 already does.

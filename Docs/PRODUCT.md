@@ -4,7 +4,21 @@ Canonical product definition. Runtime facts: [CURRENT_STATE.md](CURRENT_STATE.md
 
 ## What LAVR is
 
-LAVR is a **dedicated production instance** of a personal AI Chief of Staff for **one CEO**.
+**CURRENT.** LAVR is a **dedicated production instance** of a personal AI Chief of Staff and operational control layer for **one CEO**.
+
+**TARGET positioning** (not a shipped mode; see [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md)): LAVR is a private AI Operating Partner for one CEO.
+
+Target roles, none of which replace the current architecture:
+
+- AI Chief of Staff
+- CEO Coach
+- Executive Advisor
+- Operational Control Layer
+- Decision Support System
+- Meeting / 1:1 Coach
+- Accountability System
+- Project Controller
+- Business Analyst
 
 It is not SaaS. It is not multi-tenant. It is not a public multi-user product. There is no third-party registration.
 
@@ -24,6 +38,13 @@ LAVR must do more than answer questions and store memory. It must:
 LAVR automatically receives meeting transcripts from connected conferencing providers, starting with Zoom. Manual upload remains the fallback for other meetings. Technical ingest: [MEETING_INTELLIGENCE.md](MEETING_INTELLIGENCE.md).
 
 ## Product principle
+
+The system should improve both:
+
+1. the current business outcome;
+2. the Owner’s repeatable CEO behavior.
+
+Example. Do not only “solve the manager’s problem”. Help the Owner see whether the task was clear, whether it had an owner, a KPI, a Definition of Done, and a review point, and whether the CEO started doing the manager’s work.
 
 **LAVR = Leadership · Accountability · Vision · Results**
 
@@ -59,10 +80,15 @@ Operational answers (“what did Kolya promise?”, “what is happening on Chic
 
 LAVR is **not**:
 
-- a CRM;
+- a CRM replacement;
 - an ERP;
 - an HRM;
-- a Jira replacement;
+- a task-manager replacement (Jira or otherwise);
+- a therapist;
+- a personality evaluator;
+- an employee surveillance system;
+- a generic chatbot;
+- an autonomous executive;
 - a Slack replacement;
 - a Gmail replacement;
 - a standalone project-management suite.
@@ -70,6 +96,30 @@ LAVR is **not**:
 LAVR is an **intelligence and operational control layer** on top of existing systems.
 
 If a source system already stores a task, client, or deal, LAVR should integrate through API rather than duplicate that system. Local structured records exist when LAVR needs them for control, briefing, and CEO questions — not to become a second CRM.
+
+## Product principles
+
+1. AI is not the database.
+2. Facts require provenance.
+3. UNKNOWN ≠ EMPTY.
+4. The Owner remains the decision-maker.
+5. No unrestricted third-party actions.
+6. No personality diagnosis.
+7. No employee surveillance.
+8. No treating activity as productivity.
+9. No silent overwrite of an old fact.
+10. No generic praise.
+11. CEO development is evidence-based.
+12. Reduce information to attention.
+13. Reduce dependence on the Owner’s memory.
+14. Do not train managers to outsource thinking to the AI or the CEO.
+15. Serve the current business problem and a reusable CEO lesson.
+
+Canonical TARGET loop: [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md). Context retention: [OWNER_CONTEXT_AND_MEMORY.md](OWNER_CONTEXT_AND_MEMORY.md).
+
+### Decision support (TARGET)
+
+A decision conversation separates FACT, ASSUMPTION, HYPOTHESIS, ANALYSIS, and RECOMMENDATION. The protocol is: decision, goal, known facts, unknowns, options, economics, upside, downside, risks, reversibility, recommendation, owner, deadline, next action. There is no first-class decision ledger. Meeting analysis JSON is the current substitute. The Owner decides.
 
 ## Audience
 

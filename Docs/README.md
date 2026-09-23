@@ -16,6 +16,8 @@ Deep rewrite: Phase 2 (this index). Origin: [LAVR_MIGRATION.md](LAVR_MIGRATION.m
 | Topic | Doc |
 | --- | --- |
 | Product | [PRODUCT.md](PRODUCT.md) |
+| CEO Operating System (TARGET, not a phase) | [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md) |
+| Owner context and memory (spec) | [OWNER_CONTEXT_AND_MEMORY.md](OWNER_CONTEXT_AND_MEMORY.md) |
 | Interfaces (Telegram / WebApp / Web / Admin) | [INTERFACES.md](INTERFACES.md) |
 | Operational core overview | [DOMAIN_MODEL.md](DOMAIN_MODEL.md) |
 | People, roles, orgs, relationships | [PEOPLE_AND_RELATIONSHIPS.md](PEOPLE_AND_RELATIONSHIPS.md) |

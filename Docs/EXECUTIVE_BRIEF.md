@@ -58,4 +58,16 @@ Scheduled morning is skipped on weekends unless `morning_brief_weekends`. Manual
 
 ## TARGET (later)
 
-Evening/weekly product surfaces, first-class Decisions, PDF export — not Phase 8. Leadership Review is Phase 9 (**IMPLEMENTED**); Brief may include one actionable process signal only.
+The `executive_briefs` type column already allows morning, evening, and weekly. **CURRENT product surface is the morning brief.** Evening and weekly expansions below are **TARGET** until a UI and collector actually ship them. First-class Decisions and PDF export stay later. Leadership Review is Phase 9 (**IMPLEMENTED**); the morning brief may include one actionable process signal only.
+
+### Morning (mostly CURRENT)
+
+Attention Now, overdue commitments, calendar, blocked integrations, and a leadership signal already exist. **TARGET additions:** today’s outcomes, decisions needed, “waiting on CEO”, and a clearer key-calendar line. Do not describe those additions as collected today.
+
+### Evening (TARGET)
+
+Concrete results today, commitments completed, commitments missed, unresolved items, tomorrow’s plan, waiting on CEO, repeated misses, one material after-hours note. Not a volume dump.
+
+### Weekly (TARGET)
+
+3–5 company outcomes and their progress, manager commitments, decisions, repeated misses, CEO patterns, key risks, next week’s priorities. CEO patterns are not a longitudinal store yet. See [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md).

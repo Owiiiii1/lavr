@@ -197,3 +197,15 @@ Default third-party contact: ask first. [COMMITMENTS.md](COMMITMENTS.md).
 **IMPLEMENTED** 2026-09-10. See [Development/LAVR_PHASE_7_REPORT.md](Development/LAVR_PHASE_7_REPORT.md). Executive Brief (Phase 8) hangs on the same `automation_runs` contract (`AutomationType::ExecutiveBrief`). Phase 11 added typed operational rules and `operational_events` — **not** a custom Zapier DSL.
 
 Watchers and scheduled reports may name `integration_account_id`, `project_id`, or a Telegram group. Omit account id to use all enabled Gmail accounts. Reminders stay unrelated to integrations. [MULTI_SOURCE_INTEGRATION.md](MULTI_SOURCE_INTEGRATION.md).
+
+---
+
+## Operating rhythm (TARGET rule)
+
+Automation may enforce a rhythm. It must not become autonomous management.
+
+Allowed examples: remind the Owner, surface a missing deadline, request confirmation, propose a follow-up, create a draft, suggest a review time.
+
+Third-party sends and calendar writes stay policy-gated. [PROACTIVE_OPERATIONAL_CONTROL.md](PROACTIVE_OPERATIONAL_CONTROL.md).
+
+AI interprets, summarizes, and suggests. Code owns schedules, state, evidence, execution policy, and idempotency. AI is not the database.

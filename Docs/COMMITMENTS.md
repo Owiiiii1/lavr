@@ -104,3 +104,20 @@ Logs: `commitment_id`, `person_id`, status transition, source type/id, outcome. 
 
 - Fuzzy merge remains Owner/Admin explicit; no AI auto-merge
 - Live Owner campaign for overdue remind → likely_done confirm (code **IMPLEMENTED**; campaign **NOT VALIDATED**)
+
+### Fuller commitment (TARGET, not a schema change)
+
+Owner + expected result + Definition of Done + deadline + measurement or acceptance criteria + source + project + status + next review.
+
+**CURRENT** already stores person, action, expected result, deadline, project, source, and lifecycle status. Definition of Done, a separate measurement, and a next-review field are not required columns.
+
+Do not merge these ideas into one object:
+
+| Object | Meaning |
+| --- | --- |
+| Task | Something to do |
+| Commitment | An explicit promise or obligation |
+| Weekly Outcome | A business result that matters this period (TARGET; 3–5 for the company, 1–3 per manager) |
+| Decision | A choice that changes later execution (TARGET ledger; today it is meeting JSON) |
+
+See [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md) and [DOMAIN_MODEL.md](DOMAIN_MODEL.md).

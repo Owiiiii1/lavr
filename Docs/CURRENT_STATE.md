@@ -33,7 +33,7 @@ Planned architecture is labeled **TARGET**. Do not treat TARGET as shipped.
 | Topic | CURRENT | TARGET |
 | --- | --- | --- |
 | Tenancy | Single Owner, no register | Same |
-| Role | Personal assistant + knowledge/tasks/watchers/reports | AI Chief of Staff / operational control layer ([PRODUCT.md](PRODUCT.md)) |
+| Role | Personal assistant + knowledge/tasks/watchers/reports, plus the implemented control layer in this file | TARGET CEO Operating System ([CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md)). Not CURRENT |
 | Primary fast UI | Telegram DM | Telegram Chat (same) |
 | Primary rich UI | Web Workspace `/lavr` + Mini App entry `/telegram/webapp` (same UI) | Telegram WebApp = same Workspace ([INTERFACES.md](INTERFACES.md)) |
 | People | Canonical `people` + roles + identities + `employee_profiles`. Knowledge `person` remains index | Same |
@@ -233,3 +233,11 @@ Do not implement from this section. Phases 1–12 are **IMPLEMENTED**. Remaining
 Architecture sketch: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Decisions: ADR-266+ in [DECISIONS.md](DECISIONS.md). Localization: Phase **3C** in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) — **IMPLEMENTED** (Owner Workspace). Admin kit copy remains untranslated.
 
 Meeting review schema v2 is **IMPLEMENTED** in code (2026-09-23): executive `review` on analysis JSON, `review_subject_person_id`, default person in productivity settings. Weekly leadership reviews are unchanged. Live Owner confirmation of the new screen is not recorded. Report: [Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md](Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md).
+
+## Product evolution under analysis
+
+A client master context introduced a broader CEO Operating System target: chief of staff, coach, operational control, and decision support in one loop. No new CEO OS domain is CURRENT unless this file already lists it as implemented.
+
+Canonical TARGET docs: [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md), [OWNER_CONTEXT_AND_MEMORY.md](OWNER_CONTEXT_AND_MEMORY.md).
+
+Production status remains Phase 12 plus the Meeting Review redesign (`28540d3`). Those TARGET docs are not a phase and not a migration.
