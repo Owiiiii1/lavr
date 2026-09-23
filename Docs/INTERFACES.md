@@ -141,3 +141,5 @@ Admin ≠ conversation channel. [PRODUCT.md](PRODUCT.md).
 - Preferred assistant language is independent of UI locale ([PRODUCT.md](PRODUCT.md#languages), [ONBOARDING.md](ONBOARDING.md)).
 - Notifications may land in Telegram Chat even when the CEO is in WebApp.
 - Mutating external actions still require confirmation policy. [AUTOMATION_ENGINE.md](AUTOMATION_ENGINE.md).
+
+Meeting detail (admin and `/lavr/meetings`) shows an executive review: metric cards, main insight, leadership indicators for the selected person, capped decisions/actions/risks/questions, and assistant actions. Tables become cards below the `md` breakpoint. The import form asks who to review. Settings → productivity stores the default person.

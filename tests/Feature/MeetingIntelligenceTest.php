@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Enums\AiRoleKey;
 use App\Enums\MeetingAnalysisStatus;
+use App\Enums\MeetingSourceType;
+use App\Enums\MeetingStatus;
 use App\Enums\UserRole;
 use App\Jobs\AnalyzeMeetingTranscriptJob;
 use App\Models\Meeting;
@@ -12,6 +14,8 @@ use App\Models\MeetingParticipant;
 use App\Models\Person;
 use App\Models\User;
 use App\Services\Ai\Contracts\AiChatGateway;
+use App\Services\Ai\DTO\ToolCall;
+use App\Services\Conversations\ConversationService;
 use App\Services\Directory\DirectoryService;
 use App\Services\Meetings\MeetingIntelligenceMerger;
 use App\Services\Meetings\MeetingIntelligenceValidator;
@@ -21,6 +25,8 @@ use App\Services\Meetings\SubtitleParser;
 use App\Services\Meetings\TranscriptChunker;
 use App\Services\Meetings\TranscriptNormalizer;
 use App\Services\Projects\ProjectService;
+use App\Services\Tools\Meetings\CreateMeetingTool;
+use App\Services\Tools\ToolExecutionContext;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +85,21 @@ SRT;
         $validated = app(MeetingIntelligenceValidator::class)->validate($payload, $meeting);
         $this->assertNull($validated['deadlines'][0]['deadline_at']);
         $this->assertSame('tomorrow', $validated['deadlines'][0]['deadline_raw']);
+    }
+
+    public function test_validator_uses_executive_summary_when_outcomes_are_empty(): void
+    {
+        $meeting = new Meeting(['started_at' => null]);
+        $payload = $this->validAnalysis();
+        $payload['summary'] = [
+            'executive' => 'Короткий підсумок зустрічі.',
+            'outcomes' => [],
+            'attention' => [],
+        ];
+
+        $validated = app(MeetingIntelligenceValidator::class)->validate($payload, $meeting);
+
+        $this->assertSame(['Короткий підсумок зустрічі.'], $validated['summary']['outcomes']);
     }
 
     public function test_merger_deduplicates_identical_actions_but_keeps_distinct_facts(): void
@@ -157,6 +178,76 @@ SRT;
         }
     }
 
+    public function test_planned_meeting_is_created_without_a_transcript_and_links_a_calendar_event(): void
+    {
+        $user = null;
+
+        try {
+            Bus::fake();
+            $user = $this->temporaryOwner();
+            $user->forceFill(['timezone' => 'Europe/Kyiv'])->save();
+
+            $this->actingAs($user)->post(route('meetings.planned.store'), [
+                'title' => 'Планёрка по объекту',
+                'started_at' => '2026-10-01 15:00',
+                'ended_at' => '2026-10-01 16:00',
+                'location' => 'Zoom',
+                'participants' => [['display_name' => 'Тарас', 'email' => 'taras@example.test']],
+                'calendar_provider' => 'google',
+                'calendar_id' => 'primary',
+                'calendar_event_id' => 'evt-planned-1',
+            ])->assertRedirect();
+
+            $meeting = Meeting::query()->where('user_id', $user->id)->firstOrFail();
+            $this->assertSame(MeetingStatus::Draft, $meeting->status);
+            $this->assertSame(MeetingSourceType::CalendarLink, $meeting->source_type);
+            $this->assertSame(0, $meeting->artifacts()->count());
+            $this->assertSame('google', $meeting->calendar_provider);
+            $this->assertSame('evt-planned-1', $meeting->calendar_event_id);
+            $this->assertSame('2026-10-01 12:00', $meeting->started_at->utc()->format('Y-m-d H:i'));
+            $this->assertSame(1, $meeting->participants()->count());
+            Bus::assertNotDispatched(AnalyzeMeetingTranscriptJob::class);
+
+            $this->actingAs($user)->post(route('meetings.planned.store'), [
+                'title' => 'Без даты',
+                'started_at' => '2026-10-02 10:00',
+                'calendar_provider' => 'google',
+            ])->assertSessionHasErrors('title');
+        } finally {
+            $this->deleteTemporaryUser($user);
+        }
+    }
+
+    public function test_create_meeting_tool_makes_a_planned_card(): void
+    {
+        $user = null;
+
+        try {
+            $user = $this->temporaryOwner();
+            $tool = app(CreateMeetingTool::class);
+            $context = new ToolExecutionContext(
+                $user,
+                app(ConversationService::class)->createPersonal($user, 'Основной'),
+                explicitUserCommand: true,
+            );
+
+            $result = $tool->execute(
+                new ToolCall(id: 'call-1', name: CreateMeetingTool::NAME, arguments: [
+                    'title' => 'Синк по релизу',
+                    'started_at' => '2026-10-05 11:30',
+                ]),
+                $context,
+            );
+
+            $this->assertTrue($result->payload['success']);
+            $meeting = Meeting::query()->where('user_id', $user->id)->firstOrFail();
+            $this->assertSame('Синк по релизу', $meeting->title);
+            $this->assertSame(MeetingStatus::Draft, $meeting->status);
+        } finally {
+            $this->deleteTemporaryUser($user);
+        }
+    }
+
     public function test_txt_upload_queues_then_stores_analysis_with_evidence(): void
     {
         $user = null;
@@ -224,6 +315,50 @@ SRT;
             $this->deleteTemporaryUser($regular);
         } finally {
             $this->deleteTemporaryUser($owner);
+            $this->deleteTemporaryUser($other);
+        }
+    }
+
+    public function test_archived_meeting_leaves_the_list_and_stays_in_the_archive(): void
+    {
+        $user = null;
+        $other = null;
+
+        try {
+            $user = $this->temporaryOwner();
+            $other = $this->temporaryOwner();
+            $active = Meeting::factory()->create([
+                'user_id' => $user->id,
+                'title' => 'Active '.Str::random(6),
+                'status' => MeetingStatus::Ready,
+            ]);
+            $archived = Meeting::factory()->create([
+                'user_id' => $user->id,
+                'title' => 'Archived '.Str::random(6),
+                'status' => MeetingStatus::Archived,
+            ]);
+            $foreign = Meeting::factory()->create([
+                'user_id' => $other->id,
+                'title' => 'Foreign '.Str::random(6),
+                'status' => MeetingStatus::Archived,
+            ]);
+
+            $list = $this->inertia($this->actingAs($user)->get(route('meetings.index')));
+            $titles = array_column($list['props']['meetings'], 'title');
+            $this->assertContains($active->title, $titles);
+            $this->assertNotContains($archived->title, $titles);
+
+            $archive = $this->inertia($this->actingAs($user)->get(route('meetings.archived')));
+            $archiveTitles = array_column($archive['props']['meetings'], 'title');
+            $this->assertSame([$archived->title], $archiveTitles);
+            $this->assertNotContains($foreign->title, $archiveTitles);
+
+            $this->actingAs($user)->post(route('meetings.archive', $active))->assertRedirect(route('meetings.index'));
+            $after = $this->inertia($this->actingAs($user)->get(route('meetings.index')));
+            $this->assertNotContains($active->title, array_column($after['props']['meetings'], 'title'));
+            $this->assertSame(MeetingStatus::Archived, $active->fresh()->status);
+        } finally {
+            $this->deleteTemporaryUser($user);
             $this->deleteTemporaryUser($other);
         }
     }

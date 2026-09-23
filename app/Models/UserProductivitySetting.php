@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'user_id',
+    'default_review_person_id',
+    'auto_generate_leadership_review',
     'daily_brief_enabled',
     'daily_brief_local_time',
     'evening_review_enabled',
@@ -67,6 +69,7 @@ class UserProductivitySetting extends Model
             'morning_brief_telegram' => 'boolean',
             'morning_brief_inbox' => 'boolean',
             'morning_brief_weekends' => 'boolean',
+            'auto_generate_leadership_review' => 'boolean',
             'leadership_review_enabled' => 'boolean',
             'leadership_review_telegram' => 'boolean',
             'leadership_review_inbox' => 'boolean',
@@ -105,6 +108,7 @@ class UserProductivitySetting extends Model
         'morning_brief_telegram' => true,
         'morning_brief_inbox' => true,
         'morning_brief_weekends' => false,
+        'auto_generate_leadership_review' => true,
         'leadership_review_enabled' => true,
         'leadership_review_weekday' => 1,
         'leadership_review_local_time' => '09:00',

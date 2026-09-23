@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Jarvis;
 
+use App\Enums\MeetingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
 use App\Models\MeetingArtifact;
@@ -16,6 +17,7 @@ use App\Services\Locale\OwnerLocaleResolver;
 use App\Services\Meetings\Exceptions\MeetingException;
 use App\Services\Meetings\MeetingConfig;
 use App\Services\Meetings\MeetingService;
+use App\Services\Productivity\ProductivitySettingsService;
 use App\Services\Zoom\Exceptions\ZoomException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,23 +32,39 @@ class JarvisWorkspaceMeetingsController extends Controller
         private readonly CommitmentService $commitments,
         private readonly LeadershipReviewService $leadership,
         private readonly OwnerLocaleResolver $locales,
+        private readonly ProductivitySettingsService $productivity,
     ) {}
 
     public function index(Request $request): Response
     {
+        return $this->renderIndex($request, archived: false);
+    }
+
+    public function archived(Request $request): Response
+    {
+        return $this->renderIndex($request, archived: true);
+    }
+
+    private function renderIndex(Request $request, bool $archived): Response
+    {
         $this->authorize('viewAny', Meeting::class);
+        $user = $request->user();
 
         $items = $this->meetings->list(
-            $request->user(),
+            $user,
             $request->query('q'),
             $request->integer('project_id') ?: null,
             $request->query('from'),
             $request->query('to'),
             $request->query('analysis_status'),
+            $archived ? MeetingStatus::Archived->value : null,
         );
 
         return Inertia::render('Jarvis/Meetings', [
             'meetings' => $items->map(fn (Meeting $meeting): array => $this->meetings->serializeSummary($meeting))->values()->all(),
+            'archived' => $archived,
+            'activeCount' => Meeting::query()->where('user_id', $user->id)->where('status', '!=', MeetingStatus::Archived)->count(),
+            'archivedCount' => Meeting::query()->where('user_id', $user->id)->where('status', MeetingStatus::Archived)->count(),
             'filters' => [
                 'q' => (string) $request->query('q', ''),
                 'project_id' => $request->integer('project_id') ?: null,
@@ -54,8 +72,10 @@ class JarvisWorkspaceMeetingsController extends Controller
                 'to' => (string) $request->query('to', ''),
                 'analysis_status' => (string) $request->query('analysis_status', ''),
             ],
-            'projects' => Project::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
-            'organizations' => Organization::query()->where('user_id', $request->user()->id)->orderBy('name')->get(['id', 'name']),
+            'projects' => Project::query()->where('user_id', $user->id)->orderBy('name')->get(['id', 'name']),
+            'organizations' => Organization::query()->where('user_id', $user->id)->orderBy('name')->get(['id', 'name']),
+            'people' => Person::query()->where('user_id', $user->id)->orderBy('display_name')->get(['id', 'display_name']),
+            'defaultReviewPersonId' => $this->productivity->for($user)->default_review_person_id,
             'maxFileMb' => MeetingConfig::maxFileSizeMb(),
         ]);
     }
@@ -74,12 +94,39 @@ class JarvisWorkspaceMeetingsController extends Controller
                     'organization_id' => ['nullable', 'integer'],
                     'transcript' => ['nullable', 'file', 'max:'.(MeetingConfig::maxFileSizeMb() * 1024)],
                     'pasted_text' => ['nullable', 'string', 'max:'.MeetingConfig::maxPasteChars()],
+                    'review_subject_person_id' => ['nullable', 'integer'],
+                    'skip_leadership_review' => ['sometimes', 'boolean'],
                 ]),
                 $request->file('transcript'),
                 $request->input('pasted_text'),
             );
         } catch (MeetingException $exception) {
             return back()->withErrors(['transcript' => $exception->error]);
+        }
+
+        return redirect()->route('jarvis.meetings.show', $meeting);
+    }
+
+    public function storePlanned(Request $request): RedirectResponse
+    {
+        $this->authorize('create', Meeting::class);
+
+        try {
+            $meeting = $this->meetings->createPlanned($request->user(), $request->validate([
+                'title' => ['required', 'string', 'max:190'],
+                'started_at' => ['required', 'date'],
+                'ended_at' => ['nullable', 'date'],
+                'timezone' => ['nullable', 'string', 'max:64'],
+                'location' => ['nullable', 'string', 'max:190'],
+                'project_id' => ['nullable', 'integer'],
+                'organization_id' => ['nullable', 'integer'],
+                'notes' => ['nullable', 'string', 'max:5000'],
+                'participants' => ['nullable', 'array', 'max:50'],
+                'participants.*.display_name' => ['nullable', 'string', 'max:190'],
+                'participants.*.email' => ['nullable', 'email', 'max:190'],
+            ]));
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['title' => $exception->error]);
         }
 
         return redirect()->route('jarvis.meetings.show', $meeting);
@@ -128,6 +175,32 @@ class JarvisWorkspaceMeetingsController extends Controller
             ]));
         } catch (MeetingException $exception) {
             return back()->withErrors(['title' => $exception->error]);
+        }
+
+        return back();
+    }
+
+    public function assignReviewSubject(Request $request, Meeting $meeting): RedirectResponse
+    {
+        if ((int) $meeting->user_id !== (int) $request->user()->id) {
+            abort(404);
+        }
+
+        $this->authorize('update', $meeting);
+        $validated = $request->validate([
+            'review_subject_person_id' => ['nullable', 'integer'],
+            'skip_leadership_review' => ['sometimes', 'boolean'],
+        ]);
+
+        try {
+            $this->meetings->assignReviewSubject(
+                $request->user(),
+                $meeting,
+                isset($validated['review_subject_person_id']) ? (int) $validated['review_subject_person_id'] : null,
+                (bool) ($validated['skip_leadership_review'] ?? false),
+            );
+        } catch (MeetingException $exception) {
+            return back()->withErrors(['review_subject_person_id' => $exception->error]);
         }
 
         return back();

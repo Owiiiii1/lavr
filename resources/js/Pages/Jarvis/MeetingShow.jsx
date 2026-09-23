@@ -1,3 +1,4 @@
+import MeetingReview from '@/Components/MeetingReview';
 import LavrAppShell from '@/telegram/LavrAppShell';
 import { useTranslation } from '@/locales/useTranslation';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -16,7 +17,6 @@ function Block({ title, children }) {
 export default function MeetingShow() {
     const { t } = useTranslation();
     const { meeting, people = [], pollSeconds = 3, meeting_quality = {} } = usePage().props;
-    const result = meeting.analysis?.result || {};
     const [transcriptOpen, setTranscriptOpen] = useState(false);
     const [transcriptQuery, setTranscriptQuery] = useState('');
 
@@ -48,7 +48,9 @@ export default function MeetingShow() {
         <LavrAppShell>
             <Head title={meeting.title} />
             <div className="jarvis-workspace px-4 pb-8 pt-8 text-slate-100 sm:px-8">
-                <Link href="/lavr/meetings" className="text-sm text-sky-300">{t('meetings.back')}</Link>
+                <Link href={meeting.status === 'archived' ? route('jarvis.meetings.archived') : route('jarvis.meetings.index')} className="text-sm text-sky-300">
+                    {meeting.status === 'archived' ? t('meetings.archiveTab') : t('meetings.back')}
+                </Link>
                 <p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-slate-500">{t(`meetings.status_${meeting.analysis_status}`)}</p>
                 <p className="mt-1 text-xs text-slate-500">{meeting.source_type === 'zoom' ? t('meetings.source_zoom') : t('meetings.source_manual')}</p>
                 {meeting.zoom_import?.status && ['failed', 'blocked_auth', 'transcript_unavailable'].includes(meeting.zoom_import.status) ? (
@@ -69,17 +71,9 @@ export default function MeetingShow() {
                     {t('meetings.rerun')}
                 </button>
 
-                <Block title={t('meetings.overview')}>
-                    <p>{result.summary?.executive || meeting.summary || '—'}</p>
-                </Block>
-                <Block title={t('meetings.summary')}>
-                    <ul className="list-disc pl-5">
-                        {(result.summary?.outcomes || []).map((item) => <li key={item}>{item}</li>)}
-                    </ul>
-                    {(result.summary?.attention || []).length > 0 ? (
-                        <p className="mt-2 text-amber-200">{(result.summary.attention || []).join(' · ')}</p>
-                    ) : null}
-                </Block>
+                <div id="meeting-actions">
+                    <MeetingReview meeting={meeting} people={people} commitmentItems={meeting.commitment_items || []} tone="dark" routeName="jarvis.meetings" />
+                </div>
                 <Block title={t('meetings.participants')}>
                     <ul className="space-y-3">
                         {(meeting.participants || []).map((participant) => (
@@ -111,49 +105,6 @@ export default function MeetingShow() {
                         ))}
                     </ul>
                 </Block>
-                <Block title={t('meetings.decisions')}>
-                    <List items={result.decisions} field="text" />
-                </Block>
-                <Block title={t('meetings.actions')}>
-                    <ul className="space-y-2">
-                        {(result.action_items || []).map((item) => (
-                            <li key={item.task}>{(item.owner ? `${item.owner}: ` : '') + item.task}</li>
-                        ))}
-                    </ul>
-                </Block>
-                <Block title={t('meetings.commitments')}>
-                    <ul className="space-y-2">
-                        {(meeting.commitment_items || result.commitments_detected || []).map((item) => (
-                            <li key={item.index ?? item.action} className="rounded-xl bg-black/20 px-3 py-2">
-                                <p>{(item.person_name || item.person_ref || '—') + ': ' + (item.action || '')}</p>
-                                {item.promoted && item.commitment_id ? (
-                                    <Link href={`/lavr/commitments/${item.commitment_id}`} className="text-xs text-sky-300">{t('meetings.openCommitment')}</Link>
-                                ) : (
-                                    <button type="button" className="mt-2 min-h-11 rounded-2xl border border-white/10 px-3 text-xs" onClick={() => router.post(route('jarvis.meetings.commitments.promote', meeting.id), { index: item.index })}>
-                                        {t('meetings.promote')}
-                                    </button>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                    <p className="mt-2 text-xs text-slate-500">{t('meetings.commitmentsHint')}</p>
-                </Block>
-                <Block title={t('meetings.deadlines')}>
-                    <ul className="space-y-2">
-                        {(result.deadlines || []).map((item) => (
-                            <li key={item.text}>{item.text} {item.deadline_at || item.deadline_raw || ''}</li>
-                        ))}
-                    </ul>
-                </Block>
-                <Block title={t('meetings.questions')}>
-                    <List items={result.open_questions} field="text" />
-                </Block>
-                <Block title={t('meetings.risks')}>
-                    <List items={result.risks} field="text" />
-                </Block>
-                <Block title={t('meetings.followUps')}>
-                    <List items={result.follow_ups} field="text" />
-                </Block>
                 <LeadershipInsights
                     title={t('leadership.meetingQuality')}
                     metrics={meeting_quality.metrics || {}}
@@ -173,17 +124,5 @@ export default function MeetingShow() {
                 </Block>
             </div>
         </LavrAppShell>
-    );
-}
-
-function List({ items = [], field }) {
-    if (items.length === 0) {
-        return <p>—</p>;
-    }
-
-    return (
-        <ul className="list-disc pl-5">
-            {items.map((item) => <li key={item[field] || JSON.stringify(item)}>{item[field]}</li>)}
-        </ul>
     );
 }

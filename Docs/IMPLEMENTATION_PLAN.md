@@ -221,6 +221,12 @@ Ukrainian-first localization remains Phase **3C**.
 
 ---
 
+## Meeting review redesign
+
+**IMPLEMENTED** 2026-09-23. Report: [Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md](Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md). Evolves Meeting Intelligence. Does not add a second analytics store, a leadership score, or first-class decisions.
+
+---
+
 ## Out of scope until explicitly scheduled
 
 - Desktop (CANCELLED)

@@ -52,6 +52,8 @@ class JarvisProductivitySettingsController extends Controller
             'leadership_review_local_time' => ['required', 'date_format:H:i'],
             'leadership_review_telegram' => ['required', 'boolean'],
             'leadership_review_inbox' => ['required', 'boolean'],
+            'auto_generate_leadership_review' => ['sometimes', 'boolean'],
+            'default_review_person_id' => ['sometimes', 'nullable', 'integer'],
         ]);
 
         $this->settings->update($user, $validated);

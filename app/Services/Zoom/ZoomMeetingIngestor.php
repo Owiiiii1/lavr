@@ -173,7 +173,7 @@ final class ZoomMeetingIngestor
             return $existing;
         }
 
-        return Meeting::query()->create([
+        $created = Meeting::query()->create([
             'user_id' => $owner->id,
             'project_id' => null,
             'organization_id' => null,
@@ -187,6 +187,8 @@ final class ZoomMeetingIngestor
             'analysis_status' => MeetingAnalysisStatus::Pending,
             'metadata' => $this->zoomMetadata(null, $event, ZoomImportStatus::Pending),
         ]);
+
+        return $this->meetings->applyDefaultReviewSubject($owner, $created);
     }
 
     /**

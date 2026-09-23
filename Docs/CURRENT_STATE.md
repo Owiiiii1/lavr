@@ -1,6 +1,6 @@
 # LAVR — current implementation snapshot
 
-**Date:** 2026-09-14 (Phase 12 production readiness; Phase 11 proactive control)  
+**Date:** 2026-09-23 (meeting review redesign on top of Phase 12)  
 **Product:** LAVR — personal AI Chief of Staff for one CEO ([PRODUCT.md](PRODUCT.md))  
 **Host path:** `/var/www/lavr`  
 **Public URL:** https://lavr.youngfashionshow.com  
@@ -185,6 +185,15 @@ Core Daily Workflow (2026-09-07): **MANUAL PASS 10/10** on Validation Core 2. [V
 
 Scheduled report incidents (truncated AI; mail digest as subject list; calendar DI; reasoning-model token budget): **fixed in code 2026-09-09**. Next slots still need Owner confirmation. Do not describe the broken bodies as current intended behavior.
 
+Tracking gaps закрыты в коде 2026-09-23 (ADR-281…285), Owner-валидация ещё нужна:
+
+- отчёты рендерят только настроенные источники, календарь печатает время, письма подписываются ящиком, обрезание групп честно помечено;
+- обещание от неизвестного отправителя заводит `provisional` карточку человека и становится `detected` обязательством; очередь «Требуют уточнения» и слияние живут на `/people`;
+- фингерпринт обязательства скоупится по `telegram_group:{id}` / `integration:{id}`, поэтому две группы или два ящика не склеиваются;
+- анализ группы извлекает обещания и промоутит их в commitments; плановый прогон `jarvis:groups:analyze-daily` идёт по группам с `analysis_enabled`;
+- встречу можно завести без транскрипта (`create_meeting`, форма «Запланированная встреча») и связать с событием Google Calendar;
+- часовой пояс владельца и его текущее локальное время видны и меняются в `/settings`.
+
 ---
 
 ## 7. Personalization / Owner (CURRENT)
@@ -222,3 +231,5 @@ Live campaigns still open: [PRODUCTION_VALIDATION_PLAN.md](PRODUCTION_VALIDATION
 Do not implement from this section. Phases 1–12 are **IMPLEMENTED**. Remaining work is live validation and client handover, not a new domain.
 
 Architecture sketch: [DOMAIN_MODEL.md](DOMAIN_MODEL.md). Decisions: ADR-266+ in [DECISIONS.md](DECISIONS.md). Localization: Phase **3C** in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) — **IMPLEMENTED** (Owner Workspace). Admin kit copy remains untranslated.
+
+Meeting review schema v2 is **IMPLEMENTED** in code (2026-09-23): executive `review` on analysis JSON, `review_subject_person_id`, default person in productivity settings. Weekly leadership reviews are unchanged. Live Owner confirmation of the new screen is not recorded. Report: [Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md](Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md).

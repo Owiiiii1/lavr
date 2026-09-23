@@ -136,9 +136,12 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
         Route::post('/setup', [JarvisBusinessSetupController::class, 'saveStep'])->name('setup.save');
         Route::post('/setup/dismiss', [JarvisBusinessSetupController::class, 'dismiss'])->name('setup.dismiss');
         Route::get('/meetings', [JarvisWorkspaceMeetingsController::class, 'index'])->name('meetings.index');
+        Route::get('/meetings/archive', [JarvisWorkspaceMeetingsController::class, 'archived'])->name('meetings.archived');
         Route::post('/meetings', [JarvisWorkspaceMeetingsController::class, 'store'])->middleware('throttle:owner-upload')->name('meetings.store');
+        Route::post('/meetings/planned', [JarvisWorkspaceMeetingsController::class, 'storePlanned'])->name('meetings.planned.store');
         Route::get('/meetings/{meeting}', [JarvisWorkspaceMeetingsController::class, 'show'])->name('meetings.show');
         Route::patch('/meetings/{meeting}', [JarvisWorkspaceMeetingsController::class, 'update'])->name('meetings.update');
+        Route::post('/meetings/{meeting}/review-subject', [JarvisWorkspaceMeetingsController::class, 'assignReviewSubject'])->name('meetings.review-subject');
         Route::post('/meetings/{meeting}/rerun', [JarvisWorkspaceMeetingsController::class, 'rerun'])->name('meetings.rerun');
         Route::post('/meetings/{meeting}/zoom-retry', [JarvisWorkspaceMeetingsController::class, 'retryZoom'])->name('meetings.zoom-retry');
         Route::post('/meetings/{meeting}/participants/{participant}/link', [JarvisWorkspaceMeetingsController::class, 'linkParticipant'])->name('meetings.participants.link');
@@ -377,6 +380,7 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::post('/telegram-groups/{telegramGroup}/messages', [TelegramGroupController::class, 'storeMessage'])->name('telegram-groups.messages.store');
     Route::post('/telegram-groups/{telegramGroup}/analysis', [TelegramGroupController::class, 'storeAnalysis'])->name('telegram-groups.analysis.store');
     Route::post('/telegram-groups/{telegramGroup}/analysis-runs/{run}/retry', [TelegramGroupController::class, 'retryAnalysis'])->name('telegram-groups.analysis.retry');
+    Route::post('/telegram-groups/{telegramGroup}/knowledge/{knowledge}/task', [TelegramGroupController::class, 'storeKnowledgeTask'])->name('telegram-groups.knowledge.task.store');
 
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
@@ -407,6 +411,7 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::post('/people/{person}/restore', [PeopleController::class, 'restore'])->name('people.restore');
     Route::patch('/people/{person}/employee', [PeopleController::class, 'updateEmployee'])->name('people.employee.update');
     Route::post('/people/{person}/identities', [PeopleController::class, 'storeIdentity'])->name('people.identities.store');
+    Route::delete('/people/{person}/identities/{identity}', [PeopleController::class, 'destroyIdentity'])->name('people.identities.destroy');
     Route::post('/people/{person}/projects', [PeopleController::class, 'attachProject'])->name('people.projects.store');
     Route::delete('/people/{person}/projects/{project}', [PeopleController::class, 'detachProject'])->name('people.projects.destroy');
     Route::post('/people/{person}/relationships', [PeopleController::class, 'storeRelationship'])->name('people.relationships.store');
@@ -424,9 +429,12 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::post('/organizations/{organization}/knowledge', [OrganizationsController::class, 'linkKnowledge'])->name('organizations.knowledge.store');
 
     Route::get('/meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::get('/meetings/archive', [MeetingController::class, 'archived'])->name('meetings.archived');
     Route::post('/meetings', [MeetingController::class, 'store'])->name('meetings.store');
+    Route::post('/meetings/planned', [MeetingController::class, 'storePlanned'])->name('meetings.planned.store');
     Route::get('/meetings/{meeting}', [MeetingController::class, 'show'])->name('meetings.show');
     Route::patch('/meetings/{meeting}', [MeetingController::class, 'update'])->name('meetings.update');
+    Route::post('/meetings/{meeting}/review-subject', [MeetingController::class, 'assignReviewSubject'])->name('meetings.review-subject');
     Route::post('/meetings/{meeting}/archive', [MeetingController::class, 'archive'])->name('meetings.archive');
     Route::post('/meetings/{meeting}/restore', [MeetingController::class, 'restore'])->name('meetings.restore');
     Route::post('/meetings/{meeting}/rerun', [MeetingController::class, 'rerun'])->name('meetings.rerun');
@@ -500,6 +508,9 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
         ->name('settings.voice.elevenlabs-key');
     Route::post('/settings/voice/elevenlabs-key/clear', [VoiceSettingsController::class, 'clearElevenLabsKey'])
         ->name('settings.voice.elevenlabs-key.clear');
+    Route::post('/settings/voice/preview', [VoiceSettingsController::class, 'preview'])
+        ->middleware('throttle:20,1')
+        ->name('settings.voice.preview');
     Route::post('/settings/telegram/token', [TelegramSettingsController::class, 'saveToken'])
         ->middleware('throttle:10,1')
         ->name('settings.telegram.save-token');
@@ -509,6 +520,12 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
         ->name('settings.telegram.set-webhook');
     Route::post('/settings/telegram/remove-webhook', [TelegramSettingsController::class, 'removeWebhook'])
         ->name('settings.telegram.remove-webhook');
+    Route::post('/settings/telegram/registration', [TelegramSettingsController::class, 'updateRegistration'])
+        ->name('settings.telegram.registration.update');
+    Route::post('/settings/telegram/users/{telegramAuthorization}/authorize', [TelegramSettingsController::class, 'authorizeUser'])
+        ->name('settings.telegram.users.authorize');
+    Route::post('/settings/telegram/users/{telegramAuthorization}/revoke', [TelegramSettingsController::class, 'revokeUser'])
+        ->name('settings.telegram.users.revoke');
 
     Route::get('/app-settings', function () {
         return redirect()->route('settings.index');

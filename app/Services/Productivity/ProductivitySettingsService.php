@@ -2,6 +2,7 @@
 
 namespace App\Services\Productivity;
 
+use App\Models\Person;
 use App\Models\User;
 use App\Models\UserProductivitySetting;
 use Carbon\CarbonImmutable;
@@ -47,6 +48,8 @@ final class ProductivitySettingsService
             'morning_brief_telegram' => true,
             'morning_brief_inbox' => true,
             'morning_brief_weekends' => false,
+            'auto_generate_leadership_review' => true,
+            'default_review_person_id' => null,
             'leadership_review_enabled' => true,
             'leadership_review_weekday' => (int) config('leadership_review.weekly_weekday', 1),
             'leadership_review_local_time' => (string) config('leadership_review.weekly_local_time', '09:00'),
@@ -95,6 +98,8 @@ final class ProductivitySettingsService
             'leadership_review_local_time' => $this->normalizeTime($attributes['leadership_review_local_time'] ?? $settings->leadership_review_local_time ?? $defaults->leadership_review_local_time),
             'leadership_review_telegram' => (bool) ($attributes['leadership_review_telegram'] ?? $settings->leadership_review_telegram ?? $defaults->leadership_review_telegram),
             'leadership_review_inbox' => (bool) ($attributes['leadership_review_inbox'] ?? $settings->leadership_review_inbox ?? $defaults->leadership_review_inbox),
+            'auto_generate_leadership_review' => (bool) ($attributes['auto_generate_leadership_review'] ?? $settings->auto_generate_leadership_review ?? $defaults->auto_generate_leadership_review ?? true),
+            'default_review_person_id' => $this->ownedPersonId($user, $attributes['default_review_person_id'] ?? $settings->default_review_person_id ?? $defaults->default_review_person_id),
         ]);
         $settings->save();
 
@@ -137,6 +142,8 @@ final class ProductivitySettingsService
             'leadership_review_local_time' => (string) ($settings->leadership_review_local_time ?: '09:00'),
             'leadership_review_telegram' => (bool) $settings->leadership_review_telegram,
             'leadership_review_inbox' => (bool) $settings->leadership_review_inbox,
+            'auto_generate_leadership_review' => (bool) ($settings->auto_generate_leadership_review ?? true),
+            'default_review_person_id' => $settings->default_review_person_id ? (int) $settings->default_review_person_id : null,
         ];
     }
 
@@ -253,6 +260,17 @@ final class ProductivitySettingsService
         $raw = is_string($value) ? mb_strtolower(trim($value)) : '';
 
         return in_array($raw, ['critical', 'high', 'normal', 'low'], true) ? $raw : 'high';
+    }
+
+    private function ownedPersonId(User $user, mixed $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        $person = Person::query()->where('user_id', $user->id)->whereKey((int) $value)->first();
+
+        return $person?->id;
     }
 
     private function normalizeCap(mixed $value): int

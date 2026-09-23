@@ -15,6 +15,8 @@ First-class Meetings exist (Phase 5A, 2026-09-09).
 | Meeting Intelligence queue (`analysis`) + versioned JSON | **IMPLEMENTED** |
 | Workspace `/lavr/meetings` + Admin `/meetings` | **IMPLEMENTED** |
 | AI read tools `list_meetings` `find_meeting` `get_meeting` `get_meeting_analysis` | **IMPLEMENTED** |
+| Planned meeting without transcript (`createPlanned`, `status=draft`, `source_type=calendar_link`) + `create_meeting` tool | **IMPLEMENTED** (ADR-285) |
+| Calendar reference on `meetings` (`calendar_provider` / `calendar_id` / `calendar_event_id`, all three or none) | **IMPLEMENTED** |
 | First-class `commitments` from `commitments_detected` | **IMPLEMENTED** (Phase 6; high confidence → `detected`; medium/low stay suggestions) |
 | First-class `decisions` rows | **NOT** — analysis JSON only; Executive Brief may surface them as decision-like items |
 | Zoom OAuth / webhook / cloud transcript ingest | **IMPLEMENTED / LIVE E2E NOT VALIDATED** |
@@ -53,6 +55,9 @@ AI-generated fields must reference the meeting (and preferably transcript locati
 | --- | --- | --- |
 | Manual transcript upload | **5A** | Permanent fallback |
 | Zoom cloud transcript after the meeting | **5B** | Automatic; no CEO upload |
+| Planned meeting card before the meeting | — | Создаётся владельцем на `/meetings` и `/lavr/meetings` или инструментом `create_meeting`; транскрипта нет, анализ не запускается |
+
+Встреча может существовать без транскрипта (ADR-285). На просьбу «нужна встреча» ассистент создаёт и событие в Google Calendar, и связанную карточку встречи; запись Zoom или заметки лягут в неё позже. Связь с событием хранится в `calendar_provider` / `calendar_id` / `calendar_event_id` по правилу «все три или ни одного», как у задач.
 
 Manual import stays forever. It is required for:
 
@@ -205,3 +210,13 @@ Phase 6 **IMPLEMENTED.** High-confidence `commitments_detected` become first-cla
 ### Leadership Review
 
 Phase 9 **IMPLEMENTED.** Meeting quality (owner/deadline coverage, decisions captured, open questions, follow-up gaps) is a first-class Leadership Review surface, not psychology. [LEADERSHIP_REVIEW.md](LEADERSHIP_REVIEW.md).
+
+### Executive meeting review (schema v2)
+
+Prompt `meeting-intelligence-v2`. Extraction stays in the same `result_json` keys. A `review` object (schema version 2) is the executive layer: current facts only, metrics, main insight, and an optional personal review of `meetings.review_subject_person_id`.
+
+Temporal rule: a later decision supersedes an earlier hypothesis, question, or risk about the same topic. Those items stay on the row with `state=superseded` and are omitted from the executive lists. Brainstorm and discussion-only items are not executive items. A commitment that repeats an action is marked `duplicate_of_action` and is not promoted.
+
+Old analyses stay readable. Reanalyze builds `review` without deleting the previous row. Changing the review person recomposes `review` and does not re-upload the transcript.
+
+Report: [Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md](Development/LAVR_MEETING_REVIEW_REDESIGN_REPORT.md).

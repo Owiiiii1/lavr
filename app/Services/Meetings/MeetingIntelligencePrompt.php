@@ -20,14 +20,21 @@ Rules:
 - evidence excerpts must be short quotes from the transcript
 - confidence is high, medium, or low
 - summary.outcomes: 3–7 concise bullets; summary.executive: short paragraph; summary.attention: items that need Owner attention
+- read the chunk in time order. A later decision supersedes an earlier hypothesis, open question, or risk about the same topic
+- mark superseded items with "state": "superseded" and "resolved_by_later_context": true
+- kind is one of: decision, action, commitment, risk, question, hypothesis, brainstorm, discussion_only
+- hypothesis, brainstorm, and discussion_only are not current outcomes
+- do not put the same promise in both action_items and commitments_detected
+- severity on risks is high, medium, or low
+- do not evaluate personality and do not invent a leadership score
 
 JSON shape:
 {
   "summary": {"executive": string, "outcomes": [string], "attention": [string]},
   "participants": [string],
   "topics": [string],
-  "decisions": [{"text": string, "confidence": "high|medium|low", "evidence": {"excerpt": string, "speaker": string|null, "timestamp": string|null}}],
-  "action_items": [{"owner": string|null, "task": string, "deadline_raw": string|null, "deadline_at": string|null, "status": "detected", "confidence": "high|medium|low", "evidence": {"excerpt": string, "speaker": string|null, "timestamp": string|null}}],
+  "decisions": [{"text": string, "kind": "decision", "state": "current", "confidence": "high|medium|low", "evidence": {"excerpt": string, "speaker": string|null, "timestamp": string|null}}],
+  "action_items": [{"owner": string|null, "task": string, "kind": "action", "state": "current", "deadline_raw": string|null, "deadline_at": string|null, "status": "detected", "confidence": "high|medium|low", "evidence": {"excerpt": string, "speaker": string|null, "timestamp": string|null}}],
   "commitments_detected": [{"person_name": string|null, "person_ref": string|null, "action": string, "expected_result": string|null, "deadline_raw": string|null, "deadline_at": string|null, "confidence": "high|medium|low", "evidence": {"excerpt": string, "speaker": string|null, "timestamp": string|null}}],
   "deadlines": [{"text": string, "deadline_raw": string|null, "deadline_at": string|null, "owner": string|null, "confidence": "high|medium|low", "evidence": {"excerpt": string, "speaker": string|null, "timestamp": string|null}}],
   "open_questions": [{"text": string, "confidence": "high|medium|low"}],

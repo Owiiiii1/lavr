@@ -14,6 +14,7 @@ use App\Services\Ai\AiConfigurationResolver;
 use App\Services\Ai\Contracts\AiChatGateway;
 use App\Services\Ai\DTO\AiChatMessage;
 use App\Services\Ai\DTO\AiChatRequest;
+use App\Services\Ai\Exceptions\AiProviderException;
 use App\Services\Commitments\CommitmentPromotionService;
 use App\Services\Meetings\Exceptions\MeetingIntelligenceException;
 use App\Services\Memory\StructuredJsonParser;
@@ -31,6 +32,7 @@ final class MeetingIntelligencePipeline
         private readonly MeetingIntelligenceMerger $merger,
         private readonly MeetingIntelligencePrompt $prompts,
         private readonly CommitmentPromotionService $commitments,
+        private readonly MeetingReviewService $reviews,
     ) {}
 
     public function analyze(User $user, Meeting $meeting, ?MeetingArtifact $artifact = null): MeetingAnalysis
@@ -88,7 +90,7 @@ final class MeetingIntelligencePipeline
             }
 
             $merged = $this->merger->merge($partials);
-            $validated = $this->validator->validate($merged, $meeting);
+            $validated = $this->reviews->compose($user, $meeting, $this->validator->validate($merged, $meeting));
             $summaryText = $this->summaryText($validated);
 
             $analysis->forceFill([
@@ -123,7 +125,13 @@ final class MeetingIntelligencePipeline
             ]);
 
             try {
-                $this->commitments->promoteFromMeetingAnalysis($user, $meeting, $analysis, true);
+                $promoted = $this->commitments->promoteFromMeetingAnalysis($user, $meeting->fresh() ?? $meeting, $analysis, true);
+                $result = is_array($analysis->result_json) ? $analysis->result_json : [];
+
+                if (isset($result['review']) && is_array($result['review'])) {
+                    $result['review']['assistant']['commitments_created'] = count($promoted['created']);
+                    $analysis->forceFill(['result_json' => $result])->save();
+                }
             } catch (Throwable $exception) {
                 Log::warning('commitment promotion after meeting analysis failed', [
                     'meeting_id' => $meeting->id,
@@ -141,7 +149,7 @@ final class MeetingIntelligencePipeline
         } catch (Throwable $exception) {
             $errorClass = class_basename($exception);
             $safe = $exception instanceof MeetingIntelligenceException
-                ? $exception->error
+                ? mb_substr($exception->getMessage(), 0, 500)
                 : 'analysis_failed';
 
             $analysis->forceFill([
@@ -183,6 +191,9 @@ final class MeetingIntelligencePipeline
         $configuration = $this->resolver->resolveAnalysis();
         $attempts = MeetingConfig::chunkAiRetries();
         $last = null;
+        $parameters = is_array($configuration->parameters) ? $configuration->parameters : [];
+        $parameters['temperature'] = 0.1;
+        $parameters['max_tokens'] = max(4000, (int) ($parameters['max_tokens'] ?? 4000));
 
         for ($attempt = 1; $attempt <= $attempts; $attempt++) {
             try {
@@ -198,10 +209,7 @@ final class MeetingIntelligencePipeline
                         $index,
                         $count,
                     ))],
-                    parameters: [
-                        'temperature' => 0.1,
-                        'max_tokens' => 4000,
-                    ],
+                    parameters: $parameters,
                 ));
 
                 $parsed = StructuredJsonParser::objectFromText((string) $response->text);
@@ -222,6 +230,19 @@ final class MeetingIntelligencePipeline
                     'provider' => (string) $response->provider,
                     'model' => (string) $response->model,
                 ];
+            } catch (AiProviderException $exception) {
+                $last = new MeetingIntelligenceException('provider_error', $exception->getMessage());
+                Log::warning('meeting intelligence chunk retry', [
+                    'meeting_id' => $meeting->id,
+                    'chunk_index' => $index,
+                    'attempt' => $attempt,
+                    'outcome' => 'provider_error',
+                    'error_class' => class_basename($exception),
+                ]);
+
+                if ($attempt < $attempts) {
+                    usleep(1_500_000 * $attempt);
+                }
             } catch (Throwable $exception) {
                 $last = $exception;
                 Log::warning('meeting intelligence chunk retry', [

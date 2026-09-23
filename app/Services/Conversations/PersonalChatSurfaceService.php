@@ -4,6 +4,7 @@ namespace App\Services\Conversations;
 
 use App\Enums\MessageChannel;
 use App\Models\Conversation;
+use App\Models\Person;
 use App\Models\ToolConfirmation;
 use App\Models\User;
 use App\Services\Assistant\AssistantProfileService;
@@ -107,6 +108,7 @@ final class PersonalChatSurfaceService
             'timezones' => Timezones::options($user->timezone),
             'voice' => $this->voiceSettings->userVoicePayload($user),
             'productivity' => $this->productivity->payload($user),
+            'review_people' => Person::query()->where('user_id', $user->id)->orderBy('display_name')->get(['id', 'display_name']),
         ];
     }
 

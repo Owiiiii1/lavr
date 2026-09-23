@@ -42,6 +42,12 @@ final class CommitmentPromotionService
                 continue;
             }
 
+            if (! empty($item['duplicate_of_action'])) {
+                $skipped[] = ['index' => (int) $index, 'reason' => 'duplicate_of_action'];
+
+                continue;
+            }
+
             $candidate = $this->candidateFromMeetingItem($user, $meeting, $analysis, $item, (int) $index);
 
             if ($candidate === null) {

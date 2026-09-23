@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\MeetingAnalysisStatus;
+use App\Enums\MeetingLeadershipReviewStatus;
 use App\Enums\MeetingSourceType;
 use App\Enums\MeetingStatus;
 use Database\Factories\MeetingFactory;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'user_id',
     'project_id',
     'organization_id',
+    'review_subject_person_id',
     'current_analysis_id',
     'title',
     'meeting_type',
@@ -25,8 +27,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'location',
     'source_type',
     'source_external_id',
+    'calendar_provider',
+    'calendar_id',
+    'calendar_event_id',
     'status',
     'analysis_status',
+    'leadership_review_status',
     'source_language',
     'summary',
     'notes',
@@ -46,6 +52,7 @@ class Meeting extends Model
             'source_type' => MeetingSourceType::class,
             'status' => MeetingStatus::class,
             'analysis_status' => MeetingAnalysisStatus::class,
+            'leadership_review_status' => MeetingLeadershipReviewStatus::class,
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
             'metadata' => 'array',
@@ -65,6 +72,11 @@ class Meeting extends Model
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function reviewSubject(): BelongsTo
+    {
+        return $this->belongsTo(Person::class, 'review_subject_person_id');
     }
 
     public function currentAnalysis(): BelongsTo

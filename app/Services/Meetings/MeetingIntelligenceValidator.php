@@ -69,7 +69,13 @@ final class MeetingIntelligenceValidator
         $outcomes = array_slice($outcomes, 0, 7);
 
         if ($outcomes === []) {
-            throw new MeetingIntelligenceException('invalid_output', 'summary.outcomes required');
+            $executive = $this->nullableString($value['executive'] ?? null);
+
+            if ($executive === null) {
+                throw new MeetingIntelligenceException('invalid_output', 'summary.outcomes required');
+            }
+
+            $outcomes = [$executive];
         }
 
         return [
@@ -121,6 +127,12 @@ final class MeetingIntelligenceValidator
                         ? trim((string) ($row['deadline_raw'] ?? $row['deadline']))
                         : $this->nullableString($field);
                     $item['deadline_at'] = $this->deadlineAt($row, $anchor);
+
+                    continue;
+                }
+
+                if (is_bool($field)) {
+                    $item[$key] = $field;
 
                     continue;
                 }

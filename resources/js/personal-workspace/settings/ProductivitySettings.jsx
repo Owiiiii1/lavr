@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from '@inertiajs/react';
+import { useTranslation } from '@/locales/useTranslation';
 import SettingsCard from '@/personal-workspace/settings/SettingsCard';
 import { workspaceRoute } from '@/personal-workspace/named';
 import { currentPushState, enableReminderPush, pushSupported } from '@/personal-workspace/reminderPush';
@@ -9,6 +10,7 @@ function csrfToken() {
 }
 
 export default function ProductivitySettings({ surface, settings, capabilities }) {
+    const { t } = useTranslation();
     const productivityForm = useForm({
         daily_brief_enabled: Boolean(settings.productivity?.daily_brief_enabled),
         daily_brief_local_time: settings.productivity?.daily_brief_local_time || '08:00',
@@ -37,6 +39,8 @@ export default function ProductivitySettings({ surface, settings, capabilities }
         leadership_review_local_time: settings.productivity?.leadership_review_local_time || '09:00',
         leadership_review_telegram: settings.productivity?.leadership_review_telegram !== false,
         leadership_review_inbox: settings.productivity?.leadership_review_inbox !== false,
+        auto_generate_leadership_review: settings.productivity?.auto_generate_leadership_review !== false,
+        default_review_person_id: settings.productivity?.default_review_person_id || '',
     });
     const [pushState, setPushState] = useState('disabled');
     const [webPushConfigured, setWebPushConfigured] = useState(false);
@@ -117,7 +121,7 @@ export default function ProductivitySettings({ surface, settings, capabilities }
                     description="Выключены по умолчанию. Время считается в вашем часовом поясе. Центры задач и напоминаний остаются на главном экране."
                 >
                     <div className="space-y-3 text-sm text-slate-200">
-                        <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Morning Brief</p>
+                        <p className="text-sm font-medium text-slate-200">Morning Brief</p>
                         <label className="flex items-center justify-between gap-3">
                             <span>Увімкнено</span>
                             <input
@@ -156,7 +160,30 @@ export default function ProductivitySettings({ surface, settings, capabilities }
                                 onChange={(event) => productivityForm.setData('morning_brief_weekends', event.target.checked)}
                             />
                         </label>
-                        <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Leadership Review</p>
+                        <p className="text-sm font-medium text-slate-200">{t('meetings.review.leadership')}</p>
+                        <label className="block text-sm">
+                            <span>{t('settings.reviewPerson')}</span>
+                            <select
+                                value={productivityForm.data.default_review_person_id}
+                                onChange={(event) => productivityForm.setData('default_review_person_id', event.target.value)}
+                                className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-slate-100"
+                            >
+                                <option value="">{t('meetings.review.selectParticipant')}</option>
+                                {(settings.review_people || []).map((person) => (
+                                    <option key={person.id} value={person.id}>{person.display_name}</option>
+                                ))}
+                            </select>
+                            <span className="mt-1 block text-xs text-slate-400">{t('settings.reviewPersonHint')}</span>
+                        </label>
+                        <label className="flex items-center justify-between gap-3">
+                            <span>{t('settings.reviewAuto')}</span>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(productivityForm.data.auto_generate_leadership_review)}
+                                onChange={(event) => productivityForm.setData('auto_generate_leadership_review', event.target.checked)}
+                            />
+                        </label>
+                        <p className="text-sm font-medium text-slate-200">Leadership Review</p>
                         <label className="flex items-center justify-between gap-3">
                             <span>Увімкнено</span>
                             <input

@@ -64,3 +64,15 @@ Logs: `review_id`, period, counts, duration, status. Not transcripts, emails, or
 ## TARGET (later)
 
 First-class Decisions table. Multi-source Phase 10. No HRM, no disciplinary or salary recommendations.
+
+---
+
+## Per-meeting review subject
+
+Separate from the weekly `leadership_reviews` product.
+
+`user_productivity_settings.default_review_person_id` is the person used for automatic Zoom and manual imports. `auto_generate_leadership_review` can turn that off. Each meeting can override `review_subject_person_id`.
+
+If that person is not an exact participant match, meeting facts still complete and `leadership_review_status` is `pending_subject`. No name guessing. No overall score. Findings only use actions tied to the selected person by owner name or speaker. Indicators are `good`, `needs_attention`, or `insufficient_data`.
+
+The weekly Leadership Review collector is unchanged.

@@ -4,6 +4,7 @@ namespace App\Services\Meetings;
 
 use App\Enums\MeetingAnalysisStatus;
 use App\Enums\MeetingArtifactKind;
+use App\Enums\MeetingLeadershipReviewStatus;
 use App\Enums\MeetingSourceType;
 use App\Enums\MeetingStatus;
 use App\Jobs\AnalyzeMeetingTranscriptJob;
@@ -19,12 +20,14 @@ use App\Services\Directory\Exceptions\DirectoryException;
 use App\Services\Meetings\Exceptions\MeetingException;
 use App\Services\Users\UserCapability;
 use App\Services\Zoom\ZoomMeetingIngestor;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 final class MeetingService
 {
@@ -32,6 +35,7 @@ final class MeetingService
         private readonly TranscriptNormalizer $normalizer,
         private readonly ParticipantResolver $participants,
         private readonly DirectoryService $directory,
+        private readonly MeetingReviewService $reviews,
     ) {}
 
     /**
@@ -65,6 +69,8 @@ final class MeetingService
 
         if ($status !== null && $status !== '') {
             $builder->where('status', $status);
+        } else {
+            $builder->where('status', '!=', MeetingStatus::Archived);
         }
 
         if ($from !== null && $from !== '') {
@@ -123,6 +129,8 @@ final class MeetingService
                 'notes' => $this->nullableString($payload['notes'] ?? null),
             ]);
 
+            $this->applyReviewChoice($user, $meeting, $payload);
+
             if ($hasFile) {
                 $this->storeUploadedFile($user, $meeting, $file);
             } else {
@@ -135,6 +143,89 @@ final class MeetingService
         $this->dispatchAnalysis($meeting);
 
         return $meeting->fresh(['project', 'organization', 'participants', 'artifacts']) ?? $meeting;
+    }
+
+    /**
+     * A meeting that has not happened yet: no transcript, optional calendar event,
+     * ready to receive the Zoom recording or notes later.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    public function createPlanned(User $user, array $payload): Meeting
+    {
+        $this->assertCapability($user);
+
+        $title = $this->nullableString($payload['title'] ?? null);
+
+        if ($title === null) {
+            throw new MeetingException('missing_title', 'A planned meeting needs a title.');
+        }
+
+        $timezone = $this->nullableString($payload['timezone'] ?? null) ?? (string) ($user->timezone ?: config('app.timezone'));
+        $startedAt = $this->plannedMoment($payload['started_at'] ?? null, $timezone);
+
+        if ($startedAt === null) {
+            throw new MeetingException('missing_start', 'A planned meeting needs a start time.');
+        }
+
+        $endedAt = $this->plannedMoment($payload['ended_at'] ?? null, $timezone);
+
+        if ($endedAt !== null && $endedAt->lessThanOrEqualTo($startedAt)) {
+            throw new MeetingException('invalid_range', 'The meeting must end after it starts.');
+        }
+
+        $calendar = $this->calendarReference($payload);
+
+        $meeting = DB::transaction(function () use ($user, $payload, $title, $startedAt, $endedAt, $timezone, $calendar): Meeting {
+            $meeting = Meeting::query()->create([
+                'user_id' => $user->id,
+                'project_id' => $this->ownedProjectId($user, $payload['project_id'] ?? null),
+                'organization_id' => $this->ownedOrganizationId($user, $payload['organization_id'] ?? null),
+                'title' => $title,
+                'meeting_type' => $this->nullableString($payload['meeting_type'] ?? null),
+                'started_at' => $startedAt,
+                'ended_at' => $endedAt,
+                'timezone' => $timezone,
+                'location' => $this->nullableString($payload['location'] ?? null),
+                'source_type' => MeetingSourceType::CalendarLink,
+                'source_external_id' => $this->nullableString($payload['source_external_id'] ?? null),
+                'calendar_provider' => $calendar['provider'],
+                'calendar_id' => $calendar['calendar_id'],
+                'calendar_event_id' => $calendar['event_id'],
+                'status' => MeetingStatus::Draft,
+                'analysis_status' => MeetingAnalysisStatus::Pending,
+                'notes' => $this->nullableString($payload['notes'] ?? null),
+            ]);
+
+            $this->participants->seedFromTranscript($user, $meeting, [], $this->plannedParticipants($payload));
+
+            return $meeting;
+        });
+
+        return $meeting->fresh(['project', 'organization', 'participants']) ?? $meeting;
+    }
+
+    public function linkCalendarEvent(User $user, Meeting $meeting, string $provider, string $calendarId, string $eventId): Meeting
+    {
+        $this->owned($user, $meeting);
+
+        $calendar = $this->calendarReference([
+            'calendar_provider' => $provider,
+            'calendar_id' => $calendarId,
+            'calendar_event_id' => $eventId,
+        ]);
+
+        if ($calendar['provider'] === null) {
+            throw new MeetingException('invalid_calendar_reference', 'Provide provider, calendar id and event id.');
+        }
+
+        $meeting->forceFill([
+            'calendar_provider' => $calendar['provider'],
+            'calendar_id' => $calendar['calendar_id'],
+            'calendar_event_id' => $calendar['event_id'],
+        ])->save();
+
+        return $meeting->fresh() ?? $meeting;
     }
 
     /**
@@ -240,7 +331,24 @@ final class MeetingService
             throw new MeetingException('not_found', $exception->getMessage());
         }
 
-        return $this->participants->link($participant, $person);
+        $linked = $this->participants->link($participant, $person);
+        $this->reviews->recompose($user, $meeting->fresh() ?? $meeting);
+
+        return $linked;
+    }
+
+    public function assignReviewSubject(User $user, Meeting $meeting, ?int $personId, bool $skip = false): Meeting
+    {
+        $this->owned($user, $meeting);
+
+        return $this->reviews->assignSubject($user, $meeting, $personId, $skip);
+    }
+
+    public function applyDefaultReviewSubject(User $user, Meeting $meeting): Meeting
+    {
+        $this->owned($user, $meeting);
+
+        return $this->reviews->prepareSubject($user, $meeting);
     }
 
     public function unlinkParticipant(User $user, Meeting $meeting, MeetingParticipant $participant): MeetingParticipant
@@ -293,6 +401,34 @@ final class MeetingService
         ]);
     }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function applyReviewChoice(User $user, Meeting $meeting, array $payload): void
+    {
+        $skip = filter_var($payload['skip_leadership_review'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $personId = isset($payload['review_subject_person_id']) && $payload['review_subject_person_id'] !== ''
+            ? (int) $payload['review_subject_person_id']
+            : null;
+
+        if ($skip) {
+            $meeting->forceFill([
+                'review_subject_person_id' => null,
+                'leadership_review_status' => MeetingLeadershipReviewStatus::Skipped,
+            ])->save();
+
+            return;
+        }
+
+        if ($personId !== null && $personId > 0) {
+            $this->reviews->assignSubject($user, $meeting, $personId);
+
+            return;
+        }
+
+        $this->reviews->prepareSubject($user, $meeting);
+    }
+
     public function owned(User $user, Meeting $meeting): Meeting
     {
         $this->assertCapability($user);
@@ -342,6 +478,7 @@ final class MeetingService
             'project:id,name',
             'organization:id,name',
             'participants.person:id,display_name',
+            'reviewSubject:id,display_name',
             'artifacts',
             'currentAnalysis',
             'analyses' => fn ($query) => $query->orderByDesc('version'),
@@ -357,6 +494,18 @@ final class MeetingService
             'location' => $meeting->location,
             'meeting_type' => $meeting->meeting_type,
             'source_external_id' => $meeting->source_external_id,
+            'calendar' => $meeting->calendar_event_id === null ? null : [
+                'provider' => $meeting->calendar_provider,
+                'calendar_id' => $meeting->calendar_id,
+                'event_id' => $meeting->calendar_event_id,
+            ],
+            'review_subject' => $meeting->reviewSubject === null ? null : [
+                'id' => $meeting->reviewSubject->id,
+                'name' => $meeting->reviewSubject->display_name,
+            ],
+            'leadership_review_status' => $meeting->leadership_review_status instanceof MeetingLeadershipReviewStatus
+                ? $meeting->leadership_review_status->value
+                : $meeting->leadership_review_status,
             'source_language' => $meeting->source_language,
             'notes' => $meeting->notes,
             'project_id' => $meeting->project_id,
@@ -706,6 +855,82 @@ final class MeetingService
         $trimmed = trim($value);
 
         return $trimmed === '' ? null : mb_substr($trimmed, 0, 5000);
+    }
+
+    private function plannedMoment(mixed $value, string $timezone): ?CarbonImmutable
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return CarbonImmutable::parse(trim($value), $timezone)->utc();
+        } catch (Throwable) {
+            throw new MeetingException('invalid_date', 'Use a valid date and time.');
+        }
+    }
+
+    /**
+     * Calendar reference is all three parts or nothing, same rule as tasks.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array{provider: string|null, calendar_id: string|null, event_id: string|null}
+     */
+    private function calendarReference(array $payload): array
+    {
+        $provider = $this->nullableString($payload['calendar_provider'] ?? null);
+        $calendarId = $this->nullableString($payload['calendar_id'] ?? null);
+        $eventId = $this->nullableString($payload['calendar_event_id'] ?? null);
+        $filled = array_filter([$provider, $calendarId, $eventId], static fn (?string $part): bool => $part !== null);
+
+        if ($filled !== [] && count($filled) !== 3) {
+            throw new MeetingException('invalid_calendar_reference', 'Provide provider, calendar id and event id together.');
+        }
+
+        return [
+            'provider' => $provider,
+            'calendar_id' => $calendarId,
+            'event_id' => $eventId,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return list<array{display_name?: string, email?: string|null, speaker_key?: string|null}>
+     */
+    private function plannedParticipants(array $payload): array
+    {
+        $raw = $payload['participants'] ?? [];
+
+        if (! is_array($raw)) {
+            return [];
+        }
+
+        $rows = [];
+
+        foreach ($raw as $item) {
+            if (is_string($item)) {
+                $item = ['display_name' => $item];
+            }
+
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $name = $this->nullableString($item['display_name'] ?? null);
+            $email = $this->nullableString($item['email'] ?? null);
+
+            if ($name === null && $email === null) {
+                continue;
+            }
+
+            $rows[] = [
+                'display_name' => $name ?? (string) $email,
+                'email' => $email,
+            ];
+        }
+
+        return $rows;
     }
 
     private function nullableDate(mixed $value): ?string

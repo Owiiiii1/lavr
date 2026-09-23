@@ -16,13 +16,13 @@ return [
 
     'chunk_overlap_chars' => (int) env('MEETINGS_CHUNK_OVERLAP', 200),
 
-    'max_chunks' => (int) env('MEETINGS_MAX_CHUNKS', 12),
+    'max_chunks' => (int) env('MEETINGS_MAX_CHUNKS', 40),
 
     'chunk_ai_retries' => (int) env('MEETINGS_CHUNK_AI_RETRIES', 2),
 
     'max_evidence_chars' => (int) env('MEETINGS_MAX_EVIDENCE_CHARS', 280),
 
-    'prompt_version' => env('MEETINGS_PROMPT_VERSION', 'meeting-intelligence-v1'),
+    'prompt_version' => env('MEETINGS_PROMPT_VERSION', 'meeting-intelligence-v2'),
 
     'job_timeout' => (int) env('MEETINGS_JOB_TIMEOUT', 180),
 
