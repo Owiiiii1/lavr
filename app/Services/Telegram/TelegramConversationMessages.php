@@ -30,7 +30,10 @@ final class TelegramConversationMessages
 
     public const LIST_TRUNCATED = 'Показаны последние 20 чатов.';
 
-    public const VOICE_TOO_LONG = 'Голосовое слишком длинное. Отправьте короче (до 30 секунд) или напишите текстом.';
+    public static function voiceTooLong(int $maxSeconds): string
+    {
+        return 'Голосовое слишком длинное. Максимальная длительность — '.self::durationLabel(max(1, $maxSeconds)).'.';
+    }
 
     public const VOICE_TOO_LARGE = 'Голосовое слишком большое. Отправьте короче или напишите текстом.';
 
@@ -67,5 +70,32 @@ final class TelegramConversationMessages
     public static function messageSaved(string $title): string
     {
         return sprintf(self::MESSAGE_SAVED, $title);
+    }
+
+    private static function durationLabel(int $seconds): string
+    {
+        if ($seconds < 60 || $seconds % 60 !== 0) {
+            return $seconds.' '.self::plural($seconds, 'секунда', 'секунды', 'секунд');
+        }
+
+        $minutes = intdiv($seconds, 60);
+
+        return $minutes.' '.self::plural($minutes, 'минута', 'минуты', 'минут');
+    }
+
+    private static function plural(int $value, string $one, string $few, string $many): string
+    {
+        $mod10 = $value % 10;
+        $mod100 = $value % 100;
+
+        if ($mod10 === 1 && $mod100 !== 11) {
+            return $one;
+        }
+
+        if ($mod10 >= 2 && $mod10 <= 4 && ($mod100 < 12 || $mod100 > 14)) {
+            return $few;
+        }
+
+        return $many;
     }
 }

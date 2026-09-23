@@ -17,5 +17,6 @@ final readonly class VoiceAudioChunk
         public bool $isFinal,
         public ?int $durationMs,
         public ?DateTimeInterface $capturedAt,
+        public string $profile = 'interactive',
     ) {}
 }

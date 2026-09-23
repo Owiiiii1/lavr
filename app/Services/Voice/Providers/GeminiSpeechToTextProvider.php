@@ -7,6 +7,7 @@ use App\Services\Voice\Contracts\SpeechToTextProvider;
 use App\Services\Voice\DTO\SpeechTranscript;
 use App\Services\Voice\DTO\VoiceAudioChunk;
 use App\Services\Voice\Exceptions\VoiceException;
+use App\Services\Voice\VoiceAudioBounds;
 use App\Services\Voice\VoiceAudioMime;
 use App\Services\Voice\VoiceMetricsLogger;
 use App\Services\Voice\VoiceSettingsService;
@@ -82,7 +83,7 @@ final class GeminiSpeechToTextProvider implements SpeechToTextProvider
         $url = $base.'/models/'.$this->sanitizeModel($model).':generateContent';
 
         try {
-            $response = $this->postWithRetry($url, $apiKey, $payload);
+            $response = $this->postWithRetry($url, $apiKey, $payload, VoiceAudioBounds::forChunk($chunk));
         } catch (VoiceException $exception) {
             $this->logOutcome($chunk, $mime, $model, $started, $exception->error);
 
@@ -141,13 +142,14 @@ final class GeminiSpeechToTextProvider implements SpeechToTextProvider
     /**
      * @param  array<string, mixed>  $payload
      */
-    private function postWithRetry(string $url, string $apiKey, array $payload): Response
+    private function postWithRetry(string $url, string $apiKey, array $payload, VoiceAudioBounds $bounds): Response
     {
-        $timeout = $this->settings->sttTimeoutSeconds();
+        $timeout = $bounds->timeoutSeconds;
         $connect = $this->settings->connectTimeoutSeconds();
+        $attempts = $bounds->profile === VoiceAudioBounds::TELEGRAM_VOICE ? 1 : 2;
         $response = null;
 
-        for ($attempt = 1; $attempt <= 2; $attempt++) {
+        for ($attempt = 1; $attempt <= $attempts; $attempt++) {
             try {
                 $response = Http::timeout($timeout)
                     ->connectTimeout($connect)
@@ -157,14 +159,14 @@ final class GeminiSpeechToTextProvider implements SpeechToTextProvider
                     ])
                     ->post($url, $payload);
             } catch (ConnectionException) {
-                if ($attempt >= 2) {
+                if ($attempt >= $attempts) {
                     throw VoiceException::sttTimeout();
                 }
 
                 continue;
             }
 
-            if ($response->serverError() && $attempt < 2) {
+            if ($response->serverError() && $attempt < $attempts) {
                 continue;
             }
 
@@ -176,18 +178,16 @@ final class GeminiSpeechToTextProvider implements SpeechToTextProvider
 
     private function assertBounded(VoiceAudioChunk $chunk): void
     {
-        $effectiveBytes = min(
-            $this->settings->maxAudioChunkBytes(),
-            $this->settings->geminiSttMaxInlineBytes(),
-        );
+        $bounds = VoiceAudioBounds::forChunk($chunk);
+        $effectiveBytes = $bounds->profile === VoiceAudioBounds::TELEGRAM_VOICE
+            ? $bounds->maxBytes
+            : min($bounds->maxBytes, $this->settings->geminiSttMaxInlineBytes());
 
         if ($chunk->byteLength <= 0 || $chunk->byteLength > $effectiveBytes) {
             throw VoiceException::audioTooLarge();
         }
 
-        $maxMs = $this->settings->maxUtteranceSeconds() * 1000;
-
-        if ($chunk->durationMs !== null && $chunk->durationMs > $maxMs) {
+        if ($chunk->durationMs !== null && $chunk->durationMs > $bounds->maxDurationMs) {
             throw VoiceException::audioTooLarge();
         }
     }
@@ -340,6 +340,7 @@ final class GeminiSpeechToTextProvider implements SpeechToTextProvider
             'mime' => $mime,
             'audio_bytes' => $chunk->byteLength,
             'duration_ms' => $chunk->durationMs,
+            'timeout_seconds' => VoiceAudioBounds::forChunk($chunk)->timeoutSeconds,
             'latency_ms' => (int) round((microtime(true) - $started) * 1000),
             'result' => $code,
         ], $extra));

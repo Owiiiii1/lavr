@@ -7,6 +7,7 @@ use App\Services\Ai\GeminiCredentialResolver;
 use App\Services\Voice\DTO\VoiceAudioChunk;
 use App\Services\Voice\Exceptions\VoiceException;
 use App\Services\Voice\Providers\GeminiSpeechToTextProvider;
+use App\Services\Voice\VoiceAudioBounds;
 use App\Services\Voice\VoiceMetricsLogger;
 use App\Services\Voice\VoiceSettingsService;
 use Illuminate\Http\Client\Request;
@@ -122,6 +123,65 @@ class GeminiSpeechToTextProviderTest extends VoiceProviderTestCase
         $this->assertStringNotContainsString('Назови число', $serialized);
     }
 
+    public function test_telegram_profile_transcribes_past_the_web_utterance_limit(): void
+    {
+        config([
+            'voice.max_utterance_seconds' => 30,
+            'voice.max_audio_chunk_bytes' => 2_000_000,
+            'voice.stt_timeout_seconds' => 20,
+            'voice.telegram_voice.max_inbound_seconds' => 600,
+            'voice.telegram_voice.max_inbound_bytes' => 20_000_000,
+            'voice.telegram_voice.stt_timeout_seconds' => 90,
+            'voice.gemini_stt.max_inline_bytes' => 20_000_000,
+        ]);
+        $timeouts = [];
+        Log::listen(function (MessageLogged $event) use (&$timeouts): void {
+            if (isset($event->context['timeout_seconds'])) {
+                $timeouts[] = $event->context['timeout_seconds'];
+            }
+        });
+        $this->fakeSuccessfulTranscription();
+        $path = $this->writeChunk();
+
+        try {
+            $transcript = $this->provider()->transcribe($this->chunk(
+                $path,
+                durationMs: 600_000,
+                byteLength: 3_000_000,
+                profile: VoiceAudioBounds::TELEGRAM_VOICE,
+            ));
+        } finally {
+            @unlink($path);
+        }
+
+        $this->assertSame('Назови число', $transcript->text);
+        Http::assertSentCount(1);
+        $this->assertSame([90], $timeouts);
+    }
+
+    public function test_web_profile_keeps_the_thirty_second_utterance_limit(): void
+    {
+        config([
+            'voice.max_utterance_seconds' => 30,
+            'voice.max_audio_chunk_bytes' => 2_000_000,
+            'voice.stt_timeout_seconds' => 20,
+        ]);
+        $this->fakeSuccessfulTranscription();
+        $path = $this->writeChunk();
+
+        try {
+            $this->provider()->transcribe($this->chunk($path, durationMs: 29_000));
+            $this->provider()->transcribe($this->chunk($path, durationMs: 31_000));
+            $this->fail('Expected VoiceException.');
+        } catch (VoiceException $exception) {
+            $this->assertSame('voice_audio_too_large', $exception->error);
+        } finally {
+            @unlink($path);
+        }
+
+        Http::assertSentCount(1);
+    }
+
     private function provider(): GeminiSpeechToTextProvider
     {
         config([
@@ -178,19 +238,24 @@ class GeminiSpeechToTextProviderTest extends VoiceProviderTestCase
         return $path;
     }
 
-    private function chunk(string $path): VoiceAudioChunk
-    {
+    private function chunk(
+        string $path,
+        int $durationMs = 800,
+        ?int $byteLength = null,
+        string $profile = VoiceAudioBounds::INTERACTIVE,
+    ): VoiceAudioChunk {
         return new VoiceAudioChunk(
             sessionPublicId: 'sess-test',
             sequence: 1,
             absolutePath: $path,
-            byteLength: strlen(self::AUDIO_MARKER),
+            byteLength: $byteLength ?? strlen(self::AUDIO_MARKER),
             mime: 'audio/ogg',
             sampleRate: 48000,
             channels: 1,
             isFinal: true,
-            durationMs: 800,
+            durationMs: $durationMs,
             capturedAt: null,
+            profile: $profile,
         );
     }
 }

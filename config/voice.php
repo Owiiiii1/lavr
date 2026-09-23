@@ -31,9 +31,12 @@ return [
         'max_spoken_chars' => (int) env('TELEGRAM_VOICE_MAX_SPOKEN_CHARS', 2000),
         'max_code_fence_chars' => (int) env('TELEGRAM_VOICE_MAX_CODE_FENCE_CHARS', 400),
         'max_table_rows' => (int) env('TELEGRAM_VOICE_MAX_TABLE_ROWS', 4),
-        // Same conservative STT bounds as Web Voice. Telegram getFile allows 20 MB; we do not.
-        'max_inbound_bytes' => (int) env('TELEGRAM_VOICE_MAX_INBOUND_BYTES', 2_000_000),
-        'max_inbound_seconds' => (int) env('TELEGRAM_VOICE_MAX_INBOUND_SECONDS', 30),
+        // Telegram DM file transcription. Independent of Web max_utterance_seconds.
+        // Bytes are the raw file. Gemini inline JSON is larger by base64 (4/3) plus a small margin,
+        // so the effective raw cap is the minimum of this value, the API download cap, and that inline budget.
+        'max_inbound_bytes' => (int) env('TELEGRAM_VOICE_MAX_INBOUND_BYTES', 20_000_000),
+        'max_inbound_seconds' => (int) env('TELEGRAM_VOICE_MAX_INBOUND_SECONDS', 600),
+        'stt_timeout_seconds' => (int) env('TELEGRAM_VOICE_STT_TIMEOUT', 90),
         'api_download_max_bytes' => 20_000_000,
         'tts_speed' => (float) env('TELEGRAM_TTS_SPEED', 1.15),
         'tts_speed_min' => 0.70,
@@ -84,6 +87,7 @@ return [
     'gemini_stt' => [
         'model' => env('VOICE_GEMINI_STT_MODEL', 'gemini-3.5-transcribe'),
         'base_url' => rtrim((string) env('VOICE_GEMINI_STT_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'), '/'),
+        // Maximum generateContent request size, including base64 audio. Not a raw-file cap.
         'max_inline_bytes' => (int) env('VOICE_GEMINI_STT_MAX_INLINE_BYTES', 20_000_000),
     ],
 

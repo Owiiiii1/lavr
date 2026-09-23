@@ -243,14 +243,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CompletesTelegramUserTurn::class, TelegramConversationTurnBridge::class);
 
         $this->app->singleton(TelegramVoiceInboundService::class, function ($app): TelegramVoiceInboundService {
+            $bounds = \App\Services\Voice\VoiceAudioBounds::telegram();
+
             return new TelegramVoiceInboundService(
                 $app->make(LooksUpTelegramInbound::class),
                 $app->make(TranscribesSpeech::class),
                 $app->make(StoresEphemeralVoiceAudio::class),
                 $app->make(CompletesTelegramUserTurn::class),
                 $app->make(RecordsVoiceMetrics::class),
-                max(1024, (int) config('voice.telegram_voice.max_inbound_bytes', 2_000_000)),
-                max(1, (int) config('voice.telegram_voice.max_inbound_seconds', 30)),
+                $bounds->maxBytes,
+                intdiv($bounds->maxDurationMs, 1000),
                 max(1024, (int) config('voice.telegram_voice.api_download_max_bytes', 20_000_000)),
             );
         });

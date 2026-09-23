@@ -234,7 +234,7 @@ Telegram DM text or voice note → Conversation Engine → persist canonical **t
 
 **Telegram TTS speed** is **IMPLEMENTED / READY FOR OWNER VALIDATION**. Admin setting `telegram_tts_speed` (default **1.15**, range **0.70…1.20**, slider step **0.05**). It is passed only on the Telegram voice-reply path. Web Рация HTTP TTS and Диалог Beta realtime overrides do not inherit it. Fallback voice retries keep the same speed.
 
-Voice notes use existing `SpeechToTextManager` / Gemini STT. No `voice_sessions`.
+Voice notes use existing `SpeechToTextManager` / Gemini STT. No `voice_sessions`. Telegram DM duration and file-size limits are separate from the Web short-turn limits. The configured Telegram maximum defaults to **10 minutes**. A live 10-minute transcription is not validated. [TELEGRAM_VOICE.md](TELEGRAM_VOICE.md).
 
 Default mode `text`. Tools: `get_telegram_response_mode` / `set_telegram_response_mode`. `auto` = voice-in → voice-out, text-in → text-out.
 

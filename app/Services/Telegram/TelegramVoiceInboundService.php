@@ -17,6 +17,7 @@ use App\Services\Voice\Contracts\StoresEphemeralVoiceAudio;
 use App\Services\Voice\Contracts\TranscribesSpeech;
 use App\Services\Voice\DTO\VoiceAudioChunk;
 use App\Services\Voice\Exceptions\VoiceException;
+use App\Services\Voice\VoiceAudioBounds;
 use App\Services\Voice\VoiceAudioMime;
 use DateTimeImmutable;
 use Throwable;
@@ -29,8 +30,8 @@ final class TelegramVoiceInboundService
         private readonly StoresEphemeralVoiceAudio $tempAudio,
         private readonly CompletesTelegramUserTurn $turns,
         private readonly RecordsVoiceMetrics $metrics,
-        private readonly int $maxInboundBytes = 2_000_000,
-        private readonly int $maxInboundSeconds = 30,
+        private readonly int $maxInboundBytes = 20_000_000,
+        private readonly int $maxInboundSeconds = 600,
         private readonly int $apiDownloadMaxBytes = 20_000_000,
     ) {}
 
@@ -60,7 +61,7 @@ final class TelegramVoiceInboundService
         $maxSeconds = max(1, $this->maxInboundSeconds);
 
         if ($note->durationSeconds > $maxSeconds) {
-            return $this->notice($user, TelegramConversationMessages::VOICE_TOO_LONG, 'too_long');
+            return $this->notice($user, TelegramConversationMessages::voiceTooLong($maxSeconds), 'too_long');
         }
 
         if ($note->fileSize !== null && $note->fileSize > $maxBytes) {
@@ -134,6 +135,7 @@ final class TelegramVoiceInboundService
                 isFinal: true,
                 durationMs: $note->durationSeconds * 1000,
                 capturedAt: $note->occurredAt ?? new DateTimeImmutable,
+                profile: VoiceAudioBounds::TELEGRAM_VOICE,
             );
 
             try {

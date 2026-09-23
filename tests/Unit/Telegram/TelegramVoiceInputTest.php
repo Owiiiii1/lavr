@@ -27,6 +27,7 @@ use App\Services\Voice\Contracts\TranscribesSpeech;
 use App\Services\Voice\DTO\SpeechTranscript;
 use App\Services\Voice\DTO\VoiceAudioChunk;
 use App\Services\Voice\Exceptions\VoiceException;
+use App\Services\Voice\VoiceAudioBounds;
 use App\Services\Voice\VoiceAudioMime;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -140,30 +141,104 @@ class TelegramVoiceInputTest extends TestCase
         $this->assertSame([], $turns->texts);
     }
 
-    public function test_oversize_and_too_long_skip_download_and_stt(): void
+    public function test_short_and_long_voice_notes_are_transcribed_once(): void
+    {
+        foreach ([29, 31, 300, 600] as $seconds) {
+            $stt = new RecordingTranscriber(new SpeechTranscript('Полный текст голосового.', true));
+            $turns = new FakeTurnRunner;
+            $store = new RecordingTempStore;
+
+            $result = $this->service($stt, $turns, $store)->handle(
+                $this->user(),
+                $this->conversation(),
+                $this->note(durationSeconds: $seconds, fileSize: 3_000_000),
+                new FakeVoiceDownloader('ogg-bytes'),
+            );
+
+            $this->assertSame(TelegramVoiceInboundStatus::Turn, $result->status, (string) $seconds);
+            $this->assertSame(['Полный текст голосового.'], $turns->texts);
+            $this->assertSame(VoiceAudioBounds::TELEGRAM_VOICE, $stt->chunks[0]->profile);
+            $this->assertSame($seconds * 1000, $stt->chunks[0]->durationMs);
+            $this->assertSame([], $store->remaining());
+        }
+    }
+
+    public function test_voice_over_the_configured_maximum_is_rejected_without_download(): void
     {
         $stt = new FakeTranscriber(new SpeechTranscript('nope', true));
         $turns = new FakeTurnRunner;
         $downloader = new FakeVoiceDownloader('ogg-bytes');
-        $service = $this->service($stt, $turns);
 
-        $tooLong = $service->handle(
+        $tooLong = $this->service($stt, $turns)->handle(
             $this->user(),
             $this->conversation(),
-            $this->note(durationSeconds: 31),
-            $downloader,
-        );
-        $tooLarge = $service->handle(
-            $this->user(),
-            $this->conversation(),
-            $this->note(fileSize: 2_000_001),
+            $this->note(durationSeconds: 601),
             $downloader,
         );
 
         $this->assertSame('too_long', $tooLong->reason);
-        $this->assertSame('too_large', $tooLarge->reason);
+        $this->assertSame(
+            'Голосовое слишком длинное. Максимальная длительность — 10 минут.',
+            $tooLong->userText,
+        );
         $this->assertSame(0, $downloader->calls);
         $this->assertSame(0, $stt->calls);
+        $this->assertSame([], $turns->texts);
+    }
+
+    public function test_file_above_the_old_two_megabyte_cap_is_accepted_until_the_telegram_cap(): void
+    {
+        $stt = new RecordingTranscriber(new SpeechTranscript('Длинный файл.', true));
+        $turns = new FakeTurnRunner;
+        $bytes = str_repeat('a', 2_000_001);
+        $downloader = new FakeVoiceDownloader($bytes);
+
+        $accepted = $this->service($stt, $turns)->handle(
+            $this->user(),
+            $this->conversation(),
+            $this->note(durationSeconds: 300, fileSize: 2_000_001),
+            $downloader,
+        );
+        $rejectedDownloader = new FakeVoiceDownloader($bytes);
+        $rejected = $this->service(new FakeTranscriber(new SpeechTranscript('nope', true)), new FakeTurnRunner)->handle(
+            $this->user(),
+            $this->conversation(),
+            $this->note(fileSize: 20_000_001),
+            $rejectedDownloader,
+        );
+
+        $this->assertSame(TelegramVoiceInboundStatus::Turn, $accepted->status);
+        $this->assertSame(2_000_001, $stt->chunks[0]->byteLength);
+        $this->assertSame('too_large', $rejected->reason);
+        $this->assertSame(1, $downloader->calls);
+        $this->assertSame(0, $rejectedDownloader->calls);
+    }
+
+    public function test_downloaded_and_actual_bytes_over_the_cap_skip_transcription(): void
+    {
+        $stt = new FakeTranscriber(new SpeechTranscript('nope', true));
+        $turns = new FakeTurnRunner;
+        $store = new RecordingTempStore;
+        $reported = new FakeVoiceDownloader('abc', reportedBytes: 3_000);
+        $actual = new FakeVoiceDownloader(str_repeat('b', 2_500), reportedBytes: 500);
+
+        $byReport = $this->service($stt, $turns, $store, maxBytes: 2_000)->handle(
+            $this->user(),
+            $this->conversation(),
+            $this->note(fileSize: null),
+            $reported,
+        );
+        $byContents = $this->service($stt, $turns, $store, maxBytes: 2_000)->handle(
+            $this->user(),
+            $this->conversation(),
+            $this->note(fileSize: null),
+            $actual,
+        );
+
+        $this->assertSame('too_large', $byReport->reason);
+        $this->assertSame('too_large', $byContents->reason);
+        $this->assertSame(0, $stt->calls);
+        $this->assertSame([], $store->remaining());
     }
 
     public function test_temp_file_is_deleted_after_success_and_failure(): void
@@ -263,6 +338,8 @@ class TelegramVoiceInputTest extends TestCase
         CompletesTelegramUserTurn $turns,
         ?RecordingTempStore $store = null,
         ?LooksUpTelegramInbound $lookup = null,
+        int $maxBytes = 20_000_000,
+        int $maxSeconds = 600,
     ): TelegramVoiceInboundService {
         return new TelegramVoiceInboundService(
             $lookup ?? new FakeInboundLookup(null),
@@ -273,8 +350,8 @@ class TelegramVoiceInputTest extends TestCase
             {
                 public function record(string $event, array $context = []): void {}
             },
-            2_000_000,
-            30,
+            $maxBytes,
+            $maxSeconds,
             20_000_000,
         );
     }
@@ -312,7 +389,7 @@ class TelegramVoiceInputTest extends TestCase
     }
 }
 
-final class FakeTranscriber implements TranscribesSpeech
+class FakeTranscriber implements TranscribesSpeech
 {
     public int $calls = 0;
 
@@ -341,6 +418,19 @@ final class FakeTranscriber implements TranscribesSpeech
     public function supportedInputMimes(): array
     {
         return ['audio/ogg', 'audio/mpeg', 'audio/mp4', 'audio/webm', 'audio/wav', 'audio/flac', 'audio/aac'];
+    }
+}
+
+final class RecordingTranscriber extends FakeTranscriber
+{
+    /** @var list<VoiceAudioChunk> */
+    public array $chunks = [];
+
+    public function transcribe(VoiceAudioChunk $chunk, ?string $language = null): SpeechTranscript
+    {
+        $this->chunks[] = $chunk;
+
+        return parent::transcribe($chunk, $language);
     }
 }
 
@@ -386,6 +476,7 @@ final class FakeVoiceDownloader implements DownloadsTelegramVoice
     public function __construct(
         private readonly string $bytes,
         private readonly bool $fail = false,
+        private readonly ?int $reportedBytes = null,
     ) {}
 
     public function download(string $fileId, string $absolutePath): TelegramDownloadedVoiceFile
@@ -404,7 +495,9 @@ final class FakeVoiceDownloader implements DownloadsTelegramVoice
 
         file_put_contents($absolutePath, $this->bytes);
 
-        return new TelegramDownloadedVoiceFile($absolutePath, strlen($this->bytes), strlen($this->bytes));
+        $length = $this->reportedBytes ?? strlen($this->bytes);
+
+        return new TelegramDownloadedVoiceFile($absolutePath, $length, $length);
     }
 }
 

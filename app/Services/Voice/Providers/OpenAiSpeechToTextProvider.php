@@ -6,6 +6,7 @@ use App\Services\Voice\Contracts\SpeechToTextProvider;
 use App\Services\Voice\DTO\SpeechTranscript;
 use App\Services\Voice\DTO\VoiceAudioChunk;
 use App\Services\Voice\Exceptions\VoiceException;
+use App\Services\Voice\VoiceAudioBounds;
 use App\Services\Voice\VoiceAudioMime;
 use App\Services\Voice\VoiceSettingsService;
 use Illuminate\Http\Client\ConnectionException;
@@ -36,7 +37,7 @@ final class OpenAiSpeechToTextProvider implements SpeechToTextProvider
             throw VoiceException::sttNotConfigured();
         }
 
-        $timeout = max(2, (int) config('voice.stt_timeout_seconds', 20));
+        $timeout = VoiceAudioBounds::forChunk($chunk)->timeoutSeconds;
         $connect = max(1, (int) config('voice.connect_timeout_seconds', 5));
         $base = rtrim((string) config('voice.openai_stt.base_url', 'https://api.openai.com/v1'), '/');
         $model = (string) config('voice.openai_stt.model', 'whisper-1');

@@ -14,7 +14,11 @@ class ProcessTelegramUpdate implements ShouldQueue
 
     public int $tries = 2;
 
-    public int $timeout = 75;
+    /**
+     * One Telegram STT attempt (default 90s) plus download and the conversation turn.
+     * Stays under the queue worker --timeout=180.
+     */
+    public int $timeout = 170;
 
     public function __construct(
         public readonly string $payload,
