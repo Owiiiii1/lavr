@@ -19,6 +19,10 @@ Raw files stay on the private disk. Logs carry source id, counts, status, durati
 
 Restricted items are omitted from the default pack. Private items are omitted unless the question is a negotiation or a meeting-coaching turn, and even then only in the categories that turn is allowed to see.
 
+## Large files
+
+The old fixed cap of 6 chunks (about 36k characters) is gone. Import walks every chunk. `hard_max_chunks` (default 100) is an emergency stop only. Crossing it, or losing a model chunk, stores status `partial` and `metadata.processing = partial`. It is not marked fully processed. Retry reuses the fingerprint and does not duplicate claims.
+
 ## Limits (still TARGET)
 
 CEO pattern history, first-class Decisions, weekly outcomes, KPI definitions, 1:1 mode, pre-meeting brief, manager operational review, evening brief expansion, lessons learned. PDF import is deferred. The five memory tiers are retrieval language, not five tables.

@@ -54,6 +54,8 @@ final class OwnerContextCatalog
                 'duration_ms' => $source->metadata['result']['duration_ms'] ?? $source->metadata['duration_ms'] ?? null,
                 'result' => $source->metadata['result'] ?? null,
                 'processing' => $source->metadata['processing'] ?? null,
+                'total_chunks' => $source->metadata['progress']['total_chunks'] ?? null,
+                'processed_chunks' => $source->metadata['progress']['processed_chunks'] ?? null,
                 'error_category' => $source->metadata['error_category'] ?? null,
             ])->values(),
             'scopes' => [

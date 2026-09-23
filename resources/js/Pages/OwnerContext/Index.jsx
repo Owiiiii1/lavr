@@ -23,6 +23,7 @@ export default function OwnerContextIndex() {
                     {sources.map((source) => (
                         <li key={source.id} className="rounded-xl border border-[#E6DCC8] bg-white px-3 py-3 text-sm text-slate-800">
                             {source.name} · {source.status} · {source.extracted} · {source.accepted} · {source.needs_review}
+                            {source.total_chunks ? ` · ${source.status === 'partial' ? 'Partial: ' : ''}${source.processed_chunks ?? 0} / ${source.total_chunks}` : ''}
                             {source.error_category ? ` · ${source.error_category}` : ''}
                         </li>
                     ))}

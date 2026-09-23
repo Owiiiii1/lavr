@@ -16,7 +16,17 @@ return [
 
     'chunk_chars' => 6000,
 
-    'max_chunks' => 6,
+    /*
+    | How many chunks one queue job handles before dispatching the next.
+    | This keeps a single run inside the worker timeout. It is not a cap on the document.
+    */
+    'chunks_per_run' => (int) env('OWNER_CONTEXT_CHUNKS_PER_RUN', 8),
+
+    /*
+    | Emergency stop only. A normal import processes every chunk.
+    | max_chunks (the old fixed limit of 6) is unused.
+    */
+    'hard_max_chunks' => (int) env('OWNER_CONTEXT_HARD_MAX_CHUNKS', 100),
 
     'max_items' => 400,
 

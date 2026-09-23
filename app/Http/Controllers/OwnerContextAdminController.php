@@ -22,6 +22,8 @@ class OwnerContextAdminController extends Controller
             'extracted' => $source['extracted'],
             'accepted' => $source['accepted'],
             'needs_review' => $source['needs_review'],
+            'total_chunks' => $source['total_chunks'] ?? null,
+            'processed_chunks' => $source['processed_chunks'] ?? null,
             'error_category' => $source['error_category'],
         ])->all();
 

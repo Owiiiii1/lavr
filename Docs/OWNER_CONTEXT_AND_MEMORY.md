@@ -20,6 +20,8 @@ Runtime: [CURRENT_STATE.md](CURRENT_STATE.md). Product: [PRODUCT.md](PRODUCT.md)
 
 Safe auto-accept requires fact or current (or analysis in a rule/coaching category), confidence at least 0.85, normal sensitivity, a resolved scope when a directory entity is required, no conflict, and no personal-constraint category. The importer never creates a Person, Project, or Organization.
 
+Large imports process the whole file. Chunk count follows the document size. `hard_max_chunks` (default 100) is only an emergency stop. A file that exceeds it is `partial`, not `ready`. One failed model chunk does not drop the chunks that succeeded. Retry of a failed or partial source reprocesses the file and does not duplicate an existing fingerprint.
+
 **TARGET:** the five tiers below are not five tables. CEO pattern tracking, a decision ledger, weekly outcomes, KPI definitions, and a lessons ledger are still not built.
 
 Do not send an entire Owner biography into every model prompt. Retrieve only what the turn needs.

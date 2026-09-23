@@ -170,10 +170,20 @@ export default function OwnerContextSettings({ surface }) {
                             <li key={source.id} className="rounded-xl border border-white/10 p-3">
                                 <p className="font-medium text-white">{source.name}</p>
                                 <p className="mt-1 text-xs text-slate-300">{source.status} · {source.source_date || '—'} · {t('settings.ownerContext.extracted')} {source.extracted} · {t('settings.ownerContext.counts.accepted')} {source.accepted} · {t('settings.ownerContext.counts.needsReview')} {source.needs_review}</p>
+                                {source.total_chunks ? (
+                                    <p className="mt-1 text-xs text-slate-400">
+                                        {source.processing === 'partial'
+                                            ? t('settings.ownerContext.partialChunks', { processed: source.processed_chunks ?? 0, total: source.total_chunks })
+                                            : t('settings.ownerContext.chunks', { processed: source.processed_chunks ?? 0, total: source.total_chunks })}
+                                    </p>
+                                ) : null}
                                 {source.result ? <p className="mt-1 text-xs text-slate-400">{source.result.extracted} / {source.result.accepted} / {source.result.linked} / {source.result.historical} / {source.result.needs_review} / {source.result.private_or_restricted}</p> : null}
                                 <div className="mt-2 flex gap-3">
                                     <button type="button" className="text-xs text-slate-200 underline" onClick={() => { setTab('overview'); setFilters({ ...filters, q: '' }); }}>{t('settings.ownerContext.viewItems')}</button>
                                     <button type="button" className="text-xs text-slate-200 underline" onClick={() => post('owner-context.archive', source.id).catch(() => setError(t('settings.ownerContext.loadError')))}>{t('settings.ownerContext.archive')}</button>
+                                    {source.status === 'failed' || source.status === 'partial' ? (
+                                        <button type="button" className="text-xs text-slate-200 underline" onClick={() => post('owner-context.retry', source.id).catch(() => setError(t('settings.ownerContext.loadError')))}>{t('settings.ownerContext.retry')}</button>
+                                    ) : null}
                                 </div>
                             </li>
                         ))}

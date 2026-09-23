@@ -45,7 +45,7 @@ final class OwnerContextImportService
 
     public function retry(OwnerContextSource $source): void
     {
-        if ($source->status !== OwnerContextSourceStatus::Failed) {
+        if (! in_array($source->status, [OwnerContextSourceStatus::Failed, OwnerContextSourceStatus::Partial], true)) {
             return;
         }
 

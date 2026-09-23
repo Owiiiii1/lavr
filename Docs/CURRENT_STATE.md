@@ -242,4 +242,4 @@ Canonical TARGET docs: [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md), [OWNE
 
 Production status remains Phase 12, the Meeting Review redesign (`28540d3`), and Owner Context V1. Owner Context is two tables and a settings import. It is not the rest of the CEO Operating System.
 
-**CURRENT:** source upload (txt/md), atomic items, fact classes, sensitivity, conflict review, supersession, task-scoped retrieval, a compact chat block. **Still TARGET:** CEO pattern history, first-class Decisions, weekly outcomes, KPI definitions, 1:1 mode, pre-meeting brief, manager operational review, evening brief expansion, lessons learned.
+**CURRENT:** source upload (txt/md), atomic items, fact classes, sensitivity, conflict review, supersession, task-scoped retrieval, a compact chat block. Large source import processes the entire file up to the emergency `hard_max_chunks` cap (default 100). A capped or partially failed import is status `partial`, not `ready`. **Still TARGET:** CEO pattern history, first-class Decisions, weekly outcomes, KPI definitions, 1:1 mode, pre-meeting brief, manager operational review, evening brief expansion, lessons learned.
