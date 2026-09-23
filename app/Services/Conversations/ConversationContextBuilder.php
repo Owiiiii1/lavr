@@ -25,6 +25,8 @@ use App\Services\Knowledge\KnowledgeToolPrompt;
 use App\Services\Meetings\MeetingToolPrompt;
 use App\Services\Memory\DTO\MemoryContextPackage;
 use App\Services\Memory\PersonalMemoryRetriever;
+use App\Services\OwnerContext\DTO\OwnerContextQuery;
+use App\Services\OwnerContext\OwnerContextRetriever;
 use App\Services\Productivity\ProductivitySnapshot;
 use App\Services\Reminders\ReminderToolPrompt;
 use App\Services\Reports\ScheduledReportToolPrompt;
@@ -71,6 +73,7 @@ final class ConversationContextBuilder
         private readonly WorkingContextBuilder $workingContexts,
         private readonly PersonalityPresentationBuilder $personality,
         private readonly KnowledgeRetriever $knowledge,
+        private readonly OwnerContextRetriever $ownerContext,
         private readonly ?ProductivitySnapshot $productivity = null,
         private readonly ?CrossSourceSynthesisService $synthesis = null,
     ) {}
@@ -165,6 +168,21 @@ final class ConversationContextBuilder
             $synthesisBlock = null;
         }
 
+        $ownerIds = [];
+
+        try {
+            $ownerPack = $this->ownerContext->pack($user, new OwnerContextQuery(
+                question: $currentInbound?->body,
+            ));
+
+            if ($ownerPack !== null && $ownerPack['prompt'] !== '') {
+                $platform[] = $ownerPack['prompt'];
+                $ownerIds = $ownerPack['ids'];
+            }
+        } catch (Throwable) {
+            $ownerIds = [];
+        }
+
         $assembled = $this->budgets->assemble($configuration, new ContextSlices(
             platformPrompt: trim(implode("\n\n", array_filter($platform))),
             assistantIdentity: $identity,
@@ -184,6 +202,7 @@ final class ConversationContextBuilder
 
         $workingTokens = (int) (($assembled['diagnostics']['sources']['working_context']['tokens'] ?? 0));
         $assembled['diagnostics'] = array_merge($assembled['diagnostics'], $working->diagnostics($workingTokens));
+        $assembled['diagnostics']['owner_context_ids'] = $ownerIds;
         $assembled['working'] = $working;
 
         return $assembled;

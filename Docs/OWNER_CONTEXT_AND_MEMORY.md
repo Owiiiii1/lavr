@@ -1,6 +1,6 @@
 # Owner context and memory
 
-How LAVR should store and retrieve Owner and business context. This is an architecture spec. It does not copy a client’s private master file into Git, and it does not add tables.
+How LAVR stores and retrieves Owner and business context. It does not copy a client’s private master file into Git.
 
 Runtime: [CURRENT_STATE.md](CURRENT_STATE.md). Product: [PRODUCT.md](PRODUCT.md). Operating loop: [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md).
 
@@ -14,8 +14,13 @@ Runtime: [CURRENT_STATE.md](CURRENT_STATE.md). Product: [PRODUCT.md](PRODUCT.md)
 | Directory | People, organizations, roles, relationships |
 | Projects | Business contexts and source bindings |
 | Operational state | Commitments, meetings, briefs, leadership reviews, proactive events |
+| Owner Context V1 | `owner_context_sources` + `owner_context_items`. Dated, source-backed claims. Not a second CRM |
 
-**TARGET:** the tiers below. They describe retrieval and retention. They are not implemented as five stores.
+**CURRENT (V1).** Settings → Owner Context imports `.txt` / `.md` into a private file, queues extraction, and stores atomic items with `fact_class` (`fact`, `current`, `historical`, `analysis`, `to_verify`), status, sensitivity, and an optional link to an existing Person, Project, or Organization. A new accepted value does not overwrite an old one: the old row becomes `superseded`. Conflicts and unresolved directory labels stay `needs_review`. `to_verify`, historical, private, restricted, and low-confidence rows are not auto-accepted. Chat receives a short task-scoped pack, not the raw file. Canonical people, projects, organizations, and commitments outrank these claims.
+
+Safe auto-accept requires fact or current (or analysis in a rule/coaching category), confidence at least 0.85, normal sensitivity, a resolved scope when a directory entity is required, no conflict, and no personal-constraint category. The importer never creates a Person, Project, or Organization.
+
+**TARGET:** the five tiers below are not five tables. CEO pattern tracking, a decision ledger, weekly outcomes, KPI definitions, and a lessons ledger are still not built.
 
 Do not send an entire Owner biography into every model prompt. Retrieve only what the turn needs.
 
@@ -25,7 +30,7 @@ Do not send an entire Owner biography into every model prompt. Retrieve only wha
 
 Identity, timezone, preferred languages, communication style, CEO goals, stable operating principles.
 
-**CURRENT:** timezone, locales, assistant profile. **TARGET:** a structured CEO Profile separate from assistant personality. Goals and operating principles are not a first-class object today.
+**CURRENT:** timezone, locales, assistant profile, plus Owner Context items in categories such as `identity`, `communication`, `ceo_goal`, and `ceo_operating_rule`. **TARGET:** a structured CEO Profile object separate from assistant personality. Items are claims, not that profile.
 
 ### TIER 2 — Semi-permanent business context
 

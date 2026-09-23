@@ -24,7 +24,7 @@ Do not build a second frontend for Telegram WebApp. The same responsive LAVR Wor
 | Telegram Groups | Same bot | Source / analysis; not the CEO’s personal UI |
 | Standalone Web Workspace | `/lavr` | Full chat + Task / Reminder / Watcher / Report / Notification / Proactive / System health / Business setup + Overview + Voice + People / Organizations / Projects / Meetings / Commitments |
 | Telegram WebApp | `/telegram/webapp` | Same Workspace after HMAC session; Mini App E2E NOT VALIDATED (needs token + pairing) |
-| Admin | `/dashboard`, `/settings/*`, owner resources (`/projects`, `/people`, `/organizations`, `/telegram-groups`, …) | Technical management. Settings → Integrations lists **each** Google account (label, health, test/disable/reconnect) without tokens. |
+| Admin | `/dashboard`, `/settings/*`, `/owner-context`, owner resources (`/projects`, `/people`, `/organizations`, `/telegram-groups`, …) | Technical management. Settings → Integrations lists **each** Google account (label, health, test/disable/reconnect) without tokens. `/owner-context` lists source status and counts, not file text. |
 | Legacy paths | `GET /jarvis`, `GET /chat` | Redirect to `/lavr` |
 
 There is a Telegram WebApp **foundation** (Phase 3A) plus **UX completion** (Phase 3B) plus **Ukrainian-first localization** (Phase 3C): `/telegram/webapp` validates Mini App `initData` and opens the same Workspace (Today, Chat, nav, Notifications, Reports) with the same Owner locale as standalone Web. Real Telegram-client E2E is **NOT VALIDATED**. Details: [Development/LAVR_PHASE_3A_REPORT.md](Development/LAVR_PHASE_3A_REPORT.md), [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md), [Development/LAVR_PHASE_3C_REPORT.md](Development/LAVR_PHASE_3C_REPORT.md).
@@ -97,7 +97,7 @@ Target sections (product UX, not a current route map):
 | Setup | Business map (`/lavr/setup`) |
 | Knowledge | Documents / index — [KNOWLEDGE_LAYER.md](KNOWLEDGE_LAYER.md) |
 | Notifications | Inbox |
-| Settings | Assistant, voice, integrations, policies; **UI language** and **preferred assistant language** (separate; default `uk`) |
+| Settings | Assistant, voice, integrations, policies, **Owner Context**; **UI language** and **preferred assistant language** (separate; default `uk`) |
 
 Phase 3A–3B in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the WebApp foundation and UX completion, not the full domain UI. Live Mini App on a phone waits on existing-bot token + pairing: [Development/LAVR_PHASE_3B_REPORT.md](Development/LAVR_PHASE_3B_REPORT.md).
 

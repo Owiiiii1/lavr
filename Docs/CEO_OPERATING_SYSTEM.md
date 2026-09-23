@@ -1,6 +1,6 @@
 # CEO Operating System
 
-**Status: TARGET.** This is the product direction after Phase 12 and the Meeting Review redesign. It is not a shipped domain, not a phase, and not a claim that new tables exist.
+**Status: TARGET** for the operating loop below. Owner Context V1 is the one piece that is now CURRENT: dated claims in `owner_context_items`, imported from a private file, retrieved in a short pack. It is not the CEO pattern store, the decision ledger, or weekly outcomes.
 
 Runtime facts stay in [CURRENT_STATE.md](CURRENT_STATE.md). Product frame: [PRODUCT.md](PRODUCT.md). Memory rules: [OWNER_CONTEXT_AND_MEMORY.md](OWNER_CONTEXT_AND_MEMORY.md). Domain sketch: [DOMAIN_MODEL.md](DOMAIN_MODEL.md).
 

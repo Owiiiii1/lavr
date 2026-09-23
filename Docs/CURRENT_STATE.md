@@ -240,4 +240,6 @@ A client master context introduced a broader CEO Operating System target: chief 
 
 Canonical TARGET docs: [CEO_OPERATING_SYSTEM.md](CEO_OPERATING_SYSTEM.md), [OWNER_CONTEXT_AND_MEMORY.md](OWNER_CONTEXT_AND_MEMORY.md).
 
-Production status remains Phase 12 plus the Meeting Review redesign (`28540d3`). Those TARGET docs are not a phase and not a migration.
+Production status remains Phase 12, the Meeting Review redesign (`28540d3`), and Owner Context V1. Owner Context is two tables and a settings import. It is not the rest of the CEO Operating System.
+
+**CURRENT:** source upload (txt/md), atomic items, fact classes, sensitivity, conflict review, supersession, task-scoped retrieval, a compact chat block. **Still TARGET:** CEO pattern history, first-class Decisions, weekly outcomes, KPI definitions, 1:1 mode, pre-meeting brief, manager operational review, evening brief expansion, lessons learned.

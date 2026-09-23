@@ -227,6 +227,14 @@ Ukrainian-first localization remains Phase **3C**.
 
 ---
 
+## Owner Context V1
+
+**IMPLEMENTED** 2026-09-23. Not a numbered phase. Report: [Development/LAVR_OWNER_CONTEXT_V1_REPORT.md](Development/LAVR_OWNER_CONTEXT_V1_REPORT.md).
+
+Two tables (`owner_context_sources`, `owner_context_items`), queued extraction, review in Settings → Owner Context, task-scoped retrieval in chat. Does not add CEO patterns, decisions, weekly outcomes, or KPI definitions.
+
+---
+
 ## Post-Phase-12 product evolution candidates
 
 **Status: TARGET / PRODUCT DISCOVERY.** Not an approved phase. Not Phase 13. Do not schedule work from this list until a CURRENT-versus-TARGET gap review says the item is next.
@@ -234,7 +242,7 @@ Ukrainian-first localization remains Phase **3C**.
 Candidates:
 
 - Structured CEO Profile
-- Owner context tiers
+- Owner context tiers (five stores). V1 is one item table, not these tiers
 - CEO pattern tracking
 - 1:1 meeting mode
 - Pre-Meeting Brief

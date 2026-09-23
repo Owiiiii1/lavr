@@ -3,6 +3,7 @@ export const SETTINGS_SECTIONS = [
     'assistant',
     'memory',
     'knowledge',
+    'owner-context',
     'productivity',
     'voice',
     'integrations',

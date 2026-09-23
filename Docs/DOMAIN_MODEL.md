@@ -47,6 +47,8 @@ Implemented operational-ish objects (Eloquent models):
 | ExecutiveBrief | Morning `executive_briefs` |
 | LeadershipReview | Grounded `leadership_reviews` |
 | OperationalEvent | First-class `operational_events` |
+| OwnerContextSource | Private upload or manual source. File bytes stay on the local disk, not in the row |
+| OwnerContextItem | One claim: category, fact class, scope, sensitivity, status, evidence. Optional `scope_id` points at an existing person, project, or organization |
 | ProactiveProposal | `proactive_proposals` + audits |
 | BusinessMapProgress | Non-blocking setup (`business_map_progresses`) |
 | ValidationBatch | Synthetic validation provenance |

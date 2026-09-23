@@ -12,6 +12,7 @@ use App\Http\Controllers\Jarvis\JarvisExecutiveBriefController;
 use App\Http\Controllers\Jarvis\JarvisKnowledgeController;
 use App\Http\Controllers\Jarvis\JarvisLeadershipReviewController;
 use App\Http\Controllers\Jarvis\JarvisNotificationController;
+use App\Http\Controllers\Jarvis\JarvisOwnerContextController;
 use App\Http\Controllers\Jarvis\JarvisProactiveController;
 use App\Http\Controllers\Jarvis\JarvisProductivitySettingsController;
 use App\Http\Controllers\Jarvis\JarvisPushSubscriptionController;
@@ -37,6 +38,7 @@ use App\Http\Controllers\Jarvis\JarvisWorkspaceStatusController;
 use App\Http\Controllers\LeadershipReviewController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\OrganizationsController;
+use App\Http\Controllers\OwnerContextAdminController;
 use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\ProductionReadinessController;
 use App\Http\Controllers\ProfileController;
@@ -164,6 +166,19 @@ $registerPersonalWorkspace = static function (string $prefix, string $as, array 
         Route::get('/workspace/status', [JarvisWorkspaceStatusController::class, 'show'])
             ->middleware('throttle:30,1')
             ->name('workspace.status');
+        Route::get('/owner-context', [JarvisOwnerContextController::class, 'index'])->name('owner-context.index');
+        Route::post('/owner-context/import', [JarvisOwnerContextController::class, 'store'])->middleware('throttle:owner-upload')->name('owner-context.import');
+        Route::post('/owner-context/sources/{source}/retry', [JarvisOwnerContextController::class, 'retry'])->name('owner-context.retry');
+        Route::post('/owner-context/sources/{source}/archive', [JarvisOwnerContextController::class, 'archive'])->name('owner-context.archive');
+        Route::post('/owner-context/items', [JarvisOwnerContextController::class, 'storeItem'])->name('owner-context.items.store');
+        Route::patch('/owner-context/items/{item}', [JarvisOwnerContextController::class, 'updateItem'])->name('owner-context.items.update');
+        Route::post('/owner-context/items/{item}/accept', [JarvisOwnerContextController::class, 'accept'])->name('owner-context.items.accept');
+        Route::post('/owner-context/items/{item}/reject', [JarvisOwnerContextController::class, 'reject'])->name('owner-context.items.reject');
+        Route::post('/owner-context/items/{item}/needs-review', [JarvisOwnerContextController::class, 'needsReview'])->name('owner-context.items.needs-review');
+        Route::post('/owner-context/items/{item}/link', [JarvisOwnerContextController::class, 'link'])->name('owner-context.items.link');
+        Route::post('/owner-context/items/{item}/supersede', [JarvisOwnerContextController::class, 'supersede'])->name('owner-context.items.supersede');
+        Route::post('/owner-context/accept-safe', [JarvisOwnerContextController::class, 'acceptSafe'])->name('owner-context.accept-safe');
+        Route::post('/owner-context/reject-selected', [JarvisOwnerContextController::class, 'rejectSelected'])->name('owner-context.reject-selected');
         Route::get('/knowledge', [JarvisKnowledgeController::class, 'index'])
             ->middleware('throttle:30,1')
             ->name('knowledge.index');
@@ -370,6 +385,7 @@ Route::middleware(array_merge(AdminRouteMiddleware::stack(), ['user.active', 'ow
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+    Route::get('/owner-context', [OwnerContextAdminController::class, 'index'])->name('owner-context.index');
     Route::get('/production-readiness', [ProductionReadinessController::class, 'show'])->name('production-readiness.show');
 
     Route::get('/telegram-groups', [TelegramGroupController::class, 'index'])->name('telegram-groups.index');
